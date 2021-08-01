@@ -6,6 +6,7 @@ services:
         image: nexus.scolvo.solutions:18088/scolvo/scolvo-dep-proxy:1.3.0
         environment:
         - KEYCLOAK_ADMIN_ALLOWED_IP=${KEYCLOAK_ADMIN_ALLOWED_IP:-0.0.0.0/0}
+        - DEFAULT_REDIRECT_PATH=scolvo-webapp/
         ports:
         - '80:80'
         - '443:443'
@@ -165,6 +166,35 @@ services:
           options:
             max-size: "50m"
             max-file: "4"
+    webapp:
+        restart: always
+        container_name: webapp
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:1.28.0
+        environment:
+        - MQ_URL=${MQ_URL:-mq}
+        - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+        - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+        - AUTH_URL=${AUTH_URL:-auth}
+        - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+        - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+        - BUCKET_NAME=${BUCKET_NAME}
+        - REGION_NAME=${REGION_NAME}
+        - ENV=${ENV}
+        - SPRING_PROFILES_ACTIVE=${ADMIN_SPRING_PROFILES_ACTIVE:-}
+        - LIQUIBASE_CHANGELOG_FILE=file:/app/liquibase/changeLog.xml
+        volumes:
+        - ./assets/liquibase/mhub:/app/liquibase
+        - ./assets/config/webapp/auth.jks:/app/auth.jks
+        - ./assets/config/webapp/application.properties:/app/application.properties
+        ports:
+        - '29992:9991'
+        - '${MHUB_SPRING_PORT:-28082}:8081'
+        logging:
+          options:
+            max-size: "50m"
+            max-file: "4"
+
+
 volumes:
     authdb:
     bedb:
