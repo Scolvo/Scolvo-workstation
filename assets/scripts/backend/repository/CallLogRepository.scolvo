@@ -1,0 +1,73 @@
+function getCallLogsByUserId(userId) {
+  return select()
+    .selectAs("callLog.id", "id")
+    .selectAs("callLog.companyId", "companyId")
+    .selectAs("callLog.comment", "comment")
+    .selectAs("callLog.createdAt", "createdAt")
+    .from("callLog")
+    .join("innerJoin", table("company"), and(custom("callLog.companyId = company.companyId"), eq("company.userId", userId)))
+    .execute();
+}
+
+function getCallLogsByBusinessCenterId(businessCenterId) {
+  return select()
+    .selectAs("callLog.id", "id")
+    .selectAs("callLog.companyId", "companyId")
+    .selectAs("callLog.comment", "comment")
+    .selectAs("callLog.createdAt", "createdAt")
+    .from("callLog")
+    .join("innerJoin", table("company"), custom("callLog.companyId = company.companyId"))
+    .join("innerJoin", table("user"), and(eq("user.businessCenterId", businessCenterId), eq("user.role", "relationshipManager"), custom("company.userId = user.id")))
+    .execute();
+}
+
+function getRegularClientCallLogsByBusinessCenterId(businessCenterId) {
+  return select()
+    .selectAs("callLog.id", "id")
+    .selectAs("callLog.companyId", "companyId")
+    .selectAs("callLog.comment", "comment")
+    .selectAs("callLog.createdAt", "createdAt")
+    .from("callLog")
+    .join("innerJoin", table("company"), and(custom("callLog.companyId = company.companyId"), eq("company.companyType", "regular")))
+    .join("innerJoin", table("user"), and(eq("user.businessCenterId", businessCenterId), eq("user.role", "relationshipManager"), custom("company.userId = user.id")))
+    .execute();
+}
+
+function getRegularClientCallLogs() {
+  return select()
+    .selectAs("callLog.id", "id")
+    .selectAs("callLog.companyId", "companyId")
+    .selectAs("callLog.comment", "comment")
+    .selectAs("callLog.createdAt", "createdAt")
+    .from("callLog")
+    .join("innerJoin", table("company"), and(custom("callLog.companyId = company.companyId"), eq("company.companyType", "regular")))
+    .execute();
+}
+
+function getRegularClientCallLogsByBusinessCenterIds(businessCenterIds) {
+  var callLogs = [];
+  businessCenterIds.each(function (businessCenterId) {
+    callLogs.addAll(getRegularClientCallLogsByBusinessCenterId(businessCenterId));
+  });
+  return callLogs;
+}
+
+function getCallLogsByCompanyId(companyId) {
+  return select()
+    .from("callLog")
+    .where(eq("companyId", companyId))
+    .execute();
+}
+
+function deleteCallLogs(companyId) {
+  var callLogsDg = [];
+  getCallLogsByCompanyId(companyId).each(function (callLogDao) {
+    callLogsDg.add({
+      "id": callLogDao.id,
+      "changeType": "DELETE"
+    });
+    insertHistoryExecution("callLog", callLogDao);
+    deleteExecution("callLog", callLogDao.id);
+  });
+  publishBroadcast("callLog", callLogsDg);
+}

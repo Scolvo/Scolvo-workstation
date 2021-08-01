@@ -1,0 +1,90 @@
+import {
+  /common/TypeDefinitionExtension,
+  /backend/Jobs,
+  /backend/DataSync,
+  /backend/Requests,
+  /backend/importClient/ClientImport,
+  /backend/importClient/BankImport
+}
+
+importBanks();
+
+function onbusinessCenter_insert(originId) {}
+
+function onbusinessCenter_update(originId) {}
+
+function onuser_insert(originId) {
+  var userDao = $IN.data.map;
+  var userConfig = {
+     "id": userDao.id,
+     "enabled": true,
+     "name": userDao.name,
+     "email": userDao.email,
+     "password": userDao.password,
+     "username": userDao.username,
+     "realmRoles": ["authenticated", userDao.role]
+  };
+  createKeycloakUser(userConfig);
+}
+
+function onuser_update(originId) {
+  var userDao = $IN.data.map;
+  var userConfig = {
+    "id": userDao.id
+  };
+  if (userDao.containsKey("name")) {
+    userConfig.put("name", userDao.name);
+  }
+  if (userDao.containsKey("email")) {
+    userConfig.put("email", userDao.email);
+  }
+  if (userDao.containsKey("username")) {
+    userConfig.put("username", userDao.username);
+  }
+  if (userDao.containsKey("role")) {
+    userConfig.put("realmroles", ["authenticated", userDao.role]);
+  }
+  if (userDao.containsKey("password")) {
+    userConfig.put("password", userDao.password);
+  }
+  if (userDao.containsKey("status")) {
+    userConfig.put("enabled", userDao.get("status") == "active");
+  }
+  updateKeycloakUser(userConfig);
+}
+
+function oncallLog_insert(originId) {}
+
+function oncallLog_update(originId) {}
+
+function oncallLog_delete(originId) {}
+
+function onoffer_insert(originId) {}
+
+function onmeetingMemoProspect_insert(originId) {}
+
+function onmeetingMemoProspect_update(originId) {}
+
+function onmeetingMemoProspect_delete(originId) {}
+
+function onmeetingMemoRegular_insert(originId) {}
+
+function onmeetingMemoRegular_update(originId) {}
+
+function onmeetingMemoRegular_delete(originId) {}
+
+function onmeetingMemoProgress_insert(originId) {}
+
+function onmeetingMemoProgress_update(originId) {}
+
+function onmeetingMemoProgress_delete(originId) {}
+
+function onoffer_update(originId) {}
+
+function onoffer_delete(originId) {}
+
+function onuserActivity_insert(originId) {}
+
+function onuserActivity_update(originId) {}
+
+function onuserActivity_delete(originId) {}

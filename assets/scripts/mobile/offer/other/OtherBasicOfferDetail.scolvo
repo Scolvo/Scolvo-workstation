@@ -1,0 +1,64 @@
+import {
+  /mobile/Builders
+}
+
+function displayOtherBasicDetailFragment(originId) {
+  var actionEvents = [
+    buildSourceValueChangedEvent("Notes", "OtherNotesValueChanged"),
+    buildSourceClickedEvent("PrevButton", "OtherBasicDetailPrevButtonClicked"),
+    buildSourceClickedEvent("FinishButton", "OtherBasicDetailFinishButtonClicked"),
+    buildTargetValueChangeEvent("Notes", offerData.additionalConditionsNotes)
+  ];
+  displayFragment("IndicativeOfferFormContainer", OtherBasicDetailFragment, {}, originId, actionEvents);
+}
+
+fragment OtherBasicDetailFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+  isScrollable: true;
+
+  inputField Notes {
+    template: inputFieldSimple;
+    inputType: textArea;
+  }
+
+  container ButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button PrevButton {
+      template: secondaryMedium;
+    }
+
+    button FinishButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onOtherBasicDetailFragmentLoaded(originId) {
+}
+
+function onOtherNotesValueChanged(originId) {
+  offerData.put("additionalConditionsNotes", $IN.data.message);
+}
+
+function onOtherBasicDetailPrevButtonClicked(originId) {
+  displayIndicativeOfferFragment(originId);
+}
+
+function onOtherBasicDetailFinishButtonClicked(originId) {
+  if (validateOtherBasicDetailFragment(originId)) {
+    finishPage("IndicativeOfferPage", originId);
+    updateOfferNotes(originId);
+  }
+}
+
+function validateOtherBasicDetailFragment(originId) {
+  var isValid = true;
+  if(offerData.additionalConditionsNotes != null && offerData.additionalConditionsNotes.length() > 500) {
+    fireEvent(buildErrorValueChangeEvent("Notes", DICTIONARY.validationMsg_TooLong500), originId);
+    isValid = false;
+  }
+  return isValid;
+}

@@ -1,0 +1,114 @@
+import {
+  /mobile/SessionUser,
+  /mobile/calllog / EditCallLog,
+  /mobile/repository / CallLogRepository,
+  /common/TypeDefinitionExtension,
+  /mobile/repository / AttachmentRepository,
+  /mobile/Builders
+}
+
+var selectedCallLogDao = null;
+var selectedCallLogParentPageId;
+
+function displayCallLogDetailPage(originId, selectedCallLogId, parentPageId) {
+  selectedCallLogDao = getCallLogById(selectedCallLogId);
+  selectedCallLogParentPageId = parentPageId;
+
+  var attachmentButtonVisibility = "gone";
+  var pageActions = [];
+  if (sessionUserIsRM()) {
+    pageActions.addAll(["EditCallLog", "ShareCallLog", "DeleteCallLog"]);
+    attachmentButtonVisibility = "visible";
+  } else if(sessionUserIsBCM()) {
+    pageActions.add("EditCallLog");
+  }
+
+  var data = {
+    "CallLogDetailPage" : {
+      "actions": pageActions,
+      "headerText": selectedCallLogDao.createdAt,
+      "CallLogDetailsForm": {
+        "comment": selectedCallLogDao.comment
+      }
+    }
+  };
+
+  var actionEvents = [
+    buildTargetVisibilityChangeEvent("AttachmentButton", attachmentButtonVisibility),
+    buildSourceClickedEvent("AttachmentButton", "CallLogDetailAttachmentButtonClicked")
+  ];
+
+  display(CallLogDetailPage, data, originId, actionEvents);
+}
+
+page CallLogDetailPage {
+  layout: vertical;
+  template: detail;
+
+  form CallLogDetailsForm {
+    template: detail;
+    fields: [
+      field Comment => comment formItemReadOnlyFull
+    ]
+  }
+
+  container ButtonGroup {
+    layout: verticalButtonGroup;
+    span: 0;
+
+    button AttachmentButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onCallLogDetailPageLoaded(originId) {}
+
+function onEditCallLog(originId) {
+  displayEditCallLogPage(originId, selectedCallLogDao, selectedCallLogParentPageId);
+}
+
+function onDeleteCallLog(originId) {
+  display(DeleteCallLogConfirmPage, {}, originId);
+}
+
+function onCallLogDetailAttachmentButtonClicked(originId) {
+  displayAttachments("CallLogDetail", getAttachmentByCallLogId(selectedCallLogDao.id), DICTIONARY.page_CallLogDetailAttachmentPage_headerText);
+}
+
+function onCallLogDetailAddAttachment(originId) {
+  insertCallLogAttachment($IN.data, selectedCallLogDao.id);
+}
+
+function onCallLogDetailDeleteAttachment(originId) {
+  deleteAttachmentById($IN.data.id);
+}
+
+function onShareCallLog(originId) {
+  var requestData = {
+    "type": "shareCallLogRequest",
+    "userId": sessionUserId(),
+    "callLogId": selectedCallLogDao.id
+  };
+
+  sendDataChangeRq(originId, "request", [requestData]);
+  fireEvent(buildShortToastNotificationEvent(DICTIONARY.shareToastMessage), originId);
+}
+
+page DeleteCallLogConfirmPage {
+  template: confirmationPopup;
+  layout: vertical;
+}
+
+function onDeleteCallLogConfirmPageSave(originId) {
+  finishPage("CallLogDetailPage", originId);
+  fireEvent(buildRemoveItemEvent("CallLogsList", selectedCallLogDao.id), selectedCallLogParentPageId);
+  fireEvent(buildRemoveItemEvent("CallLogSearchList", selectedCallLogDao.id), "AdvancedSearchPage");
+
+  selectedCallLogDao.put("changeType", "DELETE");
+  deleteExecution("callLog", selectedCallLogDao.id);
+  sendDataChangeRq(originId, "callLog", [selectedCallLogDao]);
+  deleteCallLogAttachmentByCallLogId(selectedCallLogDao.id);
+}
+
+function onDeleteCallLogConfirmPageCancel(originId) {}

@@ -1,0 +1,57 @@
+import {
+  /mobile/client/ProspectClientDetail
+}
+
+function displayProspectClientsPage(originId) {
+  var data = {
+    "ProspectClientsPage": {
+      "ProspectClientList": getProspectClientsData(20, 0, null)
+    }
+  };
+  display(ProspectClientsPage, data, originId);
+}
+
+page ProspectClientsPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: true;
+
+  list ProspectClientList {
+    template: listVerticalNormal;
+    filterVisible: true;
+    span: 0;
+    paged: true;
+    pageThreshold: 20;
+    itemTemplate: listItemMultiLine;
+    columns: [
+      mainText => name,
+      subText => clientIdAndRepName
+    ]
+  }
+}
+
+function onProspectClientListFilterCount(originId) {
+  return getRegularOrProspectClientsDataCount("companyProspect", $IN.data.prefix);
+}
+
+function onProspectClientListLoadData(originId) {
+  return getProspectClientsData($IN.data.rowCount, $IN.data.offsetCount, $IN.data.prefix);
+}
+
+function onProspectClientsPageLoaded(originId) {}
+
+function getProspectClientsData(rowCount, offsetCount, filterPrefix) {
+  return getProspectOrRegularClients("companyProspect", rowCount, offsetCount, filterPrefix).map(function (prospectClient) {
+      return {
+        "id": prospectClient.id,
+        "name": prospectClient.name,
+        "clientIdAndRepName": prospectClient.companyId + ", " + prospectClient.contactPerson
+      };
+    });
+}
+
+function onProspectClientListSelectionChanged(originId) {
+  var companyDao = getCompanyById($IN.data.id);
+  displayProspectClientDetailPage(originId, $IN.data.name, companyDao.companyId);
+}

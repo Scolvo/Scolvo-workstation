@@ -1,0 +1,11 @@
+function getUserByUserId(userId) {
+  var userDaos = select()
+  .from("user")
+  .where(eq("id", userId))
+  .execute();
+
+  if(userDaos.isEmpty()) {
+    return null;
+  }
+  return userDaos.get(0);
+}

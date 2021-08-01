@@ -1,0 +1,112 @@
+import {
+  /mhub/user / CreateUser,
+  /mhub/user / ModifyUser,
+  /mhub/repository / UserRepository
+}
+
+function displayUsersPage(originId) {
+  var usersData = getUsers()
+    .map(function(userDao) {
+      return buildUserListRowFromDao(userDao);
+    });
+
+  var data = {
+    "UsersPage": {
+      "UsersList": usersData
+    }
+  };
+  display(UsersPage, data, originId);
+}
+
+page UsersPage {
+  layout: vertical;
+  template: general;
+
+  list UsersList {
+    template: normal;
+    itemTemplate: defaultItem;
+    span: 24;
+    filterVisible: true;
+    actions: [
+      CreateUser
+    ]
+    columns: [
+      name,
+      email,
+      role,
+      businessCenter
+    ]
+  }
+}
+
+function getUserRowById(id) {
+  var userDaos = select()
+    .selectAs("id")
+    .selectAs("name")
+    .selectAs("email")
+    .selectAs("status")
+    .selectAs("role")
+    .from("user")
+    .where(eq("id", id))
+    .execute();
+
+  if (userDaos.isEmpty()) {
+    throw UserNotFoundException;
+  }
+  return userDaos.get(0);
+}
+
+function onUsersPageLoaded(originId) {}
+
+function onEnableUser(originId) {
+  changeUserStatus("active", $IN.recordId, originId);
+}
+
+function onDisableUser(originId) {
+  changeUserStatus("inactive", $IN.recordId, originId);
+}
+
+function onCreateUser(originId) {
+  displayCreateUserPage(originId);
+}
+
+function onModifyUser(originId) {
+  displayUserModifyPage(originId, $IN.recordId);
+}
+
+function changeUserStatus(newUserStatus, recordId, originId) {
+  var userDao = getUserRowById(recordId);
+  userDao.put("status", newUserStatus);
+  userDao.put("changeType", "UPDATE");
+  updateExecution("user", userDao.id, userDao);
+  sendDataChangeRq(originId, "user", [userDao.deepClone()]);
+  fireEvent(buildRefreshItemEvent("UsersList", [buildUserListRowFromDao(userDao)]), originId);
+}
+
+function buildUserListRowFromDao(userDao) {
+  userDao.put("actions", ["ModifyUser"]);
+  if (userDao.status == "active") {
+    userDao.get("actions").add("DisableUser");
+  } else {
+    userDao.get("actions").add("EnableUser");
+  }
+  userDao.put("role", resolveUserRole(userDao.role));
+  return userDao;
+}
+
+function resolveUserRole(userRole) {
+  if (userRole == ROLE_RELATIONSHIP_MANAGER) {
+    return DICTIONARY.role_relationship_manager;
+  } else if (userRole == ROLE_ADMIN) {
+    return DICTIONARY.role_admin;
+  } else if (userRole == ROLE_CORPORATE_MANAGER) {
+    return DICTIONARY.role_corporate_manager;
+  } else if (userRole == ROLE_BUSINESS_CENTER_MANAGER) {
+    return DICTIONARY.role_business_center_manager;
+  } else if (userRole == ROLE_HEAD_CORPORATE_MANAGER) {
+    return DICTIONARY.role_head_corporate_manager;
+  }
+  else {
+    throw UnknownAuthorization;
+  }
+}

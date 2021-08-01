@@ -1,0 +1,56 @@
+import {
+  /mobile/search/company/CompanySearch,
+  /mobile/search/contact/ContactSearch,
+  /mobile/search/callLog/CallLogSearch,
+  /mobile/search/memo/MemoSearch,
+  /mobile/search/offer/OfferSearch
+}
+
+function displayAdvancedSearchPage(originId) {
+  var data = {
+    "AdvancedSearchPage": {
+      "AdvancedSearchTabContainer": {
+        "tabs": [
+          "CompanySearchFragment",
+          "ContactSearchFragment",
+          "CallLogSearchFragment",
+          "MemoSearchFragment",
+          "OfferSearchFragment"]
+      }
+    }
+  };
+  display(AdvancedSearchPage, data, originId);
+}
+
+page AdvancedSearchPage {
+  layout: vertical;
+  template: general;
+
+  container AdvancedSearchTabContainer {
+      layout: tab;
+      template: scrollable;
+      span: 0;
+  }
+}
+
+function onAdvancedSearchPageLoaded(originId) {}
+
+function onCompanySearchFragment(originId) {
+  displayCompanySearchFragment(originId, "AdvancedSearchTabContainer");
+}
+
+function onContactSearchFragment(originId) {
+  displayContactSearchFragment(originId, "AdvancedSearchTabContainer");
+}
+
+function onCallLogSearchFragment(originId) {
+  displayCallLogSearchFragment(originId, "AdvancedSearchTabContainer");
+}
+
+function onMemoSearchFragment(originId) {
+  displayMemoSearchFragment(originId, "AdvancedSearchTabContainer");
+}
+
+function onOfferSearchFragment(originId) {
+  displayOfferSearchFragment(originId, "AdvancedSearchTabContainer");
+}

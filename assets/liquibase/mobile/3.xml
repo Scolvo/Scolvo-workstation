@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="3" author="attila.kesztyus@scolvo.com">
+
+    <createIndex tableName="user" indexName="user_businessCenterId_idx">
+      <column name="businessCenterId"/>
+    </createIndex>
+
+    <createIndex tableName="company" indexName="company_userId_idx">
+      <column name="userId"/>
+    </createIndex>
+    <createIndex tableName="company" indexName="company_companyType_idx">
+      <column name="companyType"/>
+    </createIndex>
+    <createIndex tableName="company" indexName="company_businessActivityId_idx">
+      <column name="businessActivityId"/>
+    </createIndex>
+    <createIndex tableName="company" indexName="company_name_idx">
+      <column name="name"/>
+    </createIndex>
+    <createIndex tableName="company" indexName="company_contactPerson_idx">
+      <column name="contactPerson"/>
+    </createIndex>
+    <createIndex tableName="company" indexName="company_city_idx">
+      <column name="city"/>
+    </createIndex>
+    <createIndex tableName="company" indexName="company_businessActivity_idx">
+      <column name="businessActivity"/>
+    </createIndex>
+
+
+    <createIndex tableName="businessCenter" indexName="businessCenter_businessCenterCode_idx">
+      <column name="businessCenterCode"/>
+    </createIndex>
+
+    <createIndex tableName="contact" indexName="contact_companyId_idx">
+      <column name="companyId"/>
+    </createIndex>
+    <createIndex tableName="contact" indexName="contact_name_idx">
+      <column name="name"/>
+    </createIndex>
+
+    <createIndex tableName="callLog" indexName="callLog_companyId_idx">
+      <column name="companyId"/>
+    </createIndex>
+    <createIndex tableName="callLog" indexName="callLog_createdAt_idx">
+      <column name="createdAt"/>
+    </createIndex>
+    <createIndex tableName="callLog" indexName="callLog_comment_idx">
+      <column name="comment"/>
+    </createIndex>
+
+    <createIndex tableName="companyProspect" indexName="companyProspect_companyId_idx">
+      <column name="companyId"/>
+    </createIndex>
+    <createIndex tableName="companyProspect" indexName="companyProspect_nbsClassification_idx">
+      <column name="nbsClassification"/>
+    </createIndex>
+    <createIndex tableName="companyProspect" indexName="companyProspect_financialRating_idx">
+      <column name="financialRating"/>
+    </createIndex>
+    <createIndex tableName="companyProspect" indexName="companyProspect_accountInVoban_idx">
+      <column name="accountInVoban"/>
+    </createIndex>
+    <createIndex tableName="companyProspect" indexName="companyProspect_exporter_idx">
+      <column name="exporter"/>
+    </createIndex>
+
+    <createIndex indexName="companyRegular_companyId_idx" tableName="companyRegular">
+      <column name="companyId"/>
+    </createIndex>
+    <createIndex tableName="companyRegular" indexName="companyRegular_mb_idx">
+      <column name="mb"/>
+    </createIndex>
+    <createIndex tableName="companyRegular" indexName="companyRegular_overdue_idx">
+      <column name="overdue"/>
+    </createIndex>
+
+    <createIndex tableName="meetingMemoProspect" indexName="meetingMemoProspect_companyProspectId_idx">
+      <column name="companyProspectId"/>
+    </createIndex>
+    <createIndex tableName="meetingMemoProspect" indexName="meetingMemoProspect_bankId_idx">
+      <column name="bankId"/>
+    </createIndex>
+    <createIndex tableName="meetingMemoProspect" indexName="meetingMemoProspect_plannedMeetingDate_idx">
+      <column name="plannedMeetingDate"/>
+    </createIndex>
+
+    <createIndex tableName="meetingMemoProgress" indexName="meetingMemoProgress_userId_idx">
+      <column name="userId"/>
+    </createIndex>
+    <createIndex tableName="meetingMemoProgress" indexName="meetingMemoProgress_meetingMemoId_idx">
+      <column name="meetingMemoId"/>
+    </createIndex>
+
+    <createIndex tableName="buyerSupplier" indexName="buyerSupplier_meetingMemoId_idx">
+      <column name="meetingMemoId"/>
+    </createIndex>
+    <createIndex tableName="buyerSupplier" indexName="buyerSupplier_type_idx">
+      <column name="type"/>
+    </createIndex>
+
+    <createIndex indexName="meetingMemoRegular_companyRegularId_idx" tableName="meetingMemoRegular">
+      <column name="companyRegularId"/>
+    </createIndex>
+    <createIndex tableName="meetingMemoRegular" indexName="meetingMemoRegular_bankId_idx">
+      <column name="bankId"/>
+    </createIndex>
+    <createIndex tableName="meetingMemoRegular" indexName="meetingMemoRegular_mainBankId_idx">
+      <column name="mainBankId"/>
+    </createIndex>
+    <createIndex tableName="meetingMemoRegular" indexName="meetingMemoRegular_plannedMeetingDate_idx">
+      <column name="plannedMeetingDate"/>
+    </createIndex>
+
+    <createIndex tableName="exposure" indexName="exposure_companyRegularId_idx">
+      <column name="companyRegularId"/>
+    </createIndex>
+    <createIndex tableName="exposure" indexName="exposure_account_idx">
+      <column name="account"/>
+    </createIndex>
+    <createIndex tableName="exposure" indexName="exposure_stage_idx">
+      <column name="stage"/>
+    </createIndex>
+
+    <createIndex tableName="offer" indexName="offer_companyId_idx">
+      <column name="companyId"/>
+    </createIndex>
+    <createIndex tableName="offer" indexName="offer_offerType_idx">
+      <column name="offerType"/>
+    </createIndex>
+    <createIndex tableName="offer" indexName="offer_deliveryDeadline_idx">
+      <column name="deliveryDeadline"/>
+    </createIndex>
+    <createIndex tableName="offer" indexName="offer_status_idx">
+      <column name="status"/>
+    </createIndex>
+    <createIndex tableName="offer" indexName="offer_statusDate_idx">
+      <column name="statusDate"/>
+    </createIndex>
+
+    <createIndex indexName="offerLoan_offerId_idx" tableName="offerLoan">
+      <column name="offerId"/>
+    </createIndex>
+    <createIndex tableName="offerLoan" indexName="offerLoan_typeOfLoan_idx">
+      <column name="typeOfLoan"/>
+    </createIndex>
+
+    <createIndex indexName="offerGuarantee_offerId_idx" tableName="offerGuarantee">
+      <column name="offerId"/>
+    </createIndex>
+
+    <createIndex indexName="offerFrameLine_offerId_idx" tableName="offerFrameLine">
+      <column name="offerId"/>
+    </createIndex>
+
+    <createIndex indexName="offerDeposit_offerId_idx" tableName="offerDeposit">
+      <column name="offerId"/>
+    </createIndex>
+    <createIndex tableName="offerDeposit" indexName="offerDeposit_offerValidityPeriod_idx">
+      <column name="offerValidityPeriod"/>
+    </createIndex>
+
+    <createIndex tableName="attachment" indexName="attachment_callLogId_idx">
+      <column name="callLogId"/>
+    </createIndex>
+    <createIndex tableName="attachment" indexName="attachment_offerId_idx">
+      <column name="offerId"/>
+    </createIndex>
+    <createIndex tableName="attachment" indexName="attachment_meetingMemoRegularId_idx">
+      <column name="meetingMemoRegularId"/>
+    </createIndex>
+    <createIndex tableName="attachment" indexName="attachment_meetingMemoProspectId_idx">
+      <column name="meetingMemoProspectId"/>
+    </createIndex>
+
+  </changeSet>
+
+</databaseChangeLog>

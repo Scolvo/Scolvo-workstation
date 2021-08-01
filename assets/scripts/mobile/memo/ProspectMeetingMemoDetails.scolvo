@@ -1,0 +1,233 @@
+import {
+  /mobile/repository/MeetingMemoRepository,
+  /mobile/repository/BankRepository,
+  /mobile/repository/AttachmentRepository,
+  /mobile/SessionUser,
+  /mobile/Builders
+}
+
+var selectedProspectMeetingMemoId = null;
+
+function displayProspectMeetingMemoDetailsPage(originId, meetingMemoId) {
+  selectedProspectMeetingMemoId = meetingMemoId;
+  var meetingMemoDao = getProspectMeetingMemoById(meetingMemoId);
+  var mainBuyerDaos = getBuyersByMeetingMemoId(meetingMemoId);
+  var mainSupplierDaos = getSuppliersByMeetingMemoId(meetingMemoId);
+  var bankDao = getBankById(meetingMemoDao.getOrDefault("bankId", "noId"));
+
+  var actionEvents = [
+    buildTargetVisibilityChangeEvent("MainBuyer1", "gone"),
+    buildTargetVisibilityChangeEvent("MainBuyer2", "gone"),
+    buildTargetVisibilityChangeEvent("MainBuyer3", "gone"),
+    buildTargetVisibilityChangeEvent("MainBuyer4", "gone"),
+    buildTargetVisibilityChangeEvent("MainSupplier1", "gone"),
+    buildTargetVisibilityChangeEvent("MainSupplier2", "gone"),
+    buildTargetVisibilityChangeEvent("MainSupplier3", "gone"),
+    buildTargetVisibilityChangeEvent("MainSupplier4", "gone")
+  ];
+
+  var mainActivity = "";
+  if(meetingMemoDao.registeredActivityIsMain != null) {
+    if(meetingMemoDao.registeredActivityIsMain) {
+      mainActivity = DICTIONARY.yes;
+    } else {
+      mainActivity = DICTIONARY.no;
+    }
+  }
+
+  var significantSeasonality = "";
+  if(meetingMemoDao.significantSeasonality != null) {
+    if(meetingMemoDao.significantSeasonality) {
+      significantSeasonality = DICTIONARY.yes;
+    } else {
+      significantSeasonality = DICTIONARY.no;
+    }
+  }
+
+  var retailNetwork = "";
+  if(meetingMemoDao.retailNetwork != null) {
+    if(meetingMemoDao.retailNetwork) {
+      retailNetwork = DICTIONARY.yes;
+    } else {
+      retailNetwork = DICTIONARY.no;
+    }
+  }
+
+  var bankName = "";
+  if (bankDao != null) {
+    bankName = bankDao.name;
+  }
+
+  var hasNewPhoneNumber = "";
+  if(meetingMemoDao.hasNewPhoneNumber != null) {
+    if(meetingMemoDao.hasNewPhoneNumber) {
+      hasNewPhoneNumber = DICTIONARY.yes;
+    } else {
+      hasNewPhoneNumber = DICTIONARY.no;
+    }
+  }
+
+  if(meetingMemoDao.newPhoneNumber == null) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("NewPhoneNumber", "gone"));
+  }
+
+  var nextCallDate = "";
+  if (meetingMemoDao.nextCallDate != null && meetingMemoDao.nextCallDate != 0) {
+    nextCallDate = dateToString(meetingMemoDao.nextCallDate, "dd.MM.yyyy.");
+  }
+
+  var formData = {
+    "mainActivity": mainActivity,
+    "coreBusiness": meetingMemoDao.getOrDefault("coreBusiness", ""),
+    "significantSeasonality": significantSeasonality,
+    "beginningOfSeason": meetingMemoDao.getOrDefault("beginningOfSeason", "").toString(),
+    "retailNetwork": retailNetwork,
+    "numberOfStores": resolveNumberOfStores(meetingMemoDao.getOrDefault("numberOfStores", "")),
+    "termOfBuyersPayment": resolvePaymentTerm(meetingMemoDao.getOrDefault("termOfBuyersPayment", "")),
+    "termOfSuppliersPayment": resolvePaymentTerm(meetingMemoDao.getOrDefault("termOfSuppliersPayment", "")),
+    "bank": bankName,
+    "hasNewPhoneNumber": hasNewPhoneNumber,
+    "newPhoneNumber": meetingMemoDao.getOrDefault("newPhoneNumber", ""),
+    "wantsOffer": resolveWantsOffer(meetingMemoDao.getOrDefault("wantsOffer", "")),
+    "nextCallDate": nextCallDate,
+    "comment": meetingMemoDao.getOrDefault("comment", "")
+  };
+
+  var pageActions = [];
+
+  if(sessionUserIsRM()) {
+    pageActions.addAll(["EditProspectMeetingMemo", "DeleteProspectMeetingMemo", "ProspectMeetingMemoAttachment", "ProspectMeetingMemoShare"]);
+  }
+
+  for (var i = 0; i < mainBuyerDaos.size(); i += 1) {
+    formData.put("mainBuyer" + i, mainBuyerDaos.get(i).name);
+    actionEvents.add(buildTargetVisibilityChangeEvent("MainBuyer" + i, "visible"));
+  }
+
+  for (var i = 0; i < mainSupplierDaos.size(); i += 1) {
+    formData.put("mainSupplier" + i, mainSupplierDaos.get(i).name);
+    actionEvents.add(buildTargetVisibilityChangeEvent("MainSupplier" + i, "visible"));
+  }
+
+  var data = {
+    "ProspectMeetingMemoDetailsPage": {
+      "actions": pageActions,
+      "ProspectMeetingMemoDetailForm": formData
+    }
+  };
+  display(ProspectMeetingMemoDetailsPage, data, originId, actionEvents);
+}
+
+page ProspectMeetingMemoDetailsPage {
+  layout: vertical;
+  template: detail;
+  scolvoMenuVisible: false;
+
+  form ProspectMeetingMemoDetailForm {
+    template: detail;
+    span: 0;
+    fields: [
+      field MainActivity => mainActivity formItemReadOnlyFull,
+      field CoreBusiness => coreBusiness formItemReadOnlyFull,
+      field SignificantSeasonality => significantSeasonality formItemReadOnlyFull,
+      field BeginningOfSeason => beginningOfSeason formItemReadOnlyFull,
+      field RetailNetwork => retailNetwork formItemReadOnlyFull,
+      field NumberOfStores => numberOfStores formItemReadOnlyFull,
+      field MainBuyer0 => mainBuyer0 formItemReadOnlyFull,
+      field MainBuyer1 => mainBuyer1 formItemReadOnlyFull,
+      field MainBuyer2 => mainBuyer2 formItemReadOnlyFull,
+      field MainBuyer3 => mainBuyer3 formItemReadOnlyFull,
+      field MainBuyer4 => mainBuyer4 formItemReadOnlyFull,
+      field TermOfBuyersPayment => termOfBuyersPayment formItemReadOnlyFull,
+      field MainSupplier0 => mainSupplier0 formItemReadOnlyFull,
+      field MainSupplier1 => mainSupplier1 formItemReadOnlyFull,
+      field MainSupplier2 => mainSupplier2 formItemReadOnlyFull,
+      field MainSupplier3 => mainSupplier3 formItemReadOnlyFull,
+      field MainSupplier4 => mainSupplier4 formItemReadOnlyFull,
+      field TermOfSuppliersPayment => termOfSuppliersPayment formItemReadOnlyFull,
+      field Bank => bank formItemReadOnlyFull,
+      field HasNewPhoneNumber => hasNewPhoneNumber formItemReadOnlyFull,
+      field NewPhoneNumber => newPhoneNumber formItemReadOnlyPhone,
+      field WantsOffer => wantsOffer formItemReadOnlyFull,
+      field NextCallDate => nextCallDate formItemReadOnlyFull,
+      field Comment => comment formItemReadOnlyFull
+    ]
+  }
+}
+
+function onProspectMeetingMemoDetailsPageLoaded(originId) {}
+
+function onEditProspectMeetingMemo(originId) {
+  selectedClientType = "prospect";
+  displayMeetingMemoPage(originId, selectedProspectMeetingMemoId);
+  finishPage("ProspectMeetingMemoDetailsPage", originId);
+}
+
+function onDeleteProspectMeetingMemo(originId) {
+  display(DeleteProspectMeetingMemoConfirmPage, {}, originId);
+}
+
+function onProspectMeetingMemoAttachment(originId) {
+  displayAttachments("ProspectMeetingMemoDetail", getAttachmentByProspectMeetingMemoId(selectedProspectMeetingMemoId), DICTIONARY.page_ProspectMeetingMemoAttachmentPage_headerText);
+}
+
+function onProspectMeetingMemoDetailAddAttachment(originId) {
+  insertProspectMeetingMemoAttachment($IN.data, selectedProspectMeetingMemoId);
+}
+
+function onProspectMeetingMemoDetailDeleteAttachment(originId) {
+  deleteAttachmentById($IN.data.id);
+}
+
+function onProspectMeetingMemoShare(originId) {
+  var requestData = {
+    "type": "shareProspectMeetingMemo",
+    "userId": sessionUserId(),
+    "prospectMeetingMemoId": selectedProspectMeetingMemoId
+  };
+
+  sendDataChangeRq(originId, "request", [requestData]);
+  fireEvent(buildShortToastNotificationEvent(DICTIONARY.shareToastMessage), originId);
+}
+
+page DeleteProspectMeetingMemoConfirmPage {
+  template: confirmationPopup;
+  layout: vertical;
+}
+
+function onDeleteProspectMeetingMemoConfirmPageSave(originId) {
+  finishPage("ProspectMeetingMemoDetailsPage", originId);
+  fireEvent(buildRemoveItemEvent("MeetingMemoRMList", selectedProspectMeetingMemoId), "ProspectClientDetailPage");
+  deleteSelectedProspectMeetingMemo();
+  deleteProspectMeetingmemoAttachmentById(selectedProspectMeetingMemoId);
+  fireEvent(buildRefreshItemEvent("MemoSearchList", getMeetingMemoSearchDataByDateAndContent(20, 0)), "AdvancedSearchPage");
+}
+
+function onDeleteProspectMeetingMemoConfirmPageCancel(originId) {}
+
+function deleteSelectedProspectMeetingMemo() {
+  var deleteMeetingMemoDao = {
+    "id": selectedProspectMeetingMemoId,
+    "changeType": "DELETE"
+  };
+  deleteExecution("meetingMemoProspect", selectedProspectMeetingMemoId);
+  sendDataChangeRq(originId, "meetingMemoProspect", [deleteMeetingMemoDao]);
+}
+
+function resolveNumberOfStores(selectedValue) {
+  if(selectedValue.isEmpty()) {
+    return selectedValue;
+  }
+  return DICTIONARY.get("numberOfStores_option_" + selectedValue);
+}
+
+function resolvePaymentTerm(selectedValue) {
+  if(selectedValue.isEmpty()) {
+    return selectedValue;
+  }
+  return DICTIONARY.get("paymentTerm_option_" + selectedValue);
+}
+
+function resolveWantsOffer(selectedValue) {
+  return DICTIONARY.get(selectedValue);
+}

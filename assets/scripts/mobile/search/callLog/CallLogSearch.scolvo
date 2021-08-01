@@ -1,0 +1,125 @@
+import {
+  /mobile/Builders,
+  /mobile/repository / CallLogRepository,
+  /mobile/calllog / CallLogDetail
+}
+
+var callLogSearchComment;
+var callLogSearchFrom;
+var callLogSearchTo;
+
+function displayCallLogSearchFragment(originId, fragmentContainerId) {
+  callLogSearchComment = null;
+  callLogSearchFrom = dateSubtract(now(), 1, "week").getTime();
+  callLogSearchTo = nowInMillis();
+
+  displayFragment(fragmentContainerId, CallLogSearchFragment, {}, originId);
+}
+
+fragment CallLogSearchFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list CallLogSearchList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCard;
+    span: 0;
+    paged: true;
+    pageThreshold: 20;
+    actions: [
+      CallLogSearch
+    ]
+    columns: [
+      mainText => clientName,
+      text => createdAtAndComment
+    ]
+  }
+}
+
+function onCallLogSearchFragmentLoaded(originId) {}
+
+function onCallLogSearch(originId) {
+  var actionEvents = [
+    buildSourceValueChangedEvent("CommentSearch", "CallLogCommentSearchValueChanged"),
+    buildSourceValueChangedEvent("CallLogFrom", "CallLogFromValueChanged"),
+    buildSourceValueChangedEvent("CallLogTo", "CallLogToValueChanged"),
+    buildSourceClickedEvent("SearchButton", "CallLogSearchButtonClicked"),
+    buildTargetValueChangeEvent("CommentSearch", callLogSearchComment),
+    buildTargetValueChangeEvent("CallLogFrom", callLogSearchFrom),
+    buildTargetValueChangeEvent("CallLogTo", callLogSearchTo)
+  ];
+  display(CallLogSearchPopup, {}, originId, actionEvents);
+}
+
+page CallLogSearchPopup {
+  layout: vertical;
+  template: popup;
+
+  inputField CallLogFrom {
+    template: inputFieldSimple;
+    inputType: fullDate;
+    isDeletable: true;
+  }
+
+  inputField CallLogTo {
+    template: inputFieldSimple;
+    inputType: fullDate;
+    isDeletable: true;
+  }
+
+  inputField CommentSearch {
+    template: inputFieldSimple;
+    inputType: text;
+    isDeletable: true;
+  }
+
+  button SearchButton {
+    template: primaryMedium;
+  }
+
+}
+
+function onCallLogSearchPopupCancel(originId) {}
+
+function onCallLogSearchListLoadData(originId) {
+  return getCallLogSearchDataByDateAndComment($IN.data.rowCount, $IN.data.offsetCount);
+}
+
+function onCallLogSearchListSelectionChanged(originId) {
+  displayCallLogDetailPage(originId, $IN.data.id, "AdvancedSearchPage");
+}
+
+function onCallLogCommentSearchValueChanged(originId) {
+  callLogSearchComment = $IN.data.message;
+}
+
+function onCallLogFromValueChanged(originId) {
+  if ($IN.data.date == null) {
+    callLogSearchFrom = null;
+  } else {
+    var dateFromString = dateToString($IN.data.date, "dd.MM.yyyy") + " 00:00";
+    callLogSearchFrom = parseStringToDate(dateFromString, "dd.MM.yyyy HH:mm").getTime();
+  }
+}
+
+function onCallLogToValueChanged(originId) {
+  if ($IN.data.date == null) {
+    callLogSearchTo = null;
+  } else {
+    var callLogDateToString = dateToString($IN.data.date, "dd.MM.yyyy") + " 23:59";
+    callLogSearchTo = parseStringToDate(callLogDateToString, "dd.MM.yyyy HH:mm").getTime();
+  }
+}
+
+function getCallLogSearchDataByDateAndComment(rowCount, offsetCount) {
+  return searchCallLogByDateAndComment(callLogSearchComment, callLogSearchFrom, callLogSearchTo, !sessionUserIsRM(), rowCount, offsetCount).map(function(callLogDao) {
+    return buildCallLogListItem(callLogDao, true);
+  });
+}
+
+function onCallLogSearchButtonClicked(originId) {
+  hideSoftKeyboard();
+  finishPage("CallLogSearchPopup", originId);
+  fireEvent(buildRefreshItemEvent("CallLogSearchList", getCallLogSearchDataByDateAndComment(20, 0)), originId);
+}

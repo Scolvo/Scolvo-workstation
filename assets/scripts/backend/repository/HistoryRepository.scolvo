@@ -1,0 +1,9 @@
+import {
+  /common/TypeDefinitionExtension
+}
+
+function insertHistoryExecution(tableName, originalDao) {
+  originalDao.put("updatedBy", "importJob");
+  originalDao.put("updatedAt", nowInMillis());
+  insertExecution(tableName + "_history", originalDao);
+}

@@ -1,0 +1,58 @@
+import {
+  /mobile/memo/TimeOfMeeting
+}
+
+var meetingMemoData = {};
+
+function displayMeetingMemoPage(originId, meetingMemoId) {
+  meetingMemoData.clear();
+  var companyNameText;
+  var meetingMemoDao;
+  if(selectedClientType == "regular") {
+    companyNameText = regularClientCompanyName;
+    meetingMemoDao = getRegularMeetingMemoById(meetingMemoId);
+  }
+  else if(selectedClientType == "prospect") {
+    companyNameText = prospectClientCompanyName;
+    meetingMemoDao = getProspectMeetingMemoById(meetingMemoId);
+  }
+  else {
+    throw UnknownClientTypeException;
+  }
+  if(meetingMemoDao != null) {
+    meetingMemoData = meetingMemoDao.deepClone();
+  }
+  var actionEvents = [
+    buildTargetTextChange("MeetingMemoCompanyNameLabel", companyNameText),
+  ];
+  display(MeetingMemoPage, {}, originId, actionEvents);
+}
+
+page MeetingMemoPage {
+  layout: vertical;
+  template: detail;
+  scolvoMenuVisible: false;
+
+  spacer {
+    span: 32;
+  }
+
+  label MeetingMemoQuestionareLabel {
+    template: heading4Secondary;
+    alignment: center;
+  }
+  label MeetingMemoCompanyNameLabel {
+    template: heading4Secondary;
+    alignment: center;
+  }
+
+  spacer {
+    span: 8;
+  }
+
+  fragmentContainer MeetingMemoFragmentContainer {}
+}
+
+function onMeetingMemoPageLoaded(originId) {
+  displayTimeOfMeetingFragment(originId, "MeetingMemoFragmentContainer");
+}

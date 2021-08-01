@@ -1,0 +1,15 @@
+function getBusinessCenter() {
+  return select().from("businessCenter").execute().get(0);
+}
+
+function getBusinessCenterById(businessCenterId) {
+  var result = select().from("businessCenter")
+  .where(eq("id", businessCenterId))
+  .execute();
+
+  if(result.isEmpty()) {
+    return null;
+  }
+
+  return result.get(0);
+}

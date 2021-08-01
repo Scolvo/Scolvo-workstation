@@ -1,0 +1,11 @@
+function publishBroadcast(typeDefinition, changeSet) {
+  if(!changeSet.isEmpty()) {
+    var broadcastDao = {
+      "originId": uuid(),
+      "typeDefinitionVersion": nowInMillis(),
+      "typeDefinition": typeDefinition,
+      "changeSet": changeSet
+    };
+    broadcastDatagram(broadcastDao, null);
+  }
+}

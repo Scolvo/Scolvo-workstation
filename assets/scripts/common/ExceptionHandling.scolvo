@@ -1,0 +1,13 @@
+function findException(rootException, exceptionToFind) {
+  if(rootException.getCause() != null) {
+    if(rootException.getCause().getClass().getSimpleName() == exceptionToFind) {
+      return rootException.getCause();
+    }
+    else {
+      return findException(rootException.getCause(), exceptionToFind);
+    }
+  }
+  else {
+    return null;
+  }
+}

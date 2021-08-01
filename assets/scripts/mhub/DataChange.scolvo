@@ -1,0 +1,128 @@
+import {
+  mhub / SessionUser,
+  common / TypeDefinitionExtension,
+  mhub / repository / BusinessCenterRepository,
+  mhub/clientImport/ImportProspectClient
+}
+
+var requestIds = [];
+
+function getRequestId() {
+  var generatedRequestId = uuid();
+  requestIds.add(generatedRequestId);
+  return generatedRequestId;
+}
+
+function sendDataChangeRq(originId_, typeDefinition_, changeset_) {
+  var dataChangeMsg = com.scolvo.core.vm.action.rq.DataChangeRq(uuid());
+  dataChangeMsg.setTypeDefinition(typeDefinition_);
+  dataChangeMsg.setTypeDefinitionVersion(nowInMillis());
+  dataChangeMsg.setChangeset(changeset_);
+  publish(dataChangeMsg);
+}
+
+var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
+  "businessCenter": {
+    "roles": ["administrator", "superAdministrator"]
+  },
+  "user": {
+    "roles": ["administrator", "superAdministrator", "businessCenterManager"]
+  },
+  "importMetadata": {
+    "roles": ["administrator", "superAdministrator", "businessCenterManager"]
+  },
+  "prospectClientImport": {
+    "roles": ["administrator", "superAdministrator"]
+  },
+};
+
+function onDataChangeDg(originId) {
+  if (getCurrentUser() == null) {
+    return null;
+  }
+  var changeset = $IN.changeset;
+  var typeDefinition = $IN.typeDefinition;
+  debug("Data change message arrive with type definition: " + typeDefinition + ", size: " + changeset.size());
+  if (typeDefinition == "userDataValidationResponse") {
+    handlingUserDataValidationResponse(changeset.get(0));
+    return null;
+  }
+  var typeDefinitionDescriptor = SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS.get(typeDefinition);
+  if (typeDefinitionDescriptor == null) {
+    debug(typeDefinition + " type definition is not supported by data change");
+    return null;
+  }
+  if (!sessionUserIsAvaibleRoles(typeDefinitionDescriptor.roles)) {
+    debug(typeDefinition + " type definition is not supported by user role");
+    return null;
+  }
+  changeset.each(function(changeDao) {
+    var changeType = changeDao.changeType;
+    if (changeType == "INSERT") {
+      insertChangeDao(typeDefinition, changeDao, originId);
+    } else if (changeType == "UPDATE") {
+      updateExecution(typeDefinition, changeDao.id, changeDao);
+    } else if (changeType == "DELETE") {
+      deleteExecution(typeDefinition, changeDao.id);
+    } else if (typeDefinition == "prospectClientImport") {
+      if (changeDao.userId == getCurrentUser().userId) {
+        if (!changeDao.errors) {
+          publishNotification({
+            "userId": changeDao.userId,
+            "level": "default",
+            "type": "text",
+            "duration": "long",
+            "message": DICTIONARY.prospectClient_import_success_msg
+          }, originId);
+        } else {
+          publishNotification({
+            "userId": changeDao.userId,
+            "level": "warning",
+            "type": "link",
+            "duration": "long",
+            "message": DICTIONARY.prospectClient_import_errors_msg,
+            "contentUrl": changeDao.reportUrl,
+            "contentUrlLabel" : "Download"
+          }, originId);
+        }
+      }
+    }
+  });
+}
+
+function handlingUserDataValidationResponse(response) {
+  if (!requestIds.contains(response.requestId)) {
+    return null;
+  }
+  if (response.operation == "create") {
+    // implementator: CreateUser.scolvo
+    saveUser(response.userDao, response.isEmailAddressAvailable);
+  } else if(response.operation == "modify") {
+    // implementatot: ModifyUser.scolvo
+    modifyUser(response.userDao, response.isEmailAddressAvailable);
+  }
+}
+
+function insertChangeDao(typeDefinition, changeDao, originId) {
+  if (typeDefinition == "businessCenter" && sessionUserIsAdmin()) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  } else if (typeDefinition == "user") {
+    if (sessionUserIsAdmin()) {
+      insertOrReplaceExecution(typeDefinition, changeDao);
+    } else if (sessionUserIsBusinessCenterManager() && getBusinessCenterById(changeDao.businessCenterId) != null) {
+      insertOrReplaceExecution(typeDefinition, changeDao);
+    }
+  } else if (typeDefinition == "importMetadata") {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+    refreshImportMetadataList(originId);
+  }
+}
+
+function publishNotification(dao,originId) {
+	var notifyActionEvent = {
+		"targetElementId": "Notification",
+		"targetElementEvent": "notify",
+		"data": dao
+	};
+	fireEvent(notifyActionEvent, originId);
+}

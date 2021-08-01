@@ -1,0 +1,114 @@
+import {
+  /mobile/Builders,
+  /mobile/contact / ContactBuilder,
+  /common/EmailFormatValidator,
+  /mobile/repository / ContactRepository
+}
+
+var addContactName;
+var addContactPhone;
+var addContactEmail;
+var addContactCompanyId;
+var addContactParentPageId;
+
+function displayAddContactPage(originId, selectedCompanyId, parentPageId) {
+  addContactName = "";
+  addContactPhone = null;
+  addContactEmail = null;
+  addContactCompanyId = selectedCompanyId;
+  addContactParentPageId = parentPageId;
+
+  var actionEvents = [
+    buildSourceValueChangedEvent("AddContactNameInput", "AddContactNameChanged"),
+    buildSourceValueChangedEvent("AddContactPhoneInput", "AddContactPhoneChanged"),
+    buildSourceValueChangedEvent("AddContactEmailInput", "AddContactEmailChanged"),
+    buildSourceClickedEvent("CancelButton", "AddContactCancelButtonClicked"),
+    buildSourceClickedEvent("SaveButton", "AddContactSaveButtonClicked")
+  ];
+  display(AddContactPage, {}, originId, actionEvents);
+}
+
+page AddContactPage {
+  layout: vertical;
+  template: general;
+
+  inputField AddContactNameInput {
+    inputType: text;
+  }
+
+  inputField AddContactPhoneInput {
+    inputType: number;
+  }
+
+  inputField AddContactEmailInput {
+    inputType: text;
+  }
+
+  container ActionContainer {
+    layout: horizontalButtonGroup;
+    span: 0;
+
+    button CancelButton {
+      template: secondaryMedium;
+    }
+
+    button SaveButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onAddContactPageLoaded(originId) {}
+
+function onAddContactCancelButtonClicked(originId) {
+  finishPage("AddContactPage", originId);
+}
+
+function onAddContactSaveButtonClicked(originId) {
+  if (!validateAddContact()) {
+    return null;
+  }
+  var addContactDao = {
+    "id": uuid(),
+    "companyId": addContactCompanyId,
+    "name": addContactName,
+    "phone": addContactPhone,
+    "email": addContactEmail,
+    "changeType": "INSERT"
+  };
+  insertExecution("contact", addContactDao);
+  sendDataChangeRq(originId, "contact", [addContactDao]);
+
+  var orderedContactDatas = getContactListFromContacts(getOrderedContactsForCompany(addContactCompanyId));
+  fireEvent(buildRefreshItemEvent("ContactList", orderedContactDatas), addContactParentPageId);
+
+  finishPage("AddContactPage", originId);
+}
+
+function validateAddContact() {
+  var validContact = true;
+  if (addContactName.isEmpty()) {
+    fireEvent(buildErrorValueChangeEvent("AddContactNameInput", DICTIONARY.contactValidationMsg_Name), originId);
+    validContact = false;
+  } else if (addContactName.length() > 50) {
+    fireEvent(buildErrorValueChangeEvent("AddContactNameInput", DICTIONARY.contactValidationMsg_NameTooLong), originId);
+    validContact = false;
+  }
+  if (addContactEmail != null && !addContactEmail.isEmpty() && !isEmailFormatValid(addContactEmail)) {
+    fireEvent(buildErrorValueChangeEvent("AddContactEmailInput", DICTIONARY.validationMsg_wrongEmailFormat), originId);
+    validContact = false;
+  }
+  return validContact;
+}
+
+function onAddContactNameChanged(originId) {
+  addContactName = $IN.data.message;
+}
+
+function onAddContactPhoneChanged(originId) {
+  addContactPhone = $IN.data.message;
+}
+
+function onAddContactEmailChanged(originId) {
+  addContactEmail = $IN.data.message;
+}

@@ -1,0 +1,36 @@
+function insertOrReplaceExecution(typeDefinition, dao) {
+  var insertUserQuery = insertOrReplace().from(typeDefinition);
+  dao.keySet().each(function(columnName) {
+    if (columnName != "changeType") {
+      insertUserQuery.set(columnName, dao.get(columnName));
+    }
+  });
+  insertUserQuery.execute();
+}
+
+function insertExecution(typeDefinition, dao) {
+  var insertUserQuery = insert().from(typeDefinition);
+  dao.keySet().each(function(columnName) {
+    if (columnName != "changeType") {
+      insertUserQuery.set(columnName, dao.get(columnName));
+    }
+  });
+  insertUserQuery.execute();
+}
+
+function updateExecution(typeDefinition, daoId, dao) {
+  var updateQuery = update().from(typeDefinition);
+  dao.keySet().each(function(columnName) {
+    if (columnName != "changeType") {
+      updateQuery.set(columnName, dao.get(columnName));
+    }
+  });
+  updateQuery.where(eq("id", daoId));
+  updateQuery.execute();
+}
+
+function deleteExecution(typeDefinition, daoId) {
+  var deleteQuery = delete().from(typeDefinition);
+  deleteQuery.where(eq("id", daoId));
+  deleteQuery.execute();
+}

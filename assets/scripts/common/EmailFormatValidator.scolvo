@@ -1,0 +1,5 @@
+var EMAIL_PATTERN = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+
+function isEmailFormatValid(emailAddress) {
+  return emailAddress.matches(EMAIL_PATTERN);
+}

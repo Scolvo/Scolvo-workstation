@@ -1,0 +1,136 @@
+function getOffersForCompany(companyId) {
+  return select()
+    .selectAs("id")
+    .selectAs("offerType")
+    .selectAs("status")
+    .selectAs("statusDate")
+    .selectAs("deliveryDeadline")
+    .selectAs("strftime('%d.%m.%Y. %H:%M', datetime(createdAt/1000, 'unixepoch'))", "createdAt")
+    .selectAs("strftime('%d.%m.%Y.', datetime(updatedAt/1000, 'unixepoch'))", "updatedAt")
+    .from("offer")
+    .where(eq("companyId", companyId))
+    .orderBy("statusDate", "desc")
+    .execute();
+}
+
+function getOfferById(offerId) {
+  var offerDaos = select()
+    .from("offer")
+    .where(eq("id", offerId))
+    .execute();
+  if (offerDaos.isEmpty()) {
+    return null;
+  }
+  return offerDaos.get(0);
+}
+
+function getGuaranteeOfferByOfferId(offerId) {
+  var guaranteeOfferDaos = select()
+    .from("offerGuarantee")
+    .where(eq("offerId", offerId))
+    .execute();
+  if(guaranteeOfferDaos.isEmpty()) {
+    return {};
+  }
+  return guaranteeOfferDaos.get(0);
+}
+
+function getLoanOfferByOfferId(offerId) {
+  var loanOfferDaos = select()
+    .from("offerLoan")
+    .where(eq("offerId", offerId))
+    .execute();
+  if(loanOfferDaos.isEmpty()) {
+    return {};
+  }
+  return loanOfferDaos.get(0);
+}
+
+function getFrameLineOfferByOfferId(offerId) {
+  var frameLineOfferDaos = select()
+    .from("offerFrameLine")
+    .where(eq("offerId", offerId))
+    .execute();
+  if(frameLineOfferDaos.isEmpty()) {
+    return {};
+  }
+  return frameLineOfferDaos.get(0);
+}
+
+function getDepositOfferByOfferId(offerId) {
+  var depositOfferDaos = select()
+    .from("offerDeposit")
+    .where(eq("offerId", offerId))
+    .execute();
+  if(depositOfferDaos.isEmpty()) {
+    return {};
+  }
+  return depositOfferDaos.get(0);
+}
+
+function searchOfferByTypeAndStatusAndStatusUpdate(offerType, offerStatus, fromDate, toDate, isBCM, rowCount, offsetCount) {
+  var searchOfferQuery = select()
+    .selectAs("offer.id")
+    .selectAs("offer.offerType")
+    .selectAs("offer.status")
+    .selectAs("company.name", "companyName")
+    .selectAs("statusDate")
+    .selectAs("deliveryDeadline")
+    .selectAs("strftime('%d.%m.%Y. %H:%M', datetime(createdAt/1000, 'unixepoch'))", "createdAt")
+    .selectAs("strftime('%d.%m.%Y.', datetime(updatedAt/1000, 'unixepoch'))", "updatedAt")
+    .from("offer")
+    .join("innerJoin", table("company"), custom("offer.companyId = company.companyId"));
+
+  if(isBCM) {
+    searchOfferQuery
+      .selectAs("user.name", "userName")
+      .join("innerJoin", table("user"), custom("company.userId = user.id"));
+  }
+
+  if (offerType != null && offerStatus != null) {
+    if (fromDate == null && toDate == null) {
+      searchOfferQuery.where(and(eq("offerType", offerType), eq("status", offerStatus)));
+    } else if (fromDate != null && toDate == null) {
+      searchOfferQuery.where(and(eq("offerType", offerType), eq("status", offerStatus), gEq("statusDate", fromDate)));
+    } else if (fromDate == null && toDate != null) {
+      searchOfferQuery.where(and(eq("offerType", offerType), eq("status", offerStatus), lEq("statusDate", toDate)));
+    } else if (fromDate != null && toDate != null) {
+      searchOfferQuery.where(and(eq("offerType", offerType), eq("status", offerStatus), between("statusDate", fromDate, toDate)));
+    }
+  } else if (offerType != null && offerStatus == null) {
+    if (fromDate == null && toDate == null) {
+      searchOfferQuery.where(eq("offerType", offerType));
+    } else if (fromDate != null && toDate == null) {
+      searchOfferQuery.where(and(eq("offerType", offerType), gEq("statusDate", fromDate)));
+    } else if (fromDate == null && toDate != null) {
+      searchOfferQuery.where(and(eq("offerType", offerType), lEq("statusDate", toDate)));
+    } else if (fromDate != null && toDate != null) {
+      searchOfferQuery.where(and(eq("offerType", offerType), between("statusDate", fromDate, toDate)));
+    }
+  } else if (offerType == null && offerStatus != null) {
+    if (fromDate == null && toDate == null) {
+      searchOfferQuery.where(eq("status", offerStatus));
+    } else if (fromDate != null && toDate == null) {
+      searchOfferQuery.where(and(eq("status", offerStatus), gEq("statusDate", fromDate)));
+    } else if (fromDate == null && toDate != null) {
+      searchOfferQuery.where(and(eq("status", offerStatus), lEq("statusDate", toDate)));
+    } else if (fromDate != null && toDate != null) {
+      searchOfferQuery.where(and(eq("status", offerStatus), between("statusDate", fromDate, toDate)));
+    }
+  } else if (offerType == null && offerStatus == null) {
+    if (fromDate == null && toDate == null) {
+      return [];
+    } else if (fromDate != null && toDate == null) {
+      searchOfferQuery.where(gEq("statusDate", fromDate));
+    } else if (fromDate == null && toDate != null) {
+      searchOfferQuery.where(lEq("statusDate", toDate));
+    } else if (fromDate != null && toDate != null) {
+      searchOfferQuery.where(between("statusDate", fromDate, toDate));
+    }
+  }
+
+  return searchOfferQuery
+  .orderBy("statusDate", "desc")
+  .limit(rowCount, offsetCount)
+  .execute();
+}

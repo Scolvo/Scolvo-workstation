@@ -1,0 +1,162 @@
+import {
+  /mobile/Builders,
+  /mobile/SessionUser,
+  /mobile/offer / OfferBuilder,
+  /mobile/repository / OfferRepository,
+  /mobile/offer / detail / LoanOfferDetail,
+  /mobile/offer / detail / GuaranteeOfferDetail,
+  /mobile/offer / detail / FrameLineOfferDetail,
+  /mobile/offer / detail / DepositOfferDetail,
+  /mobile/offer / detail / OtherOfferDetail
+}
+
+var offerSearchOfferType;
+var offerSearchOfferStatus;
+var offerSearchOfferStatusDateFrom;
+var offerSearchOfferStatusDateTo;
+
+function displayOfferSearchFragment(originId, fragmentContainerId) {
+  offerSearchOfferType = null;
+  offerSearchOfferStatus = null;
+  offerSearchOfferStatusDateFrom = dateSubtract(now(), 1, "week").getTime();
+  offerSearchOfferStatusDateTo = nowInMillis();
+
+  displayFragment(fragmentContainerId, OfferSearchFragment, {}, originId);
+}
+
+fragment OfferSearchFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list OfferSearchList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCard;
+    span: 0;
+    paged: true;
+    pageThreshold: 20;
+    actions: [
+      OfferSearch
+    ]
+    columns: [
+      mainText => offerType,
+      text => description
+    ]
+  }
+}
+
+function onOfferSearchFragmentLoaded(originId) {}
+
+function onOfferSearch(originId) {
+  var data = {
+    "OfferSearchPopup": {
+      "OfferSearchOfferTypeOptions": getOfferTypeOptions(offerSearchOfferType),
+      "OfferSearchOfferStatusOptions": getOfferStatusOptions(offerSearchOfferStatus)
+    }
+  };
+
+  var actionEvents = [
+    buildSourceSelectionChanged("OfferSearchOfferType", "OfferSearchTypeValueChanged"),
+    buildSourceSelectionChanged("OfferSearchOfferStatus", "OfferSearchStatusValueChanged"),
+    buildSourceValueChangedEvent("OfferSearchStatusFrom", "OfferSearchFromValueChanged"),
+    buildSourceValueChangedEvent("OfferSearchStatusTo", "OfferSearchToValueChanged"),
+    buildSourceClickedEvent("SearchButton", "OfferSearchButtonClicked"),
+    buildTargetValueChangeEvent("OfferSearchStatusFrom", offerSearchOfferStatusDateFrom),
+    buildTargetValueChangeEvent("OfferSearchStatusTo", offerSearchOfferStatusDateTo)
+  ];
+  display(OfferSearchPopup, data, originId, actionEvents);
+}
+
+page OfferSearchPopup {
+  template: popup;
+  layout: vertical;
+
+  inputField OfferSearchOfferType {
+    template: inputFieldSimple;
+    inputType: selectOne;
+    isDeletable: true;
+  }
+
+  inputField OfferSearchOfferStatus {
+    template: inputFieldSimple;
+    inputType: selectOne;
+    isDeletable: true;
+  }
+
+  inputField OfferSearchStatusFrom {
+    template: inputFieldSimple;
+    inputType: fullDate;
+    isDeletable: true;
+  }
+
+  inputField OfferSearchStatusTo {
+    template: inputFieldSimple;
+    inputType: fullDate;
+    isDeletable: true;
+  }
+
+  button SearchButton {
+    template: primaryMedium;
+  }
+}
+
+function onOfferSearchPopupCancel(originId) {}
+
+function onOfferSearchListLoadData(originId) {
+  return getOfferSearchDataByTypeAndStatusAndStatusUpdate($IN.data.rowCount, $IN.data.offsetCount);
+}
+
+function onOfferSearchListSelectionChanged(originId) {
+  selectedOfferDao = getOfferById($IN.data.id);
+
+  if (selectedOfferDao.offerType == OFFER_TYPE_LOAN) {
+    displayLoanOfferDetailPage(originId, selectedOfferDao);
+  } else if (selectedOfferDao.offerType == OFFER_TYPE_GUARANTEE) {
+    displayGuaranteeOfferDetailPage(originId, selectedOfferDao);
+  } else if (selectedOfferDao.offerType == OFFER_TYPE_FRAMELINE) {
+    displayFrameLineOfferDetailPage(originId, selectedOfferDao);
+  } else if (selectedOfferDao.offerType == OFFER_TYPE_DEPOSIT) {
+    displayDepositOfferDetailPage(originId, selectedOfferDao);
+  } else {
+    displayOtherOfferDetailPage(originId, selectedOfferDao);
+  }
+}
+
+function onOfferSearchTypeValueChanged(originId) {
+  offerSearchOfferType = $IN.data.value;
+}
+
+function onOfferSearchStatusValueChanged(originId) {
+  offerSearchOfferStatus = $IN.data.value;
+}
+
+function onOfferSearchFromValueChanged(originId) {
+  if ($IN.data.date == null) {
+    offerSearchOfferStatusDateFrom = null;
+  } else {
+    var dateFromString = dateToString($IN.data.date, "dd.MM.yyyy") + " 00:00";
+    offerSearchOfferStatusDateFrom = parseStringToDate(dateFromString, "dd.MM.yyyy HH:mm").getTime();
+  }
+
+}
+
+function onOfferSearchToValueChanged(originId) {
+  if ($IN.data.date == null) {
+    offerSearchOfferStatusDateTo = null;
+  } else {
+    var offerDateToString = dateToString($IN.data.date, "dd.MM.yyyy" + " 23:59");
+    offerSearchOfferStatusDateTo = parseStringToDate(offerDateToString, "dd.MM.yyyy HH:mm").getTime();
+  }
+}
+
+function getOfferSearchDataByTypeAndStatusAndStatusUpdate(rowCount, offsetCount) {
+  return searchOfferByTypeAndStatusAndStatusUpdate(offerSearchOfferType, offerSearchOfferStatus, offerSearchOfferStatusDateFrom, offerSearchOfferStatusDateTo, !sessionUserIsRM(), rowCount, offsetCount).map(function(offerDao) {
+    return mapOfferDaoToListData(offerDao);
+  });
+}
+
+function onOfferSearchButtonClicked(originId) {
+  hideSoftKeyboard();
+  finishPage("OfferSearchPopup", originId);
+  fireEvent(buildRefreshItemEvent("OfferSearchList", getOfferSearchDataByTypeAndStatusAndStatusUpdate(20, 0)), originId);
+}

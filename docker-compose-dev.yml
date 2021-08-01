@@ -1,0 +1,14 @@
+version: '3.0'
+services:
+    authdb:
+        ports:
+        - '13306:3306'
+    be:
+        environment:
+        - ALWAYS_RELOAD_SCRIPTS=true
+    bedb:
+        ports:
+        - '23306:3306'
+    mq:
+        ports:
+        - '5672:5672'

@@ -1,0 +1,32 @@
+import {
+  /backend/repository/MeetingMemoRepository
+}
+
+function sendNotificationForNextMeeting() {
+  var sysDateDay = dateToString(nowInMillis(), "dd");
+  sendMemoNotificationsForClients(getRegularCompaniesToCall(sysDateDay));
+  sendMemoNotificationsForClients(getProspectCompaniesToCall(sysDateDay));
+}
+
+function sendMemoNotificationsForClients(clientDaos) {
+  clientDaos.each(function (clientDao) {
+    sendMemoNotificationToUser(clientDao);
+  });
+}
+
+function sendMemoNotificationToUser(clientDao) {
+  try {
+    var user = getUserById(clientDao.userId);
+    if(user.firebaseToken == null) {
+      warn("Push notification could not be sent for " + user.name + " becase firebase token is null!");
+      return null;
+    }
+    var messageText = "You have to call your client: " + clientDao.name;
+    info("Trying to send push to user: " + clientDao.userId);
+    sendToDevices("Next call", messageText, {}, [user.firebaseToken]);
+    info("Push sent to user: " + clientDao.userId);
+  }
+  catch (UserNotFoundException e) {
+    error("Cannot send notification, user not found!");
+  }
+}

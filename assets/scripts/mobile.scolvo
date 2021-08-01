@@ -1,0 +1,21 @@
+import {
+  /mobile/SessionUser,
+  /mobile/client/Client,
+  /mobile/DataChange,
+  /mobile/search/AdvancedSearch
+} 
+
+menu defaultChild CorporateClientsGroup {
+  group CorporateClientsGroup defaultChild RegularPage {
+    item RegularPage {
+      roles: ["relationshipManager", "businessCenterManager", "corporateManager", "headCorporateManager"]
+    },
+    item ProspectPage {
+      roles: ["relationshipManager"]
+    }
+  }
+}
+
+function onAdvancedSearch(originId) {
+  displayAdvancedSearchPage(originId);
+}

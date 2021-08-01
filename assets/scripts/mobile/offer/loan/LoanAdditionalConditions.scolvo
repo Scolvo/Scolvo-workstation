@@ -1,0 +1,93 @@
+import {
+  /mobile/Builders
+}
+
+function displayLoanAdditinalConditionsFragment(originId) {
+  var actionEvents = [
+    buildSourceValueChangedEvent("Collaterals", "LoanCollateralsValueChanged"),
+    buildSourceValueChangedEvent("Notes", "LoanNotesValueChanged"),
+    buildSourceClickedEvent("PrevButton", "LoanAdditionalConditionsPrevButtonClicked"),
+    buildSourceClickedEvent("FinishButton", "LoanAdditionalConditionsFinishButtonClicked"),
+    buildTargetValueChangeEvent("Collaterals", loanOfferData.collaterals),
+    buildTargetValueChangeEvent("Notes", offerData.additionalConditionsNotes)
+  ];
+  displayFragment("IndicativeOfferFormContainer", LoanAdditionalConditionsFragment, {}, originId, actionEvents);
+}
+
+fragment LoanAdditionalConditionsFragment {
+  layout: vertical;
+  template: general;
+  isScrollable: true;
+  span: 0;
+
+  inputField Collaterals {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField Notes {
+    template: inputFieldSimple;
+    inputType: textArea;
+  }
+
+  container ButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button PrevButton {
+      template: secondaryMedium;
+    }
+
+    button FinishButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onLoanAdditionalConditionsFragmentLoaded(originId) {}
+
+function onLoanCollateralsValueChanged(originId) {
+  loanOfferData.put("collaterals", $IN.data.message);
+}
+
+function onLoanNotesValueChanged(originId) {
+  offerData.put("additionalConditionsNotes", $IN.data.message);
+}
+
+function onLoanAdditionalConditionsPrevButtonClicked(originId) {
+  displayLoanProposedPricingFragment(originId);
+}
+
+function onLoanAdditionalConditionsFinishButtonClicked(originId) {
+  if (validateLoanAdditionalConditionsFragment(originId)) {
+    saveLoanOffer(originId);
+    updateOfferNotes(originId);
+  }
+}
+
+function validateLoanAdditionalConditionsFragment(originId) {
+  var isValid = true;
+  if(loanOfferData.collaterals != null && loanOfferData.collaterals.length() > 50) {
+    fireEvent(buildErrorValueChangeEvent("Collaterals", DICTIONARY.validationMsg_TooLong50), originId);
+    isValid = false;
+  }
+  if(offerData.additionalConditionsNotes != null && offerData.additionalConditionsNotes.length() > 500) {
+    fireEvent(buildErrorValueChangeEvent("Notes", DICTIONARY.validationMsg_TooLong500), originId);
+    isValid = false;
+  }
+  return isValid;
+}
+
+function saveLoanOffer(originId) {
+  finishPage("IndicativeOfferPage", originId);
+  if (loanOfferData.containsKey("id")) {
+    loanOfferData.put("changeType", "UPDATE");
+
+    updateExecution("offerLoan", loanOfferData.id, loanOfferData);
+  } else {
+    loanOfferData.put("id", uuid());
+    loanOfferData.put("changeType", "INSERT");
+
+    insertExecution("offerLoan", loanOfferData);
+  }
+  sendDataChangeRq(originId, "offerLoan", [loanOfferData]);
+}

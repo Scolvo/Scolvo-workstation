@@ -1,0 +1,75 @@
+import {
+  /mhub/user/Users,
+  /mhub/user/ChangePassword,
+  /mhub/businessCenter/BusinessCenters,
+  /mhub/clientImport/ImportProspectClient,
+  /mhub/DataChange,
+  /mhub/report/Reports,
+  /mhub/test/UserActivity
+}
+
+//========================== UsersPage
+function onUsers(originId) {
+  displayUsersPage(originId);
+}
+
+function onBusinessCenters(originId) {
+  displayBusinessCentersPage(originId);
+}
+
+function onImport(originId) {
+  displayImportPage(originId);
+}
+
+function onPasswordChange(originId) {
+  displayPasswordChangePage(originId);
+}
+
+function onAddUserActivity(originId) {
+  sendAppStartUserActivity(originId);
+}
+//========================== Menu
+menu defaultChild Users {
+  item Users {
+    roles: ["administrator", "superAdministrator", "businessCenterManager"]
+  },
+  item BusinessCenters {
+    roles: ["administrator", "superAdministrator"]
+  },
+  item Import {
+    roles: ["administrator", "superAdministrator", "businessCenterManager"]
+  },
+  group Reports defaultChild CallLogReport {
+    roles: ["administrator", "superAdministrator", "corporateManager", "businessCenterManager"],
+    item ClientReport,
+    item CallLogReport,
+    item MeetingsWithRegularReport,
+    item RegularMeetingMemoReport,
+    item MeetingsWithProspect,
+    item ProspectMeetingMemoReport,
+    item LoanReport,
+    item OfferReport,
+    item LoanOffersReport,
+    item DepositOffersReport,
+    item FrameLineOffersReport,
+    item GuaranteeOffersReport,
+    item OtherOffersReport,
+    item ContactListReport,
+    item RmActivityReport,
+    item UserActivityReport
+  },
+  item PasswordChange {
+    roles: ["administrator", "relationshipManager", "businessCenterManager", "corporateManager"]
+  },
+  group TestFeatures defaultChild AddUserActivity {
+    roles: ["superAdministrator"],
+    item AddUserActivity
+  },
+  item Logout,
+  defaultPages: {
+    "administrator": "Users",
+    "relationshipManager": "PasswordChange",
+    "businessCenterManager": "Users",
+    "corporateManager": "PasswordChange"
+  }
+}

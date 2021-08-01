@@ -1,0 +1,68 @@
+import {
+  /mobile/SessionUser
+}
+
+var isContactCalledFromSearch;
+
+function getContactListDataFrom(contact, isSearch) {
+  isContactCalledFromSearch = isSearch;
+  var contactData = {
+    "id": contact.id,
+    "name": contact.name,
+    "phone": contact.phone,
+    "email": contact.email
+  };
+  if(isSearch) {
+    var client = getCompanyByCompanyId(contact.companyId);
+    var clientName = "";
+    if(client != null) {
+      clientName = client.name;
+    }
+    contactData.put("clientName", clientName);
+    contactData.put("namePhoneEmail", buildNamePhoneEmail(contact));
+  }
+  else {
+    contactData.put("phoneAndEmail", getPhoneAndMailFrom(contact));
+  }
+  if (sessionUserIsRM() || sessionUserIsBCM()) {
+    var rowActions;
+    if(sessionUserIsRM()) {
+      rowActions = ["EditContact", "DeleteContact"];
+      if (contact.phone != null && !contact.phone.isEmpty()) {
+        rowActions.add("CallContact");
+      }
+      if (contact.email != null && !contact.email.isEmpty()) {
+        rowActions.add("MailToContact");
+      }
+    }
+    else {
+      rowActions = ["EditContact"];
+    }
+    contactData.put("actions", rowActions);
+  }
+  return contactData;
+}
+
+function buildNamePhoneEmail(contactDao) {
+  var namePhoneEmail = contactDao.getOrDefault("name", "");
+  if(contactDao.phone != null && !contactDao.phone.isEmpty()) {
+    namePhoneEmail = namePhoneEmail + "\n" + contactDao.getOrDefault("phone", "");
+  }
+  if(contactDao.email != null && !contactDao.email.isEmpty()) {
+    namePhoneEmail = namePhoneEmail + "\n" + contactDao.getOrDefault("email", "");
+  }
+  if(!sessionUserIsRM() && contactDao.userName != null && !contactDao.userName.isEmpty()) {
+    namePhoneEmail = namePhoneEmail + "\n" + DICTIONARY.rm + ": " + contactDao.getOrDefault("userName", "");
+  }
+  return namePhoneEmail;
+}
+
+function getPhoneAndMailFrom(contact) {
+  var phoneAndEmail = contact.getOrDefault("phone", "");
+  if (contact.email != null && !phoneAndEmail.isEmpty()) {
+    phoneAndEmail = phoneAndEmail + "\n" + contact.email;
+  } else if (contact.email != null) {
+    phoneAndEmail = contact.email;
+  }
+  return phoneAndEmail;
+}

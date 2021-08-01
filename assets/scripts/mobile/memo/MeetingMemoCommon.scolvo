@@ -1,0 +1,163 @@
+var meetingMemoProgressData = {};
+var isMeetingMemoProgressDataNew;
+var initialBeginningOfSeason;
+
+function getMeetingMemoTextValueByKey(key) {
+  return meetingMemoData.getOrDefault(key, "");
+}
+
+function getMeetingMemoDateByKey(key) {
+  return meetingMemoData.getOrDefault(key, nowInMillis());
+}
+
+function getMeetingMemoBooleanValueAsTextByKey(key) {
+  if(meetingMemoData.containsKey(key)) {
+    var returnValue = "no";
+    if(meetingMemoData.get(key) == true) {
+      returnValue = "yes";
+    }
+    return returnValue;
+  }
+  return "";
+}
+
+function buildYesNoSelectOneOptions(key) {
+  var selected = getMeetingMemoBooleanValueAsTextByKey(key);
+  return [
+    buildSelectOptions("yes", DICTIONARY.yes, "yes" == selected),
+    buildSelectOptions("no", DICTIONARY.no, "no" == selected)
+  ];
+}
+
+function buildOfferOptions(selectedOffer) {
+  return [
+    buildSelectOptions("yes", DICTIONARY.yes, "yes" == selectedOffer),
+    buildSelectOptions("no", DICTIONARY.no, "no" == selectedOffer),
+    buildSelectOptions("maybe", DICTIONARY.maybe, "maybe" == selectedOffer)
+  ];
+}
+
+function buildBankOptions(selectedBank) {
+  var bankOptions = getBanks().map(function(bankDao) {
+    return buildSelectOptions(bankDao.id, bankDao.name, bankDao.id == selectedBank);
+  });
+  var otherBankType = DICTIONARY.bankType_other;
+  bankOptions.add(buildSelectOptions(otherBankType, otherBankType, otherBankType == selectedBank));
+  return bankOptions;
+}
+
+function saveYesNoQuestionAnswer(selectedAnswer, key) {
+  if(selectedAnswer == "yes") {
+    meetingMemoData.put(key, true);
+  }
+  else if(selectedAnswer == "no") {
+    meetingMemoData.put(key, false);
+  }
+  else {
+    throw UnkownYesNoAnswerException;
+  }
+}
+
+function saveTextAnswer(textAnswer, key) {
+  meetingMemoData.put(key, textAnswer);
+}
+
+function saveInputAsNumber(input, key) {
+  meetingMemoData.put(key, parseNumber(input));
+}
+
+function isNextCallDateValid(dateInput, timeInput) {
+  var selectedDate = createDateTime(dateInput, timeInput);
+  if(dateAfter(selectedDate, nowInMillis())) {
+    return true;
+  }
+  return false;
+}
+
+function saveNextCallDate(dateInput, timeInput) {
+  meetingMemoData.put("nextCallDate", createDateTime(dateInput, timeInput));
+}
+
+function removeMeetingMemoField(yesNoFieldName, yesNoFieldValue, fieldToRemove) {
+  if(meetingMemoData.get(yesNoFieldName) == yesNoFieldValue) {
+    meetingMemoData.put(fieldToRemove, null);
+  }
+}
+
+function removeMeetingMemoFields(yesNoFieldName, yesNoFieldValue, field1ToRemove, field2ToRemove) {
+  if(meetingMemoData.get(yesNoFieldName) == yesNoFieldValue) {
+    meetingMemoData.put(field1ToRemove, null);
+    meetingMemoData.put(field2ToRemove, null);
+  }
+}
+
+function saveMemoFinishData() {
+  meetingMemoData.put("completedAt", nowInMillis());
+  meetingMemoData.put("status", "finished");
+  deleteExecution("meetingMemoProgress", meetingMemoProgressData.id);
+  var meetingMemoProgressDao = {
+    "id": meetingMemoProgressData.id,
+    "changeType": "DELETE"
+  };
+  sendDataChangeRq(uuid(), "meetingMemoProgress", [meetingMemoProgressDao]);
+  meetingMemoProgressData.clear();
+}
+
+function updateProspectMeetingMemoData() {
+  updateMeetingMemoData("meetingMemoProspect");
+}
+
+function updateRegularMeetingMemoData() {
+  updateMeetingMemoData("meetingMemoRegular");
+}
+
+function updateMeetingMemoData(tableName) {
+  if(!meetingMemoData.containsKey("changeType") || meetingMemoData.changeType == "INSERT") {
+    meetingMemoData.put("changeType", "UPDATE");
+  }
+  if(meetingMemoData.status == "prepared") {
+    meetingMemoData.put("status", "inProgress");
+  }
+  updateExecution(tableName, meetingMemoData.id, meetingMemoData);
+  sendDataChangeRq(uuid(), tableName, [meetingMemoData]);
+}
+
+function initMeetingMemoProgressData() {
+  initialBeginningOfSeason = meetingMemoData.getOrDefault("beginningOfSeason", 0);
+  var meetingMemoProgressDao = getMeetingMemoProgressByMeetingMemoId(meetingMemoData.id);
+  if(meetingMemoProgressDao == null) {
+    meetingMemoProgressData.put("id", uuid());
+    meetingMemoProgressData.put("userId", getCurrentUser().userId);
+    meetingMemoProgressData.put("meetingMemoId", meetingMemoData.id);
+    isMeetingMemoProgressDataNew = true;
+  }
+  else {
+    meetingMemoProgressData = meetingMemoProgressDao;
+    isMeetingMemoProgressDataNew = false;
+  }
+}
+
+function saveMeetingMemoProgressData(entryPoint) {
+  meetingMemoProgressData.put("lastEntryPoint", entryPoint);
+  if(isMeetingMemoProgressDataNew) {
+    insertMeetingMemoProgressData();
+    isMeetingMemoProgressDataNew = false;
+  }
+  else {
+    updateMeetingMemoProgress();
+  }
+}
+
+function insertMeetingMemoProgressData() {
+  meetingMemoProgressData.put("changeType", "INSERT");
+  insertExecution("meetingMemoProgress", meetingMemoProgressData);
+  sendDataChangeRq(uuid(), "meetingMemoProgress", [meetingMemoProgressData]);
+}
+
+function updateMeetingMemoProgress() {
+  if(!meetingMemoProgressData.containsKey("changeType") || meetingMemoProgressData.changeType == "INSERT") {
+    meetingMemoProgressData.put("changeType", "UPDATE");
+  }
+  updateExecution("meetingMemoProgress", meetingMemoProgressData.id, meetingMemoProgressData);
+  sendDataChangeRq(uuid(), "meetingMemoProgress", [meetingMemoProgressData]);
+}

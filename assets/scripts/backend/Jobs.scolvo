@@ -1,0 +1,35 @@
+import {
+  /backend/importClient/ClientImport,
+  /backend/notification/MeetingMemoNotification,
+  /backend/repository/UserActivityRepository
+}
+
+function initScheduledJobs() {
+  addJob("0 30 9 ? * * *", "regularClientImportJob", "regularClientImport", "RegularClientImportJob", {});
+  addJob("0 0 9 ? * * *", "callClientsNotificationJob", "callClientsNotification", "CallClientsNotificationJob", {});
+  addJob("0 0 2 ? * * *", "deleteOldUserActivitiesJob", "userActivityCleanup", "DeleteOldUserActivitiesJob", {});
+}
+
+//========================== Execute initScheduledJobs
+initScheduledJobs();
+//==========================
+
+function onRegularClientImportJob(originId) {
+  importRegularClientsData("OTP");
+  importRegularClientsData("Voban");
+}
+
+function onCallClientsNotificationJob(originId) {
+  sendNotificationForNextMeeting();
+}
+
+function onDeleteOldUserActivitiesJob(originId) {
+  var timeLimit = getTimeLimitForDays(90);
+  info("Deleting old userActivity records with time limit: " + timeLimit);
+  var count = deleteOldUserActivity(timeLimit);
+  info("Old userActivity records (" + count + ") have been deleted.");
+}
+
+function getTimeLimitForDays(days) {
+  return nowInMillis() - (days * 86400000);
+}

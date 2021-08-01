@@ -1,0 +1,78 @@
+import {
+  /mobile/Builders,
+  /mobile/offer/guarantee/GuaranteeAdditionalConditions
+}
+
+function displayGuaranteeProposedPricingFragment(originId) {
+  var actionEvents = [
+    buildSourceValueChangedEvent("FeesCommissions", "GuaranteeOfferFeesCommissionsValueChanged"),
+    buildSourceValueChangedEvent("InterestRateInCaseOfDelay", "GuaranteeOfferInterestRateInCaseOfDelayValueChanged"),
+    buildSourceClickedEvent("PrevButton", "GuaranteeProposedPricingPrevButtonClicked"),
+    buildSourceClickedEvent("NextButton", "GuaranteeProposedPricingNextButtonClicked"),
+    buildTargetValueChangeEvent("FeesCommissions", guaranteeOfferData.feesCommissions),
+    buildTargetValueChangeEvent("InterestRateInCaseOfDelay", guaranteeOfferData.interestRateInCaseOfDelay)
+  ];
+  displayFragment("IndicativeOfferFormContainer", GuaranteeProposedPricingFragment, {}, originId, actionEvents);
+}
+
+fragment GuaranteeProposedPricingFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+  isScrollable: true;
+
+  inputField FeesCommissions {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField InterestRateInCaseOfDelay {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  container ButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button PrevButton {
+      template: secondaryMedium;
+    }
+
+    button NextButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onGuaranteeProposedPricingFragmentLoaded(originId) {}
+
+function onGuaranteeOfferFeesCommissionsValueChanged(originId) {
+  guaranteeOfferData.put("feesCommissions", $IN.data.message);
+}
+
+function onGuaranteeOfferInterestRateInCaseOfDelayValueChanged(originId) {
+  guaranteeOfferData.put("interestRateInCaseOfDelay", $IN.data.message);
+}
+
+function onGuaranteeProposedPricingPrevButtonClicked(originId) {
+  displayGuaranteeBasicOfferDetailFragment(null, originId);
+}
+
+function onGuaranteeProposedPricingNextButtonClicked(originId) {
+  if(validateGuaranteeProposedPricingFragment()) {
+    displayGuaranteeAdditionalConditionsFragment(originId);
+  }
+}
+
+function validateGuaranteeProposedPricingFragment() {
+  var isValid = true;
+  if(guaranteeOfferData.feesCommissions != null && guaranteeOfferData.feesCommissions.length() > 50) {
+    fireEvent(buildErrorValueChangeEvent("FeesCommissions", DICTIONARY.validationMsg_TooLong50), originId);
+    isValid = false;
+  }
+  if(guaranteeOfferData.interestRateInCaseOfDelay != null && guaranteeOfferData.interestRateInCaseOfDelay.length() > 50) {
+    fireEvent(buildErrorValueChangeEvent("InterestRateInCaseOfDelay", DICTIONARY.validationMsg_TooLong50), originId);
+    isValid = false;
+  }
+  return isValid;
+}

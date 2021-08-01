@@ -1,0 +1,130 @@
+import {
+  /mobile/repository/CompanyRepository,
+  /mobile/repository/UserRepository,
+  /mobile/repository/BusinessCenterRepository,
+  /mobile/SessionUser
+}
+
+function displayProspectClientDetailsFragment(originId, fragmentContainerId, companyId) {
+  var companyDao = getCompanyByCompanyId(companyId);
+  var prospectClientDao = getProspectClientByCompanyId(companyId);
+  var data = {
+    "ProspectClientDetailsFragment": {
+      "ProspectClientDetailsForm": buildProspectClientDetailsForm(companyDao, prospectClientDao)
+    }
+  };
+  var actionEvents = [];
+  if(!sessionUserIsBCM()) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("RelationshipManager", "gone"));
+  }
+  displayFragment(fragmentContainerId, ProspectClientDetailsFragment, data, originId, actionEvents);
+}
+
+fragment ProspectClientDetailsFragment {
+  layout: vertical;
+  template: detail;
+  span: 0;
+
+  form ProspectClientDetailsForm {
+    template: detail;
+    span: 0;
+    actions: []
+    fields: [
+      fieldset businessRelated [
+        field NBSClassification => nbsClassification formItemReadOnlyFull,
+        field FinancialRating => financialRating formItemReadOnlyFull,
+        field GroupOfRelatedParties => groupOfRelatedParties formItemReadOnlyFull,
+        field AccountInVoban => accountInVoban formItemReadOnlyFull,
+        field Blockades => blockades formItemReadOnlyFull,
+        field TotalIncomeRSD => totalIncomeRsd formItemReadOnlyFull,
+        field NetProfitRSD => netProfitRsd formItemReadOnlyFull,
+        field DebtEbitda => debtEbitda formItemReadOnlyFull,
+        field Exporter => exporter formItemReadOnlyFull,
+      ],
+      fieldset companyData [
+        field CompanyName => companyName formItemReadOnlyFull,
+        field CompanyId => companyId formItemReadOnlyFull,
+        field City => city formItemReadOnlyFull,
+        field BusinessActivityId => businessActivityId formItemReadOnlyFull,
+        field BusinessActivity => businessActivity formItemReadOnlyFull,
+        field CompanySize => companySize formItemReadOnlyFull,
+        field OwnerName => ownerName formItemReadOnlyFull
+      ],
+      fieldset contactData [
+        field Address => address formItemReadOnlyFull,
+        field Phone => phone formItemReadOnlyPhone,
+        field RepresentatorName => representatorName formItemReadOnlyFull,
+        field RegionalCenter => regionalCenter formItemReadOnlyFull,
+        field RelationshipManager => relationshipManager formItemReadOnlyFull
+      ]
+    ]
+  }
+}
+
+function onProspectClientDetailsFragmentLoaded(originId) {}
+
+function buildProspectClientDetailsForm(companyDao, prospectClientDao) {
+  var accountInVoban = DICTIONARY.no;
+  if (prospectClientDao.accountInVoban) {
+    accountInVoban = DICTIONARY.yes;
+  }
+
+  var exporter = DICTIONARY.no;
+  if (prospectClientDao.exporter) {
+    exporter = DICTIONARY.yes;
+  }
+
+  var blockades = DICTIONARY.no;
+  if (companyDao.blockade) {
+    blockades = DICTIONARY.yes;
+  }
+
+  var regionalCenter = "";
+  var regionalCenterDao = getBusinessCenter();
+  if(regionalCenterDao != null) {
+    regionalCenter = regionalCenterDao.name;
+  }
+
+  var prospectClientData = {
+    "businessRelated": {
+      "nbsClassification": prospectClientDao.nbsClassification,
+      "financialRating": prospectClientDao.financialRating,
+      "groupOfRelatedParties": prospectClientDao.groupOfRelatedParties,
+      "accountInVoban": accountInVoban,
+      "blockades": blockades,
+      "exporter": exporter
+    },
+    "companyData": {
+      "companyName": companyDao.name,
+      "companyId": companyDao.companyId,
+      "city": companyDao.city,
+      "businessActivityId": companyDao.businessActivityId,
+      "businessActivity": companyDao.businessActivity,
+      "companySize": companyDao.companySize,
+      "ownerName": prospectClientDao.ownerName
+    },
+    "contactData": {
+      "address": companyDao.address,
+      "phone": companyDao.phone,
+      "representatorName": companyDao.contactPerson,
+      "regionalCenter": regionalCenter
+    }
+  };
+
+  if(sessionUserIsBCM()) {
+    var rmDao = getUserByUserId(companyDao.userId);
+    prospectClientData.contactData.put("relationshipManager", rmDao.name);
+  }
+
+  if(prospectClientDao.totalIncome != null) {
+    prospectClientData.businessRelated.put("totalIncomeRsd", decimalFormat(prospectClientDao.totalIncome, "###,##0.00"));
+  }
+  if(prospectClientDao.netProfit != null) {
+    prospectClientData.businessRelated.put("netProfitRsd", decimalFormat(prospectClientDao.netProfit, "###,##0.00"));
+  }
+  if(prospectClientDao.debtEbitda != null) {
+    prospectClientData.businessRelated.put("debtEbitda", decimalFormat(prospectClientDao.debtEbitda, "###,##0.00"));
+  }
+
+  return prospectClientData;
+}

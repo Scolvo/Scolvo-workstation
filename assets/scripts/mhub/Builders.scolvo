@@ -1,0 +1,63 @@
+function buildTargetVisibilityChangeEvent(targetId, visiblity) {
+  return buildTargetEvent(targetId, "onVisibilityChange", visiblity);
+}
+
+function buildRemoveItemsEvent(targetId, itemIds) {
+  return buildTargetEvent(targetId, "onRemoveItems", itemIds);
+}
+
+function buildRemoveItemEvent(targetId, itemId) {
+  return buildTargetEvent(targetId, "onRemoveItem", [itemId]);
+}
+
+function buildTargetValueChangeEvent(targetId, data) {
+  return buildTargetEvent(targetId, "onValueChange", data);
+}
+
+function buildTargetTextChangeEvent(targetId, text) {
+  return buildTargetEvent(targetId, "onTextChange", text);
+}
+
+function buildRefreshItemEvent(targetId, items) {
+  return buildTargetEvent(targetId, "onRefresh", items);
+}
+
+function buildTargetEvent(targetId, targetEvent, targetData) {
+  return {
+    "targetElementId": targetId,
+    "targetElementEvent": targetEvent,
+    "data": targetData
+  };
+}
+
+function buildSourceClickedEvent(sourceId, triggerName) {
+  return buildSourceEvent(sourceId, "onClicked", triggerName);
+}
+
+function buildSourceValueChangedEvent(sourceId, trigger) {
+  return buildSourceEvent(sourceId, "onValueChanged", trigger);
+}
+
+function buildSourceEvent(sourceId, sourceEvent, triggerName) {
+  return {
+    "sourceElementId": sourceId,
+    "sourceElementEvent": sourceEvent,
+    "trigger": triggerName
+  };
+}
+
+function buildMultiSelectOptions(value, text, checked) {
+  return {
+    "value": value,
+    "label": text,
+    "checked": checked
+  };
+}
+
+function buildSelectOptions(value, text, isDefault) {
+  return {
+    "label": text,
+    "value": value,
+    "default": isDefault
+  };
+}

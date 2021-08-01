@@ -1,0 +1,93 @@
+import {
+  /mobile/SessionUser,
+  /mobile/repository/OfferRepository,
+  /mobile/offer/OfferBuilder,
+  /mobile/offer/IndicativeOffer,
+  /mobile/offer/detail/LoanOfferDetail,
+  /mobile/offer/detail/GuaranteeOfferDetail,
+  /mobile/offer/detail/FrameLineOfferDetail,
+  /mobile/offer/detail/DepositOfferDetail,
+  /mobile/offer/detail/OtherOfferDetail
+}
+
+var offerSelectedCompanyId;
+var selectedOfferDao;
+
+function displayOfferListFragment(originId, fragmentContainerId, companyId) {
+  offerSelectedCompanyId = companyId;
+  var offers = buildOfferDataFromDao(getOffersForCompany(companyId));
+  var data = {};
+  var offerListData = {"OfferList": offers};
+  if (sessionUserIsRM() || sessionUserIsBCM()) {
+    data.put("OfferListRMFragment", offerListData);
+    displayFragment(fragmentContainerId, OfferListRMFragment, data, originId);
+  } else {
+    data.put("OfferListFragment", offerListData);
+    displayFragment(fragmentContainerId, OfferListFragment, data, originId);
+  }
+}
+
+fragment OfferListRMFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list OfferList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCard;
+    span: 0;
+    actions: [
+      AddOffer
+    ]
+    columns: [
+      mainText => offerType,
+      text => description
+    ]
+  }
+}
+
+function onOfferListRMFragmentLoaded(originId) {}
+
+fragment OfferListFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list OfferList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCard;
+    span: 0;
+    columns: [
+      mainText => offerType,
+      text => description
+    ]
+  }
+}
+
+function onOfferListFragmentLoaded(originId) {}
+
+function buildOfferDataFromDao(offers) {
+  return offers.map(function(offerDao) {
+    return mapOfferDaoToListData(offerDao);
+  });
+}
+
+function onAddOffer(originId) {
+  displayIndicativeOfferPage(originId, offerSelectedCompanyId, null);
+}
+
+function onOfferListSelectionChanged(originId) {
+  selectedOfferDao = getOfferById($IN.data.id);
+
+  if (selectedOfferDao.offerType == OFFER_TYPE_LOAN) {
+    displayLoanOfferDetailPage(originId, selectedOfferDao);
+  } else if (selectedOfferDao.offerType == OFFER_TYPE_GUARANTEE) {
+    displayGuaranteeOfferDetailPage(originId, selectedOfferDao);
+  } else if (selectedOfferDao.offerType == OFFER_TYPE_FRAMELINE) {
+    displayFrameLineOfferDetailPage(originId, selectedOfferDao);
+  } else if (selectedOfferDao.offerType == OFFER_TYPE_DEPOSIT) {
+    displayDepositOfferDetailPage(originId, selectedOfferDao);
+  } else {
+    displayOtherOfferDetailPage(originId, selectedOfferDao);
+  }
+}

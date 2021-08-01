@@ -1,0 +1,120 @@
+import {
+  /mobile/Builders,
+  /mobile/offer/OfferBuilder,
+  /mobile/repository/OfferRepository,
+  /mobile/offer/DeleteOfferConfirmation,
+  /mobile/offer/detail/AttachmentOffer,
+  /mobile/offer/common/OfferShare,
+  /mobile/offer/common/CurrencyBuilder
+}
+
+function displayLoanOfferDetailPage(originId, selectedOffer) {
+  var loan = getLoanOfferByOfferId(selectedOffer.id);
+
+  var deliveryDeadline = "";
+  if (selectedOffer.deliveryDeadline != null) {
+    deliveryDeadline = dateToString(selectedOffer.deliveryDeadline, "dd.MM.yyyy.");
+  }
+
+  var statusDate = "";
+  if (selectedOffer.statusDate != null) {
+    statusDate = dateToString(selectedOffer.statusDate, "dd.MM.yyyy.");
+  }
+
+  var loanAmount = loan.amount;
+  if (loan.amount != null && isNumber(loan.amount.toString())) {
+    loanAmount = decimalFormat(loan.amount, "###,##0.00");
+  }
+
+  var detailFormData =  {
+    "offerType": resolveOfferType(selectedOffer.offerType),
+    "subject": selectedOffer.subject,
+    "receiver": selectedOffer.receiver,
+    "deliveryDeadline": deliveryDeadline,
+    "importantNotice": selectedOffer.importantNotice,
+    "status": resolveOfferStatus(selectedOffer.status),
+    "statusDate": statusDate,
+    "typeOfLoan": loan.typeOfLoan,
+    "amount": loanAmount,
+    "currency": resolveCurrency(loan.currency),
+    "purpose": loan.purpose,
+    "repaymentPeriod": loan.repaymentPeriod,
+    "availabilityPeriod": loan.availabilityPeriod,
+    "gracePeriod": loan.gracePeriod,
+    "withdrawalMethod": loan.withdrawalMethod,
+    "repaymentMethod": loan.repaymentMethod,
+    "interest": loan.interest,
+    "placementApprovalFee": loan.placementApprovalFee,
+    "feeForUndrawnFunds": loan.feeForUndrawnFunds,
+    "monitoringFee": loan.monitoringFee,
+    "collaterals": loan.collaterals,
+    "notes": selectedOffer.additionalConditionsNotes
+  };
+
+  var pageActions = [];
+  if (sessionUserIsRM()) {
+    pageActions.addAll(["EditLoanOffer", "DeleteLoanOffer", "AttachmentOffer", "ShareLoanOffer"]);
+  }
+  else if (sessionUserIsBCM()) {
+    pageActions.add("EditLoanOffer");
+  }
+
+  var data = {
+    "LoanOfferDetailPage": {
+      "actions": pageActions,
+      "OfferDetailForm": detailFormData
+    }
+  };
+
+  display(LoanOfferDetailPage, data, originId);
+}
+
+page LoanOfferDetailPage {
+  layout: vertical;
+  template: detail;
+  scolvoMenuVisible: false;
+
+  form OfferDetailForm {
+    template: detail;
+    span: 0;
+    fields: [
+      field OfferType => offerType formItemReadOnlyFull,
+      field Subject => subject formItemReadOnlyFull,
+      field Receiver => receiver formItemReadOnlyFull,
+      field DeliveryDeadline => deliveryDeadline formItemReadOnlyFull,
+      field ImportantNotice => importantNotice formItemReadOnlyFull,
+      field Status => status formItemReadOnlyFull,
+      field StatusUpdateDate => statusDate formItemReadOnlyFull,
+      field TypeOfLoan => typeOfLoan formItemReadOnlyFull,
+      field Amount => amount formItemReadOnlyFull,
+      field Currency => currency formItemReadOnlyFull,
+      field Purpose => purpose formItemReadOnlyFull,
+      field RepaymentPeriod => repaymentPeriod formItemReadOnlyFull,
+      field AvailabilityPeriod => availabilityPeriod formItemReadOnlyFull,
+      field GracePeriod => gracePeriod formItemReadOnlyFull,
+      field WithdrawalMethod => withdrawalMethod formItemReadOnlyFull,
+      field RepaymentMethod => repaymentMethod formItemReadOnlyFull,
+      field Interest => interest formItemReadOnlyFull,
+      field PlacementApprovalFee => placementApprovalFee formItemReadOnlyFull,
+      field FeeForUndrawnFunds => feeForUndrawnFunds formItemReadOnlyFull,
+      field MonitoringFee => monitoringFee formItemReadOnlyFull,
+      field Collaterals => collaterals formItemReadOnlyFull,
+      field Notes => notes formItemReadOnlyFull
+    ]
+  }
+}
+
+function onLoanOfferDetailPageLoaded(originId) {}
+
+function onEditLoanOffer(originId) {
+  finishPage("LoanOfferDetailPage", originId);
+  displayIndicativeOfferPage(originId, selectedOfferDao.companyId, selectedOfferDao.id);
+}
+
+function onDeleteLoanOffer(originId) {
+  displayDeleteOfferConfirmationPage(originId, "LoanOfferDetailPage");
+}
+
+function onShareLoanOffer(originId) {
+  shareOffer(selectedOfferDao.id, "Loan");
+}

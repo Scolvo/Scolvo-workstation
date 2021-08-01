@@ -1,0 +1,37 @@
+
+function getReadCsvFormat() {
+  var format = {
+    "delimiter": ";",
+    "quote": null,
+    "nullString": "",
+    "skipHeaderRecord": true,
+    "recordSeparator": "\r\n",
+    "charset": "Cp1250",
+  };
+
+  return format;
+}
+
+
+function getWriteCsvFormat() {
+  var format = {
+    "delimiter": ";",
+    "quote": null,
+    "nullString": "",
+    "skipHeaderRecord": false,
+    "recordSeparator": "\r\n",
+    "charset": "Cp1250",
+  };
+
+  return format;
+}
+
+function uploadCsvFileToAws(fileName, awsRelativePath, csvHeaders, content) {
+  var filePath = writeCsvFile(fileName, csvHeaders, content, getWriteCsvFormat());
+  var response = documentPut(filePath, awsRelativePath);
+  var downloadUrl = "";
+  if(response == null || response.isEmpty()) {
+    downloadUrl = documentGetUrl(awsRelativePath);
+  }
+  return downloadUrl;
+}

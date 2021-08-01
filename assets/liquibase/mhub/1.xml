@@ -1,0 +1,1811 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="1" author="balazs.holpar@scolvo.com">
+
+    <createTable tableName="user">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="businessCenterId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="role" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="corporate" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="rmCode" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="username" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="email" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="phone" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="firebaseToken" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="keycloakId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="user_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="businessCenterId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="role" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="corporate" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="rmCode" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="username" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="email" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="phone" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="firebaseToken" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="keycloakId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="businessCenter">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="corporate" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="businessCenterCode" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="businessCenter_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="corporate" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="businessCenterCode" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="company">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="userId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyType" type="VARCHAR(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(150)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyId" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companySize" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="businessActivityId" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="businessActivity" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="address" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="city" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="contactPerson" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="phone" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="blockade" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="company_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="userId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyType" type="VARCHAR(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(150)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyId" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companySize" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="businessActivityId" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="businessActivity" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="address" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="city" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="contactPerson" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="phone" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="blockade" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="companyProspect">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ownerName" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="nbsClassification" type="VARCHAR(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="financialRating" type="VARCHAR(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="groupOfRelatedParties" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="accountInVoban" type="VARCHAR(8)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="totalIncome" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="netProfit" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="debtEbitda" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="exporter" type="VARCHAR(8)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="companyProspect_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ownerName" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="nbsClassification" type="VARCHAR(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="financialRating" type="VARCHAR(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="groupOfRelatedParties" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="accountInVoban" type="VARCHAR(8)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="totalIncome" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="netProfit" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="debtEbitda" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="exporter" type="VARCHAR(8)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="companyRegular">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="mb" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="established" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="email" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="branch" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="totalExposure" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="internalRating" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="overdue" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="daysInDelay" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="turnoverRsdYearly" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="turnoverFxYearly" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="incomeFromPayment" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="employeesOnPayroll" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="tariffForPayment" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="lastCorporateBalanceDate" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="revenue" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="netIncome" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="leverageRatio" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="liquidityRatio" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="equityRatio" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="eBank" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="businessCard" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="posTerminal" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="companyRegular_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="mb" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="established" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="email" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="branch" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="totalExposure" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="internalRating" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="overdue" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="daysInDelay" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="turnoverRsdYearly" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="turnoverFxYearly" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="incomeFromPayment" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="employeesOnPayroll" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="tariffForPayment" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="lastCorporateBalanceDate" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="revenue" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="netIncome" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="leverageRatio" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="liquidityRatio" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="equityRatio" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="eBank" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="businessCard" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="posTerminal" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="contact">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="phone" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="email" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="contact_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="phone" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="email" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="callLog">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="comment" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="callLog_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="comment" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="bank">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="bank_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="meetingMemoProspect">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="companyProspectId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="bankId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="plannedMeetingDate" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="registeredActivityIsMain" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="coreBusiness" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="significantSeasonality" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="beginningOfSeason" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="retailNetwork" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="numberOfStores" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="termOfBuyersPayment" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="termOfSuppliersPayment" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="hasNewPhoneNumber" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="newPhoneNumber" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="wantsOffer" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="comment" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="nextCallDate" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="completedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="meetingMemoProspect_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyProspectId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="bankId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="plannedMeetingDate" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="registeredActivityIsMain" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="coreBusiness" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="significantSeasonality" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="beginningOfSeason" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="retailNetwork" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="numberOfStores" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="termOfBuyersPayment" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="termOfSuppliersPayment" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="hasNewPhoneNumber" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="newPhoneNumber" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="wantsOffer" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="comment" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="nextCallDate" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="completedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="buyerSupplier">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="meetingMemoId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type" type="VARCHAR(1)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="buyerSupplier_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="meetingMemoId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type" type="VARCHAR(1)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="meetingMemoRegular">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="companyRegularId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="bankId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="mainBankId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="plannedMeetingDate" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="hasComment" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="mainComment" type="VARCHAR(200)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="newCreditArrangement" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="loanType" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="mainNeeds" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="documentarySupport" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="ducumentaryBusiness" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="ducumentaryBusinessNotes" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="preferentialTariff" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="posNetwork" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="numberOfDevices" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="posNotes" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="anyImportantNotice" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="importantTopic" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="importantNotice" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="wantsOffer" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="comment" type="VARCHAR(1000)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="nextCallDate" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="completedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="meetingMemoRegular_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyRegularId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="bankId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="mainBankId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="plannedMeetingDate" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="hasComment" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="mainComment" type="VARCHAR(200)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="newCreditArrangement" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="loanType" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="mainNeeds" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="documentarySupport" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="ducumentaryBusiness" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="ducumentaryBusinessNotes" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="preferentialTariff" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="posNetwork" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="numberOfDevices" type="INT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="posNotes" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="anyImportantNotice" type="VARCHAR(8)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="importantTopic" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="importantNotice" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="wantsOffer" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="comment" type="VARCHAR(1000)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="nextCallDate" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="completedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="meetingMemoProgress">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="userId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="meetingMemoId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="lastEntryPoint" type="VARCHAR(30)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="meetingMemoProgress_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="userId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="meetingMemoId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="lastEntryPoint" type="VARCHAR(30)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="exposure">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="companyRegularId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="account" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="stage" type="VARCHAR(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="productType" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interestRate" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="dueDate" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="exposure_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyRegularId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="account" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="stage" type="VARCHAR(10)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="productType" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interestRate" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="dueDate" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offer">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="offerType" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="subject" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="receiver" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="deliveryDeadline" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="importantNotice" type="VARCHAR(1000)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="additionalConditionsNotes" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="statusDate" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offer_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="companyId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="offerType" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="subject" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="receiver" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="deliveryDeadline" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="importantNotice" type="VARCHAR(1000)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="additionalConditionsNotes" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="status" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="statusDate" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offerLoan">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="typeOfLoan" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="purpose" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="repaymentPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="availabilityPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="gracePeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="withdrawalMethod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="repaymentMethod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interest" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="placementApprovalFee" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="feeForUndrawnFunds" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="monitoringFee" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="collaterals" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offerLoan_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="typeOfLoan" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="purpose" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="repaymentPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="availabilityPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="gracePeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="withdrawalMethod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="repaymentMethod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interest" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="placementApprovalFee" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="feeForUndrawnFunds" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="monitoringFee" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="collaterals" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offerGuarantee">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="typeOfPlacement" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="purposeOfPlacement" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="repaymentPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="availabilityPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="feesCommissions" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interestRateInCaseOfDelay" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="collaterals" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offerGuarantee_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="typeOfPlacement" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="purposeOfPlacement" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="repaymentPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="availabilityPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="feesCommissions" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interestRateInCaseOfDelay" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="collaterals" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offerFrameLine">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="typeOfPlacements" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="repaymentPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="useOfFunds" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="prices" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interestRate" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="paymentMethod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="collaterals" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offerFrameLine_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="typeOfPlacements" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="repaymentPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="useOfFunds" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="prices" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interestRate" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="paymentMethod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="collaterals" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offerDeposit">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="termDepositAmount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="termDepositPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amountOfNominalEffectiveInterestRate" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="methodOfInterestCalculationPayment" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interestRate" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="depositSecurity" type="TEXT(255)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="offerValidityPeriod" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="offerDeposit_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="termDepositAmount" type="DECIMAL(17,2)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="termDepositPeriod" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="amountOfNominalEffectiveInterestRate" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="methodOfInterestCalculationPayment" type="VARCHAR(50)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="interestRate" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="depositSecurity" type="TEXT(255)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="offerValidityPeriod" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="attachment">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="callLogId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="meetingMemoRegularId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="meetingMemoProspectId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="name" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="attachmentType" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="attachment" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="attachment_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="callLogId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="offerId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="meetingMemoRegularId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="meetingMemoProspectId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="name" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="attachmentType" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="attachment" type="VARCHAR(100)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="message">
+      <column name="id" type="VARCHAR(60)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="receivedAt" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="sessionId" type="VARCHAR(60)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex indexName="message_receivedat" tableName="message">
+      <column name="receivedAt"/>
+    </createIndex>
+
+    <createTable tableName="suspected_session">
+      <column name="id" type="VARCHAR(60)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex indexName="suspected_session_createdat" tableName="suspected_session">
+      <column name="createdAt"/>
+    </createIndex>
+
+  </changeSet>
+
+</databaseChangeLog>

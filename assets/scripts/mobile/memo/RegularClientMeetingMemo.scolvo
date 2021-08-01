@@ -1,0 +1,982 @@
+import {
+  /mobile/memo/MeetingMemoCommon,
+  /mobile/repository/BankRepository
+}
+
+var BUSINESS_COOPERATION = "businessCooperation";
+var NEW_CREDIT_ARRANGEMENT = "newCreditArrangement";
+var DOCUMENTARY_SUPPORT = "documentarySupport";
+var HIGHEST_PERCENTAGE_OF_TRANSACTIONS = "highest%PercOfTrans";
+var PREFERENTIAL_TARIFF = "preferentialTariff";
+var POS_NETWORK = "posNetwork";
+var IMPORTANT_NOTICE = "importantNotice";
+var REGULAR_MAIN_BANK = "regularMainBank";
+var REGULAR_OFFER = "regularOffer";
+var REGULAR_NEXT_CALL = "regularNextCall";
+
+function enterRegularMeetingMemo(originId) {
+  if(isMeetingMemoProgressDataNew || meetingMemoProgressData.lastEntryPoint == BUSINESS_COOPERATION) {
+    displayBusinessCooperationFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == NEW_CREDIT_ARRANGEMENT) {
+    displayNewCreditArrangementFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == DOCUMENTARY_SUPPORT) {
+    displayDocumentaryBusinessFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == HIGHEST_PERCENTAGE_OF_TRANSACTIONS) {
+    displayHighestPercentageOfTransactionsFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == PREFERENTIAL_TARIFF) {
+    displayPreferentialTariffFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == POS_NETWORK) {
+    displayPosNetworkFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == IMPORTANT_NOTICE) {
+    displayImportantNoticeFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == REGULAR_MAIN_BANK) {
+    displayRegularMainBankFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == REGULAR_OFFER) {
+    displayRegularMeetingMemoOfferFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == REGULAR_NEXT_CALL) {
+    displayRegularNextCallFragment(originId);
+  }
+}
+
+function handleRegularMeetingMemoBackNavigation(originId) {
+  if(meetingMemoProgressData.lastEntryPoint == BUSINESS_COOPERATION) {
+    displayTimeOfMeetingFragment(originId, "MeetingMemoFragmentContainer");
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == NEW_CREDIT_ARRANGEMENT) {
+    displayBusinessCooperationFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == DOCUMENTARY_SUPPORT) {
+    displayNewCreditArrangementFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == HIGHEST_PERCENTAGE_OF_TRANSACTIONS) {
+    displayDocumentaryBusinessFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == PREFERENTIAL_TARIFF) {
+    displayHighestPercentageOfTransactionsFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == POS_NETWORK) {
+    displayPreferentialTariffFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == IMPORTANT_NOTICE) {
+    displayPosNetworkFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == REGULAR_MAIN_BANK) {
+    displayImportantNoticeFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == REGULAR_OFFER) {
+    displayRegularMainBankFragment(originId);
+  }
+  else if(meetingMemoProgressData.lastEntryPoint == REGULAR_NEXT_CALL) {
+    displayRegularMeetingMemoOfferFragment(originId);
+  }
+}
+
+//========================== Meeting memo/Business cooperation
+function displayBusinessCooperationFragment(originId) {
+  saveMeetingMemoProgressData(BUSINESS_COOPERATION);
+  var data = {
+    "BusinessCooperationFragment": {
+      "BusinessCooperationYesNoInputFieldOptions": buildYesNoSelectOneOptions("hasComment")
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("BusinessCooperationYesNoInputField", "BusinessCooperationYesNoInputFieldSelectionChanged"),
+    buildSourceValueChangedEvent("BusinessCooperationCommentsInputField", "BusinessCooperationCommentsInputFieldValueChanged"),
+    buildSourceClickedEvent("BusinessCooperationNextQuestionButton", "BusinessCooperationNextQuestionButtonClicked"),
+    buildSourceClickedEvent("BusinessCooperationBackButton", "BusinessCooperationBackButtonClicked"),
+    buildTargetValueChangeEvent("BusinessCooperationCommentsInputField", getMeetingMemoTextValueByKey("mainComment"))
+  ];
+
+  if (!meetingMemoData.containsKey("hasComment") || !meetingMemoData.hasComment) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("BusinessCooperationCommentsInputField", "gone"));
+  }
+  displayFragment("MeetingMemoFragmentContainer", BusinessCooperationFragment, data, originId, actionEvents);
+}
+
+fragment BusinessCooperationFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField  BusinessCooperationYesNoInputField {
+    inputType: selectOne;
+  }
+
+  inputField BusinessCooperationCommentsInputField {
+    inputType: textArea;
+  }
+
+  container BusinessCooperationButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button BusinessCooperationBackButton {
+      template: secondaryMedium;
+    }
+
+    button BusinessCooperationNextQuestionButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onBusinessCooperationFragmentLoaded(originId) {}
+
+function onBusinessCooperationYesNoInputFieldSelectionChanged(originId) {
+  var selected = $IN.data.value;
+  saveYesNoQuestionAnswer(selected, "hasComment");
+  if(selected == "yes") {
+    fireEvent(buildTargetVisibilityChangeEvent("BusinessCooperationCommentsInputField", "visible"), originId);
+  }
+  else if(selected == "no") {
+    fireEvent(buildTargetVisibilityChangeEvent("BusinessCooperationCommentsInputField", "gone"), originId);
+  }
+}
+
+function onBusinessCooperationCommentsInputFieldValueChanged(originId) {
+  saveTextAnswer($IN.data.message, "mainComment");
+}
+
+function onBusinessCooperationNextQuestionButtonClicked(originId) {
+  removeMeetingMemoField("hasComment", false, "mainComment");
+  updateRegularMeetingMemoData();
+  displayNewCreditArrangementFragment(originId);
+  updateMemoList(false);
+}
+
+function onBusinessCooperationBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+//========================== Meeting memo/New credit arrangement
+function displayNewCreditArrangementFragment(originId) {
+  saveMeetingMemoProgressData(NEW_CREDIT_ARRANGEMENT);
+  var selectedTypeOfLoan = getMeetingMemoTextValueByKey("loanType");
+  var data = {
+    "NewCreditArrangementFragment": {
+      "NewCreditArrangementYesNoInputFieldOptions": buildYesNoSelectOneOptions("newCreditArrangement"),
+      "TypeOfLoanInputFieldOptions": buildTypeOfLoanOptions(selectedTypeOfLoan)
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("NewCreditArrangementYesNoInputField", "NewCreditArrangementYesNoInputFieldSelectionChanged"),
+    buildSourceSelectionChanged("TypeOfLoanInputField", "TypeOfLoanInputFieldSelectionChanged"),
+    buildSourceValueChangedEvent("TypeOfLoanOtherInputField", "TypeOfLoanOtherInputFieldValueChanged"),
+    buildTargetValueChangeEvent("TypeOfLoanOtherInputField", getMeetingMemoTextValueByKey("mainNeeds")),
+    buildSourceClickedEvent("NewCreditArrangementNextQuestionButton", "NewCreditArrangementNextQuestionButtonClicked"),
+    buildSourceClickedEvent("NewCreditArrangementBackButton", "NewCreditArrangementBackButtonClicked")
+  ];
+
+  if (!meetingMemoData.containsKey("newCreditArrangement") || !meetingMemoData.newCreditArrangement) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("TypeOfLoanInputField", "gone"));
+    actionEvents.add(buildTargetVisibilityChangeEvent("TypeOfLoanOtherInputField", "gone"));
+  }
+
+  if(!meetingMemoData.getOrDefault("loanType", "").isEmpty() || meetingMemoData.loanType != "other") {
+    actionEvents.add(buildTargetVisibilityChangeEvent("TypeOfLoanOtherInputField", "gone"));
+  }
+
+  displayFragment("MeetingMemoFragmentContainer", NewCreditArrangementFragment, data, originId, actionEvents);
+}
+
+fragment NewCreditArrangementFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField NewCreditArrangementYesNoInputField {
+    inputType: selectOne;
+  }
+
+  inputField TypeOfLoanInputField {
+    inputType: selectOne;
+  }
+
+  inputField TypeOfLoanOtherInputField {
+    inputType: text;
+  }
+
+  container NewCreditArrangementButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button NewCreditArrangementBackButton {
+      template: secondaryMedium;
+    }
+
+    button NewCreditArrangementNextQuestionButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onNewCreditArrangementFragmentLoaded(originId) {
+}
+
+function onNewCreditArrangementYesNoInputFieldSelectionChanged(originId) {
+  var selected = $IN.data.value;
+  saveYesNoQuestionAnswer(selected, "newCreditArrangement");
+  if(selected == "no") {
+    fireEvent(buildTargetVisibilityChangeEvent("TypeOfLoanInputField", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("TypeOfLoanOtherInputField", "gone"), originId);
+  }
+  else if(selected == "yes") {
+    fireEvent(buildTargetVisibilityChangeEvent("TypeOfLoanInputField", "visible"), originId);
+  }
+}
+
+function onTypeOfLoanInputFieldSelectionChanged(originId) {
+  saveTextAnswer($IN.data.value, "loanType");
+  if($IN.data.value == "other") {
+    fireEvent(buildTargetVisibilityChangeEvent("TypeOfLoanOtherInputField", "visible"), originId);
+  }
+  else {
+    fireEvent(buildTargetVisibilityChangeEvent("TypeOfLoanOtherInputField", "gone"), originId);
+  }
+}
+
+function onTypeOfLoanOtherInputFieldValueChanged(originId) {
+  saveTextAnswer($IN.data.message, "mainNeeds");
+}
+
+function onNewCreditArrangementNextQuestionButtonClicked(originId) {
+  removeMeetingMemoFields("newCreditArrangement", false, "loanType", "mainNeeds");
+  updateRegularMeetingMemoData();
+  displayDocumentaryBusinessFragment(originId);
+}
+
+function onNewCreditArrangementBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+function buildTypeOfLoanOptions(selectedTypeOfLoan) {
+  return [
+    buildSelectOptions("workingCapitalLoan", DICTIONARY.loanType_workingCapitalLoan, "workingCapitalLoan" == selectedTypeOfLoan),
+    buildSelectOptions("revolvingLoan", DICTIONARY.loanType_revolvingLoan, "revolvingLoan" == selectedTypeOfLoan),
+    buildSelectOptions("overdraft", DICTIONARY.loanType_overdraft, "overdraft" == selectedTypeOfLoan),
+    buildSelectOptions("investmentLoan", DICTIONARY.loanType_investmentLoan, "investmentLoan" == selectedTypeOfLoan),
+    buildSelectOptions("businessCard", DICTIONARY.loanType_businessCard, "businessCard" == selectedTypeOfLoan),
+    buildSelectOptions("other", DICTIONARY.loanType_other, "other" == selectedTypeOfLoan)
+  ];
+}
+
+//========================== Meeting memo/Documentary business
+function displayDocumentaryBusinessFragment(originId) {
+  saveMeetingMemoProgressData(DOCUMENTARY_SUPPORT);
+  var selectedTypeOfDocumentarySupport = getMeetingMemoTextValueByKey("ducumentaryBusiness");
+  var data = {
+    "DocumentaryBusinessFragment": {
+      "DocumentaryBusinessYesNoInputFieldOptions": buildYesNoSelectOneOptions("documentarySupport"),
+      "TypeOfDocumentaryBusinessInputFieldOptions": buildTypeOfDocumentaryBusinessOptions(selectedTypeOfDocumentarySupport)
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("DocumentaryBusinessYesNoInputField", "DocumentaryBusinessYesNoInputFieldSelectionChanged"),
+    buildSourceSelectionChanged("TypeOfDocumentaryBusinessInputField", "TypeOfDocumentaryBusinessInputFieldSelectionChanged"),
+    buildSourceValueChangedEvent("DocumentaryBusinessNotesInputField", "DocumentaryBusinessNotesInputFieldValueChanged"),
+    buildTargetValueChangeEvent("DocumentaryBusinessNotesInputField", getMeetingMemoTextValueByKey("ducumentaryBusinessNotes")),
+    buildSourceClickedEvent("DocumentaryBusinessNextQuestionButton", "DocumentaryBusinessNextQuestionButtonClicked"),
+    buildSourceClickedEvent("DocumentaryBusinessBackButton", "DocumentaryBusinessBackButtonClicked")
+  ];
+
+  if (!meetingMemoData.containsKey("documentarySupport") || !meetingMemoData.documentarySupport) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("TypeOfDocumentaryBusinessInputField", "gone"));
+    actionEvents.add(buildTargetVisibilityChangeEvent("DocumentaryBusinessNotesInputField", "gone"));
+  }
+
+  if(!meetingMemoData.getOrDefault("ducumentaryBusiness", "").isEmpty()) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("DocumentaryBusinessNotesInputField", "gone"));
+  }
+
+  displayFragment("MeetingMemoFragmentContainer", DocumentaryBusinessFragment, data, originId, actionEvents);
+}
+
+fragment DocumentaryBusinessFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField DocumentaryBusinessYesNoInputField {
+    inputType: selectOne;
+  }
+
+  inputField TypeOfDocumentaryBusinessInputField {
+    inputType: selectOne;
+  }
+
+  inputField DocumentaryBusinessNotesInputField {
+    inputType: textArea;
+  }
+
+  container DocumentaryBusinessButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button DocumentaryBusinessBackButton {
+      template: secondaryMedium;
+    }
+
+    button DocumentaryBusinessNextQuestionButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onDocumentaryBusinessFragmentLoaded(originId) {
+}
+
+function onDocumentaryBusinessYesNoInputFieldSelectionChanged(originId) {
+  var selected = $IN.data.value;
+  saveYesNoQuestionAnswer(selected, "documentarySupport");
+  if(selected == "no") {
+    fireEvent(buildTargetVisibilityChangeEvent("TypeOfDocumentaryBusinessInputField", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("DocumentaryBusinessNotesInputField", "gone"), originId);
+  }
+  else if(selected == "yes") {
+    fireEvent(buildTargetVisibilityChangeEvent("TypeOfDocumentaryBusinessInputField", "visible"), originId);
+    if(meetingMemoData.containsKey("ducumentaryBusiness")) {
+      fireEvent(buildTargetVisibilityChangeEvent("DocumentaryBusinessNotesInputField", "visible"), originId);
+    }
+  }
+}
+
+function onTypeOfDocumentaryBusinessInputFieldSelectionChanged(originId) {
+  saveTextAnswer($IN.data.value, "ducumentaryBusiness");
+  if($IN.data.value.isEmpty()) {
+    fireEvent(buildTargetVisibilityChangeEvent("DocumentaryBusinessNotesInputField", "gone"), originId);
+  }
+  else {
+    fireEvent(buildTargetVisibilityChangeEvent("DocumentaryBusinessNotesInputField", "visible"), originId);
+  }
+}
+
+function onDocumentaryBusinessNotesInputFieldValueChanged(originId) {
+  saveTextAnswer($IN.data.message, "ducumentaryBusinessNotes");
+}
+
+function onDocumentaryBusinessNextQuestionButtonClicked(originId) {
+  removeMeetingMemoFields("documentarySupport", false, "ducumentaryBusiness", "ducumentaryBusinessNotes");
+  updateRegularMeetingMemoData();
+  displayHighestPercentageOfTransactionsFragment(originId);
+}
+
+function onDocumentaryBusinessBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+function buildTypeOfDocumentaryBusinessOptions(selectedDocumentarySupport) {
+  return [
+    buildSelectOptions("lettersOfIntent", DICTIONARY.documentarySupport_lettersOfIntent, "lettersOfIntent" == selectedDocumentarySupport),
+    buildSelectOptions("guarantees", DICTIONARY.documentarySupport_guarantees, "guarantees" == selectedDocumentarySupport),
+    buildSelectOptions("lettersOfCredit", DICTIONARY.documentarySupport_lettersOfCredit, "lettersOfCredit" == selectedDocumentarySupport)
+  ];
+}
+
+//========================== Meeting memo/Highest percentage of transactions
+function displayHighestPercentageOfTransactionsFragment(originId) {
+  saveMeetingMemoProgressData(HIGHEST_PERCENTAGE_OF_TRANSACTIONS);
+  var selectedBank = getMeetingMemoTextValueByKey("bankId");
+
+  var data = {
+    "HighestPercentageOfTransactionsFragment": {
+      "HighestPercentageOfTransactionsBankChooserInputFieldOptions": buildBankOptions(selectedBank)
+    }
+  };
+
+  var actionEvents = [
+    buildSourceSelectionChanged("HighestPercentageOfTransactionsBankChooserInputField", "HighestPercentageOfTransactionsBankChooserInputFieldSelectionChanged"),
+    buildSourceClickedEvent("HighestPercentageOfTransactionsNextQuestionButton", "HighestPercentageOfTransactionsNextQuestionButtonClicked"),
+    buildSourceClickedEvent("HighestPercentageOfTransactionsBackButton", "HighestPercentageOfTransactionsBackButtonClicked")
+  ];
+
+  displayFragment("MeetingMemoFragmentContainer", HighestPercentageOfTransactionsFragment, data, originId, actionEvents);
+}
+
+fragment HighestPercentageOfTransactionsFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField HighestPercentageOfTransactionsBankChooserInputField {
+    inputType: selectOne;
+  }
+
+  container HighestPercentageOfTransactionsButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button HighestPercentageOfTransactionsBackButton {
+      template: secondaryMedium;
+    }
+
+    button HighestPercentageOfTransactionsNextQuestionButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onHighestPercentageOfTransactionsFragmentLoaded(originId) {}
+
+function onHighestPercentageOfTransactionsBankChooserInputFieldSelectionChanged(originId) {
+  saveTextAnswer($IN.data.value, "bankId");
+}
+
+function onHighestPercentageOfTransactionsNextQuestionButtonClicked(originId) {
+  updateRegularMeetingMemoData();
+  displayPreferentialTariffFragment(originId);
+}
+
+function onHighestPercentageOfTransactionsBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+//========================== Meeting memo/Preferential Tariff
+function displayPreferentialTariffFragment(originId) {
+  saveMeetingMemoProgressData(PREFERENTIAL_TARIFF);
+  var data = {
+    "PreferentialTariffFragment": {
+      "PreferentialTariffYesNoInputFieldOptions": buildYesNoSelectOneOptions("preferentialTariff")
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("PreferentialTariffYesNoInputField", "PreferentialTariffYesNoInputFieldSelectionChanged"),
+    buildSourceClickedEvent("PreferentialTariffNextQuestionButton", "PreferentialTariffNextQuestionButtonClicked"),
+    buildSourceClickedEvent("PreferentialTariffBackButton", "PreferentialTariffBackButtonClicked")
+  ];
+
+  displayFragment("MeetingMemoFragmentContainer", PreferentialTariffFragment, data, originId, actionEvents);
+}
+
+fragment PreferentialTariffFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField  PreferentialTariffYesNoInputField {
+    inputType: selectOne;
+  }
+
+  container PreferentialTariffButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button PreferentialTariffBackButton {
+      template: secondaryMedium;
+    }
+
+    button PreferentialTariffNextQuestionButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onPreferentialTariffFragmentLoaded(originId) {}
+
+function onPreferentialTariffYesNoInputFieldSelectionChanged(originId) {
+  var selected = $IN.data.value;
+  saveYesNoQuestionAnswer(selected, "preferentialTariff");
+}
+
+function onPreferentialTariffNextQuestionButtonClicked(originId) {
+  updateRegularMeetingMemoData();
+  displayPosNetworkFragment(originId);
+}
+
+function onPreferentialTariffBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+//========================== Meeting memo/POS network
+function displayPosNetworkFragment(originId) {
+  saveMeetingMemoProgressData(POS_NETWORK);
+  var selectedPosNetwork = getMeetingMemoTextValueByKey("posNetwork");
+  var numberOfDevices = "";
+  if(meetingMemoData.get("numberOfDevices") != null) {
+    numberOfDevices = decimalFormat(meetingMemoData.numberOfDevices, "#");
+  }
+  var data = {
+    "PosNetworkFragment": {
+      "PosNetworkInputFieldOptions": buildPosNetworkOptions(selectedPosNetwork),
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("PosNetworkInputField", "PosNetworkInputFieldSelectionChanged"),
+    buildSourceValueChangedEvent("NumberOfDevicesInputField", "NumberOfDevicesInputFieldValueChanged"),
+    buildTargetValueChangeEvent("NumberOfDevicesInputField", numberOfDevices),
+    buildSourceValueChangedEvent("PosNetworkNotesInputField", "PosNetworkNotesInputFieldValueChanged"),
+    buildTargetValueChangeEvent("PosNetworkNotesInputField", getMeetingMemoTextValueByKey("posNotes")),
+    buildSourceClickedEvent("PosNetworkNextQuestionButton", "PosNetworkNextQuestionButtonClicked"),
+    buildSourceClickedEvent("PosNetworkBackButton", "PosNetworkBackButtonClicked")
+  ];
+
+  if (!meetingMemoData.containsKey("posNetwork") || meetingMemoData.posNetwork == "no") {
+    actionEvents.add(buildTargetVisibilityChangeEvent("NumberOfDevicesInputField", "gone"));
+    actionEvents.add(buildTargetVisibilityChangeEvent("PosNetworkNotesInputField", "gone"));
+  }
+
+  displayFragment("MeetingMemoFragmentContainer", PosNetworkFragment, data, originId, actionEvents);
+}
+
+fragment PosNetworkFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField PosNetworkInputField {
+    inputType: selectOne;
+  }
+
+  inputField NumberOfDevicesInputField {
+    inputType: number;
+  }
+
+  inputField PosNetworkNotesInputField {
+    inputType: textArea;
+  }
+
+  container PosNetworkButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button PosNetworkBackButton {
+      template: secondaryMedium;
+    }
+
+    button PosNetworkNextQuestionButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onPosNetworkFragmentLoaded(originId) {
+}
+
+function onPosNetworkInputFieldSelectionChanged(originId) {
+  var selected = $IN.data.value;
+  saveTextAnswer(selected, "posNetwork");
+  if(selected != "no") {
+    fireEvent(buildTargetVisibilityChangeEvent("NumberOfDevicesInputField", "visible"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("PosNetworkNotesInputField", "visible"), originId);
+  }
+  else {
+    fireEvent(buildTargetVisibilityChangeEvent("NumberOfDevicesInputField", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("PosNetworkNotesInputField", "gone"), originId);
+  }
+}
+
+function onNumberOfDevicesInputFieldValueChanged(originId) {
+  saveInputAsNumber($IN.data.message, "numberOfDevices");
+}
+
+function onPosNetworkNotesInputFieldValueChanged(originId) {
+  saveTextAnswer($IN.data.message, "posNotes");
+}
+
+function onPosNetworkNextQuestionButtonClicked(originId) {
+  removeMeetingMemoFields("posNetwork", "no", "numberOfDevices", "posNotes");
+  updateRegularMeetingMemoData();
+  displayImportantNoticeFragment(originId);
+}
+
+function onPosNetworkBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+function buildPosNetworkOptions(selectedPosNetwork) {
+  return [
+    buildSelectOptions("wired", DICTIONARY.posNetwork_wired, "wired" == selectedPosNetwork),
+    buildSelectOptions("gps", DICTIONARY.posNetwork_gps, "gps" == selectedPosNetwork),
+    buildSelectOptions("mobile", DICTIONARY.posNetwork_mobile, "mobile" == selectedPosNetwork),
+    buildSelectOptions("no", DICTIONARY.no, "no" == selectedPosNetwork)
+  ];
+}
+
+//========================== Meeting memo/Important notice
+function displayImportantNoticeFragment(originId) {
+  saveMeetingMemoProgressData(IMPORTANT_NOTICE);
+  var selectedTopic = getMeetingMemoTextValueByKey("importantTopic");
+  var data = {
+    "ImportantNoticeFragment": {
+      "ImportantNoticeYesNoInputFieldOptions": buildYesNoSelectOneOptions("anyImportantNotice")
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("ImportantNoticeYesNoInputField", "ImportantNoticeYesNoInputFieldSelectionChanged"),
+    buildSourceValueChangedEvent("TopicInputField", "TopicInputFieldValueChanged"),
+    buildTargetValueChangeEvent("TopicInputField", getMeetingMemoTextValueByKey("importantTopic")),
+    buildSourceValueChangedEvent("NoticeInputField", "NoticeInputFieldValueChanged"),
+    buildTargetValueChangeEvent("NoticeInputField", getMeetingMemoTextValueByKey("importantNotice")),
+    buildSourceClickedEvent("ImportantNoticeNextQuestionButton", "ImportantNoticeNextQuestionButtonClicked"),
+    buildSourceClickedEvent("ImportantNoticeBackButton", "ImportantNoticeBackButtonClicked")
+  ];
+
+  if (!meetingMemoData.containsKey("anyImportantNotice") || !meetingMemoData.anyImportantNotice) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("TopicInputField", "gone"));
+    actionEvents.add(buildTargetVisibilityChangeEvent("NoticeInputField", "gone"));
+  }
+
+  if(meetingMemoData.importantTopic == null || meetingMemoData.importantTopic.isEmpty()) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("NoticeInputField", "gone"));
+  }
+
+  displayFragment("MeetingMemoFragmentContainer", ImportantNoticeFragment, data, originId, actionEvents);
+}
+
+fragment ImportantNoticeFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField ImportantNoticeYesNoInputField {
+    inputType: selectOne;
+  }
+
+  inputField TopicInputField {
+    inputType: text;
+  }
+
+  inputField NoticeInputField {
+    inputType: textArea;
+  }
+
+  container ImportantNoticeButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button ImportantNoticeBackButton {
+      template: secondaryMedium;
+    }
+
+    button ImportantNoticeNextQuestionButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onImportantNoticeFragmentLoaded(originId) {
+}
+
+function onImportantNoticeYesNoInputFieldSelectionChanged(originId) {
+  var selected = $IN.data.value;
+  saveYesNoQuestionAnswer(selected, "anyImportantNotice");
+  if(selected == "no") {
+    fireEvent(buildTargetVisibilityChangeEvent("TopicInputField", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("NoticeInputField", "gone"), originId);
+  }
+  else if(selected == "yes") {
+    fireEvent(buildTargetVisibilityChangeEvent("TopicInputField", "visible"), originId);
+  }
+}
+
+function onTopicInputFieldValueChanged(originId) {
+  var topicText = $IN.data.message;
+  saveTextAnswer(topicText, "importantTopic");
+  if(topicText.isEmpty()) {
+    fireEvent(buildTargetVisibilityChangeEvent("NoticeInputField", "gone"), originId);
+  }
+  else {
+    fireEvent(buildTargetVisibilityChangeEvent("NoticeInputField", "visible"), originId);
+  }
+}
+
+function onNoticeInputFieldValueChanged(originId) {
+  saveTextAnswer($IN.data.message, "importantNotice");
+}
+
+function onImportantNoticeNextQuestionButtonClicked(originId) {
+  removeMeetingMemoFields("anyImportantNotice", false, "importantTopic", "importantNotice");
+  updateRegularMeetingMemoData();
+  displayRegularMainBankFragment(originId);
+}
+
+function onImportantNoticeBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+//========================== Meeting memo/Regular main bank
+function displayRegularMainBankFragment(originId) {
+  saveMeetingMemoProgressData(REGULAR_MAIN_BANK);
+  var selectedBank = getMeetingMemoTextValueByKey("mainBankId");
+
+  var data = {
+    "RegularMainBankFragment": {
+      "RegularMainBankChooserInputFieldOptions": buildBankOptions(selectedBank)
+    }
+  };
+
+  var actionEvents = [
+    buildSourceSelectionChanged("RegularMainBankChooserInputField", "RegularMainBankChooserInputFieldSelectionChanged"),
+    buildSourceClickedEvent("RegularMainBankNextQuestionButton", "RegularMainBankNextQuestionButtonClicked"),
+    buildSourceClickedEvent("RegularMainBankBackButton", "RegularMainBankBackButtonClicked")
+  ];
+
+  displayFragment("MeetingMemoFragmentContainer", RegularMainBankFragment, data, originId, actionEvents);
+}
+
+fragment RegularMainBankFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField RegularMainBankChooserInputField {
+    inputType: selectOne;
+  }
+
+  container RegularMainBankButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button RegularMainBankBackButton {
+      template: secondaryMedium;
+    }
+
+    button RegularMainBankNextQuestionButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onRegularMainBankFragmentLoaded(originId) {}
+
+function onRegularMainBankChooserInputFieldSelectionChanged(originId) {
+  saveTextAnswer($IN.data.value, "mainBankId");
+}
+
+function onRegularMainBankNextQuestionButtonClicked(originId) {
+  updateRegularMeetingMemoData();
+  displayRegularMeetingMemoOfferFragment(originId);
+}
+
+function onRegularMainBankBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+//========================== Meeting memo/Meeting memo offer
+function displayRegularMeetingMemoOfferFragment(originId) {
+  saveMeetingMemoProgressData(REGULAR_OFFER);
+  var selectedOffer = getMeetingMemoTextValueByKey("wantsOffer");
+  var data = {
+    "RegularMeetingMemoOfferFragment": {
+      "RegularOfferInputFieldOptions": buildOfferOptions(selectedOffer)
+    }
+  };
+
+  var nextButtonVisibility = "visible";
+  var finishButtonVisibility = "gone";
+  var nextButtonEnabled = false;
+
+  if(selectedOffer == "yes" || selectedOffer == "no") {
+    finishButtonVisibility = "visible";
+    nextButtonVisibility = "gone";
+  }
+  else if (selectedOffer == "maybe") {
+    nextButtonEnabled = true;
+  }
+
+  var actionEvents = [
+    buildTargetEnableChangeEvent("RegularMeetingMemoOfferNextButton", nextButtonEnabled),
+    buildSourceSelectionChanged("RegularOfferInputField", "RegularOfferInputFieldSelectionChanged"),
+    buildSourceClickedEvent("RegularMeetingMemoOfferNextButton", "RegularMeetingMemoOfferNextButtonClicked"),
+    buildSourceClickedEvent("RegularMeetingMemoOfferFinishButton", "RegularMeetingMemoOfferFinishButtonClicked"),
+    buildSourceClickedEvent("RegularMeetingMemoOfferBackButton", "RegularMeetingMemoOfferBackButtonClicked"),
+    buildTargetVisibilityChangeEvent("RegularMeetingMemoOfferNextButton", nextButtonVisibility),
+    buildTargetVisibilityChangeEvent("RegularMeetingMemoOfferFinishButton", finishButtonVisibility)
+  ];
+
+  displayFragment("MeetingMemoFragmentContainer", RegularMeetingMemoOfferFragment, data, originId, actionEvents);
+}
+
+fragment RegularMeetingMemoOfferFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField RegularOfferInputField {
+    inputType: selectOne;
+  }
+
+  container RegularMeetingMemoOfferButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button RegularMeetingMemoOfferBackButton {
+      template: secondaryMedium;
+    }
+
+    button RegularMeetingMemoOfferFinishButton {
+      template: primaryMedium;
+    }
+
+    button RegularMeetingMemoOfferNextButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onRegularMeetingMemoOfferFragmentLoaded(originId) {}
+
+function onRegularOfferInputFieldSelectionChanged(originId) {
+  var selected = $IN.data.value;
+  saveTextAnswer(selected, "wantsOffer");
+  if(selected == "yes" || selected == "no") {
+    fireEvent(buildTargetVisibilityChangeEvent("RegularMeetingMemoOfferNextButton", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("RegularMeetingMemoOfferFinishButton", "visible"), originId);
+  }
+  else if(selected == "maybe") {
+    fireEvent(buildTargetEnableChangeEvent("RegularMeetingMemoOfferNextButton", true), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("RegularMeetingMemoOfferNextButton", "visible"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("RegularMeetingMemoOfferFinishButton", "gone"), originId);
+  }
+}
+
+function onRegularMeetingMemoOfferNextButtonClicked(originId) {
+  updateRegularMeetingMemoData();
+  displayRegularNextCallFragment(originId);
+}
+
+function onRegularMeetingMemoOfferFinishButtonClicked(originId) {
+  removeMeetingMemoFields("wantsOffer", "yes", "nextCallDate", "comment");
+  removeMeetingMemoFields("wantsOffer", "no", "nextCallDate", "comment");
+  saveMemoFinishData();
+  updateRegularMeetingMemoData();
+  updateMemoList(true);
+  finishPage("MeetingMemoPage", originId);
+}
+
+function onRegularMeetingMemoOfferBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}
+
+//========================== Meeting memo/Next call date
+var selectedRegularNextCallDate = null;
+var selectedRegularNextCallTime = null;
+
+function displayRegularNextCallFragment(originId) {
+  saveMeetingMemoProgressData(REGULAR_NEXT_CALL);
+  selectedRegularNextCallDate = getMeetingMemoDateByKey("nextCallDate");
+  selectedRegularNextCallTime = getMeetingMemoDateByKey("nextCallDate");
+
+  var actionEvents = [
+    buildTargetValueChangeEvent("RegularNextCallDateInput", selectedRegularNextCallDate),
+    buildTargetValueChangeEvent("RegularNextCallTimeInput", selectedRegularNextCallTime),
+    buildSourceValueChangedEvent("RegularNextCallDateInput", "RegularNextCallDateInputSelectionChanged"),
+    buildSourceValueChangedEvent("RegularNextCallTimeInput", "RegularNextCallTimeInputSelectionChanged"),
+    buildSourceValueChangedEvent("RegularCommentInputField", "RegularCommentInputFieldValueChanged"),
+    buildTargetValueChangeEvent("RegularCommentInputField", getMeetingMemoTextValueByKey("comment")),
+    buildSourceClickedEvent("RegularMeetingMemoNextCallFinishButton", "RegularMeetingMemoNextCallFinishButtonClicked"),
+    buildSourceClickedEvent("RegularMeetingMemoNextCallBackButton", "RegularMeetingMemoNextCallBackButtonClicked")
+  ];
+  displayFragment("MeetingMemoFragmentContainer", RegularNextCallFragment, {}, originId, actionEvents);
+}
+
+fragment RegularNextCallFragment {
+  layout: vertical;
+  template: detail;
+  isScrollable: true;
+
+  label QuestionLabel {
+    template: display4Secondary|multi;
+    alignment: center;
+  }
+
+  inputField RegularNextCallDateInput {
+    template: inputFieldSimple;
+    inputType: date;
+  }
+
+  inputField RegularNextCallTimeInput {
+    template: inputFieldSimple;
+    inputType: time;
+  }
+
+  inputField RegularCommentInputField {
+    inputType: textArea;
+  }
+
+  container RegularMeetingMemoNextCallButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button RegularMeetingMemoNextCallBackButton {
+      template: secondaryMedium;
+    }
+
+    button RegularMeetingMemoNextCallFinishButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onRegularNextCallFragmentLoaded(originId) {}
+
+function onRegularNextCallDateInputSelectionChanged(originId) {
+  selectedRegularNextCallDate = $IN.data.date;
+}
+
+function onRegularNextCallTimeInputSelectionChanged(originId) {
+  selectedRegularNextCallTime = $IN.data.time;
+}
+
+function onRegularCommentInputFieldValueChanged(originId) {
+  saveTextAnswer($IN.data.message, "comment");
+}
+
+function onRegularMeetingMemoNextCallFinishButtonClicked(originId) {
+  if(!isNextCallDateValid(selectedRegularNextCallDate, selectedRegularNextCallTime)) {
+    fireEvent(buildShortToastNotificationEvent(DICTIONARY.invalidNextDate_toast_message), originId);
+    return null;
+  }
+  saveNextCallDate(selectedRegularNextCallDate, selectedRegularNextCallTime);
+  saveMemoFinishData();
+  updateRegularMeetingMemoData();
+  updateMemoList(true);
+  finishPage("MeetingMemoPage", originId);
+}
+
+function onRegularMeetingMemoNextCallBackButtonClicked(originId) {
+  handleRegularMeetingMemoBackNavigation(originId);
+}

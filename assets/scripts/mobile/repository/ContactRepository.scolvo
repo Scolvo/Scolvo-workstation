@@ -1,0 +1,38 @@
+function getOrderedContactsForCompany(companyId) {
+  return select()
+    .selectAs("id")
+    .selectAs("name")
+    .selectAs("phone")
+    .selectAs("email")
+    .from("contact")
+    .where(eq("companyId", companyId))
+    .orderBy("name COLLATE NOCASE", "asc")
+    .execute();
+}
+
+function searchContactsByName(name, isBCM, rowCount, offsetCount) {
+  if (name == null || name.isEmpty()) {
+    return [];
+  }
+  var searchCondition = "%" + name + "%";
+  var searchContactQuery = select()
+    .selectAs("contact.id", "id")
+    .selectAs("contact.companyId", "companyId")
+    .selectAs("contact.name", "name")
+    .selectAs("contact.phone", "phone")
+    .selectAs("contact.email", "email")
+    .from("contact")
+    .where(like("contact.name", searchCondition));
+
+  if(isBCM) {
+    searchContactQuery
+      .selectAs("user.name", "userName")
+      .join("innerJoin", table("company"), custom("contact.companyId = company.companyId"))
+      .join("innerJoin", table("user"), custom("company.userId = user.id"));
+  }
+
+  return searchContactQuery
+    .orderBy("contact.name COLLATE NOCASE", "asc")
+    .limit(rowCount, offsetCount)
+    .execute();
+}

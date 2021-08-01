@@ -1,0 +1,84 @@
+function buildAddItemEvent(targetId, items) {
+  return buildTargetEvent(targetId, "onAddItem", items);
+}
+
+function buildRefreshItemEvent(targetId, items) {
+  return buildTargetEvent(targetId, "onRefresh", items);
+}
+
+function buildTargetEvent(targetId, targetEvent, targetData) {
+  return {
+    "targetElementId": targetId,
+    "targetElementEvent": targetEvent,
+    "data": targetData
+  };
+}
+
+function buildErrorValueChangeEvent(targetId, message) {
+  return buildTargetEvent(targetId, "onErrorValueChange", message);
+}
+
+function buildTargetTextChangeEvent(targetId, text) {
+  return buildTargetEvent(targetId, "onTextChange", text);
+}
+
+function buildTargetValueChangeEvent(targetId, actionData) {
+  return buildTargetEvent(targetId, "onValueChange", actionData);
+}
+
+function buildTargetReplaceItemEvent(targetId, data) {
+  return buildTargetEvent(targetId, "onReplaceItem", data);
+}
+
+function buildTargetEnableChangeEvent(targetId, enabledData) {
+  return buildTargetEvent(targetId, "onEnableChange", enabledData);
+}
+
+function buildRemoveItemEvent(targetId, itemId) {
+  return buildTargetEvent(targetId, "onRemoveItem", itemId);
+}
+
+function buildSourceValueChangedEvent(sourceId, trigger) {
+  return buildSourceEvent(sourceId, "onValueChanged", trigger);
+}
+
+function buildSourceSelectionChanged(sourceId, trigger) {
+  return buildSourceEvent(sourceId, "onSelectionChanged", trigger);
+}
+
+function buildSourceClickedEvent(sourceId, triggerName) {
+  return buildSourceEvent(sourceId, "onClicked", triggerName);
+}
+
+function buildSourceEvent(sourceId, sourceEvent, triggerName) {
+  return {
+    "sourceElementId": sourceId,
+    "sourceElementEvent": sourceEvent,
+    "trigger": triggerName
+  };
+}
+
+function buildTargetVisibilityChangeEvent(targetId, visiblity) {
+  return buildTargetEvent(targetId, "onVisibilityChange", visiblity);
+}
+
+function buildSelectOptions(id, text, isDefault) {
+  return {
+    "label": text,
+    "value": id,
+    "default": isDefault
+  };
+}
+
+function buildTargetTextChange(targetId, text) {
+  return buildTargetEvent(targetId, "onTextChange", text);
+}
+
+function buildShortToastNotificationEvent(message) {
+  var notificationData = {
+    "message": message,
+    "duration": "short",
+    "type": "toast"
+  };
+  return buildTargetEvent("Notification", "notify", notificationData);
+}

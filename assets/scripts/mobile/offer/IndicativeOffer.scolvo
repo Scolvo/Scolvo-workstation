@@ -1,0 +1,292 @@
+import {
+  /mobile/Builders,
+  /mobile/offer/OfferBuilder,
+  /mobile/repository/CompanyRepository,
+  /mobile/offer/guarantee/GuaranteeBasicOfferDetail,
+  /mobile/repository/OfferRepository,
+  /mobile/offer/loan/LoanBasicOfferDetail,
+  /mobile/offer/frameline/FrameLineBasicOfferDetail,
+  /mobile/offer/deposit/DepositBasicOfferDetail,
+  /mobile/offer/other/OtherBasicOfferDetail
+}
+
+var offerData = {};
+var isEditOffer = false;
+var companyDaoByOffer = null;
+
+function displayIndicativeOfferPage(originId, selectedCompanyId, selectedOfferId) {
+  isEditOffer = (selectedOfferId != null);
+  companyDaoByOffer = getCompanyByCompanyId(selectedCompanyId);
+  var offerDao = getOfferById(selectedOfferId);
+  if(offerDao == null) {
+    offerData.clear();
+    offerData.put("companyId", selectedCompanyId);
+  } else {
+    offerData.putAll(offerDao);
+  }
+
+  var actionEvents = [
+    buildTargetTextChangeEvent("CompanyNameLabel", companyDaoByOffer.name)
+  ];
+
+  display(IndicativeOfferPage, {}, originId, actionEvents);
+}
+
+page IndicativeOfferPage {
+  layout: vertical;
+  template: detail;
+  scolvoMenuVisible: false;
+
+  spacer {
+    span: 16;
+  }
+
+  label CompanyNameLabel {
+    template: heading4Secondary;
+    alignment: center;
+  }
+
+  spacer {
+    span: 16;
+  }
+
+  fragmentContainer IndicativeOfferFormContainer {}
+}
+
+function onIndicativeOfferPageLoaded(originId) {
+  displayIndicativeOfferFragment(originId);
+}
+
+function displayIndicativeOfferFragment(originId) {
+  var data = {
+    "IndicativeOfferFragment": {
+      "TypeOfProductInputFieldOptions": getOfferTypeOptions(offerData.offerType),
+      "OfferStatusInputFieldOptions": getOfferStatusOptions(offerData.status),
+      "DeliveryDeadlineInputField": offerData.deliveryDeadline,
+      "DateOfStatusUpdateInputField": offerData.statusDate
+    }
+  };
+
+  var actionEvents = [
+    buildSourceSelectionChanged("TypeOfProductInputField", "OfferTypeValueChanged"),
+    buildSourceSelectionChanged("OfferStatusInputField", "OfferStatusValueChanged"),
+    buildSourceValueChangedEvent("DeliveryDeadlineInputField", "DeliveryDeadlineValueChanged"),
+    buildSourceValueChangedEvent("DateOfStatusUpdateInputField", "DateOfStatusUpdateValueChanged"),
+    buildSourceValueChangedEvent("SubjectInputField", "SubjectValueChanged"),
+    buildSourceValueChangedEvent("ReceiverInputField", "ReceiverValueChanged"),
+    buildSourceValueChangedEvent("ImportantNoticeInputField", "ImportantNoticeValueChanged"),
+    buildSourceClickedEvent("FinishButton", "FinishButtonClicked"),
+    buildSourceClickedEvent("NextButton", "NextButtonClicked"),
+    buildTargetValueChangeEvent("SubjectInputField", offerData.getOrDefault("subject", "")),
+    buildTargetValueChangeEvent("ReceiverInputField", offerData.getOrDefault("receiver", "")),
+    buildTargetValueChangeEvent("ImportantNoticeInputField", offerData.getOrDefault("importantNotice", ""))
+  ];
+
+  if (isEditOffer) {
+    actionEvents.add(buildTargetVisibilityChangeEvent("TypeOfProductInputField", "gone"));
+  }
+
+  displayFragment("IndicativeOfferFormContainer", IndicativeOfferFragment, data, originId, actionEvents);
+}
+
+fragment IndicativeOfferFragment {
+  layout: vertical;
+  template: general;
+  isScrollable: true;
+  span: 0;
+
+  inputField TypeOfProductInputField {
+    template: inputFieldSimple;
+    inputType: selectOne;
+  }
+
+  inputField SubjectInputField {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField ReceiverInputField {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField DeliveryDeadlineInputField {
+    template: inputFieldSimple;
+    inputType: date;
+  }
+
+  inputField ImportantNoticeInputField {
+    template: inputFieldSimple;
+    inputType: textArea;
+  }
+
+  inputField OfferStatusInputField {
+    template: inputFieldSimple;
+    inputType: selectOne;
+  }
+
+  inputField DateOfStatusUpdateInputField {
+    template: inputFieldSimple;
+    inputType: date;
+  }
+
+  container IndicativeOfferButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button FinishButton {
+      template: secondaryMedium;
+    }
+
+    button NextButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onIndicativeOfferFragmentLoaded(originId) {}
+
+function onOfferTypeValueChanged(originId) {
+  offerData.put("offerType", $IN.data.value);
+}
+
+function onOfferStatusValueChanged(originId) {
+  offerData.put("status", $IN.data.value);
+}
+
+function onDeliveryDeadlineValueChanged(originId) {
+  offerData.put("deliveryDeadline", $IN.data.date);
+}
+
+function onDateOfStatusUpdateValueChanged(originId) {
+  offerData.put("statusDate", $IN.data.date);
+}
+
+function onSubjectValueChanged(originId) {
+  offerData.put("subject", $IN.data.message);
+}
+
+function onReceiverValueChanged(originId) {
+  offerData.put("receiver", $IN.data.message);
+}
+
+function onImportantNoticeValueChanged(originId) {
+  offerData.put("importantNotice", $IN.data.message);
+}
+
+function onFinishButtonClicked(originId) {
+  if (validateOfferPage(originId)) {
+    if(saveOfferPage(originId)) {
+      publishOfferToList();
+    } else {
+      refreshOfferInList();
+    }
+    finishPage("IndicativeOfferPage", originId);
+  }
+}
+
+function onNextButtonClicked(originId) {
+  if (validateOfferPage(originId)) {
+    if(saveOfferPage(originId)) {
+      publishOfferToList();
+    } else {
+      refreshOfferInList();
+    }
+    if (offerData.offerType == OFFER_TYPE_LOAN) {
+      displayLoanBasicOfferDetailFragment(offerData.id, originId);
+    } else if (offerData.offerType == OFFER_TYPE_GUARANTEE) {
+      displayGuaranteeBasicOfferDetailFragment(offerData.id, originId);
+    } else if (offerData.offerType == OFFER_TYPE_FRAMELINE) {
+      displayFrameLineBasicOfferDetailFragment(offerData.id, originId);
+    } else if (offerData.offerType == OFFER_TYPE_DEPOSIT) {
+      displayDepositBasicOfferDetailFragment(offerData.id, originId);
+    } else {
+      displayOtherBasicDetailFragment(originId);
+    }
+  }
+}
+
+function publishOfferToList() {
+  refreshOfferInList();
+}
+
+function refreshOfferInList() {
+  var offers = buildOfferDataFromDao(getOffersForCompany(offerData.companyId));
+  fireEvent(buildRefreshItemEvent("OfferList", offers), "ProspectClientDetailPage");
+  fireEvent(buildRefreshItemEvent("OfferList", offers), "RegularClientDetailPage");
+}
+
+function saveOfferPage(originId) {
+  var isNewlyCreated = false;
+  if(offerData.containsKey("id")) {
+    offerData.put("changeType", "UPDATE");
+
+    updateExecution("offer", offerData.id, offerData);
+    var offerSearchDao = offerData.deepClone();
+    offerSearchDao.put("companyName", companyDaoByOffer.name);
+    fireEvent(buildRefreshItemEvent("OfferSearchList", getOfferSearchDataByTypeAndStatusAndStatusUpdate(20, 0)), "AdvancedSearchPage");
+  } else {
+    offerData.put("id", uuid());
+    offerData.put("changeType", "INSERT");
+    offerData.put("createdAt", nowInMillis());
+
+    insertExecution("offer", offerData);
+    isNewlyCreated = true;
+    createOfferDetailForType(originId);
+  }
+
+  sendDataChangeRq(originId, "offer", [offerData]);
+  return isNewlyCreated;
+}
+
+function createOfferDetailForType(originId) {
+  var detail = {
+    "id": uuid(),
+    "offerId": offerData.id,
+    "changeType": "INSERT"
+  };
+
+  if (offerData.offerType == OFFER_TYPE_LOAN) {
+    insertExecution("offerLoan", detail);
+    sendDataChangeRq(originId, "offerLoan", [detail]);
+  } else if (offerData.offerType == OFFER_TYPE_GUARANTEE) {
+    insertExecution("offerGuarantee", detail);
+    sendDataChangeRq(originId, "offerGuarantee", [detail]);
+  } else if (offerData.offerType == OFFER_TYPE_FRAMELINE) {
+    insertExecution("offerFrameLine", detail);
+    sendDataChangeRq(originId, "offerFrameLine", [detail]);
+  } else if (offerData.offerType == OFFER_TYPE_DEPOSIT) {
+    insertExecution("offerDeposit", detail);
+    sendDataChangeRq(originId, "offerDeposit", [detail]);
+  }
+}
+
+function validateOfferPage(originId) {
+  if (offerData.offerType == null) {
+    fireEvent(buildErrorValueChangeEvent("TypeOfProductInputField", DICTIONARY.offerValidationMsg_Type), originId);
+  } else if (offerData.subject == null || offerData.subject.isEmpty()) {
+    fireEvent(buildErrorValueChangeEvent("SubjectInputField", DICTIONARY.offerValidationMsg_Subject), originId);
+  } else if (offerData.subject.length() > 50) {
+    fireEvent(buildErrorValueChangeEvent("SubjectInputField", DICTIONARY.offerValidationMsg_SubjectTooLong), originId);
+  } else if (offerData.receiver != null && offerData.receiver.length() > 50) {
+    fireEvent(buildErrorValueChangeEvent("ReceiverInputField", DICTIONARY.offerValidationMsg_ReceiverTooLong), originId);
+  } else if (offerData.importantNotice != null && offerData.importantNotice.length() > 1000) {
+    fireEvent(buildErrorValueChangeEvent("ImportantNoticeInputField", DICTIONARY.offerValidationMsg_ImportantNoticeTooLong), originId);
+  } else if (offerData.status == null) {
+    fireEvent(buildErrorValueChangeEvent("OfferStatusInputField", DICTIONARY.offerValidationMsg_Status), originId);
+  } else if (offerData.statusDate == null) {
+    fireEvent(buildErrorValueChangeEvent("DateOfStatusUpdateInputField", DICTIONARY.offerValidationMsg_StatusUpdate), originId);
+  } else {
+    return true;
+  }
+  return false;
+}
+
+function updateOfferNotes(originId) {
+  var offerUpdateNotesData = {
+    "id": offerData.id,
+    "additionalConditionsNotes": offerData.additionalConditionsNotes,
+    "changeType": "UPDATE"
+  };
+  updateExecution("offer", offerUpdateNotesData.id, offerUpdateNotesData);
+  sendDataChangeRq(uuid(), "offer", [offerUpdateNotesData]);
+}

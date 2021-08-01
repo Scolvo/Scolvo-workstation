@@ -1,0 +1,234 @@
+function getRegularMeetingMemosByCompanyId(companyId) {
+  return select()
+  .selectAs("id")
+  .selectAs("companyRegularId")
+  .selectAs("bankId")
+  .selectAs("mainBankId")
+  .selectAs("strftime('%d.%m.%Y %H:%M', datetime(plannedMeetingDate/1000, 'unixepoch'))", "plannedMeetingDate")
+  .selectAs("plannedMeetingDate", "plannedMeetingDateInNumber")
+  .selectAs("hasComment")
+  .selectAs("mainComment")
+  .selectAs("newCreditArrangement")
+  .selectAs("loanType")
+  .selectAs("mainNeeds")
+  .selectAs("documentarySupport")
+  .selectAs("ducumentaryBusiness")
+  .selectAs("ducumentaryBusinessNotes")
+  .selectAs("preferentialTariff")
+  .selectAs("posNetwork")
+  .selectAs("numberOfDevices")
+  .selectAs("posNotes")
+  .selectAs("anyImportantNotice")
+  .selectAs("importantTopic")
+  .selectAs("importantNotice")
+  .selectAs("wantsOffer")
+  .selectAs("comment")
+  .selectAs("status")
+  .selectAs("strftime('%d.%m.%Y %H:%M', datetime(nextCallDate/1000, 'unixepoch'))", "nextCallDate")
+  .selectAs("strftime('%d.%m.%Y %H:%M', datetime(completedAt/1000, 'unixepoch'))", "completedAt")
+  .selectAs("strftime('%d.%m.%Y', datetime(createdAt/1000, 'unixepoch'))", "createdAt")
+  .selectAs("strftime('%d.%m.%Y', datetime(updatedAt/1000, 'unixepoch'))", "updatedAt")
+  .from("meetingMemoRegular")
+  .where(eq("companyRegularId", companyId))
+  .orderBy("plannedMeetingDateInNumber", "desc")
+  .execute();
+}
+
+function getProspectMeetingMemosByCompanyId(companyId) {
+  return select()
+  .selectAs("id")
+  .selectAs("companyProspectId")
+  .selectAs("bankId")
+  .selectAs("strftime('%d.%m.%Y %H:%M', datetime(plannedMeetingDate/1000, 'unixepoch'))", "plannedMeetingDate")
+  .selectAs("plannedMeetingDate", "plannedMeetingDateInNumber")
+  .selectAs("registeredActivityIsMain")
+  .selectAs("coreBusiness")
+  .selectAs("significantSeasonality")
+  .selectAs("beginningOfSeason")
+  .selectAs("retailNetwork")
+  .selectAs("numberOfStores")
+  .selectAs("termOfBuyersPayment")
+  .selectAs("termOfSuppliersPayment")
+  .selectAs("hasNewPhoneNumber")
+  .selectAs("newPhoneNumber")
+  .selectAs("wantsOffer")
+  .selectAs("comment")
+  .selectAs("status")
+  .selectAs("strftime('%d.%m.%Y %H:%M', datetime(nextCallDate/1000, 'unixepoch'))", "nextCallDate")
+  .selectAs("strftime('%d.%m.%Y %H:%M', datetime(completedAt/1000, 'unixepoch'))", "completedAt")
+  .selectAs("strftime('%d.%m.%Y', datetime(createdAt/1000, 'unixepoch'))", "createdAt")
+  .selectAs("strftime('%d.%m.%Y', datetime(updatedAt/1000, 'unixepoch'))", "updatedAt")
+  .from("meetingMemoProspect")
+  .where(eq("companyProspectId", companyId))
+  .orderBy("plannedMeetingDateInNumber", "desc")
+  .execute();
+}
+
+function getRegularMeetingMemoById(meetingMemoId) {
+  var meetingMemoDaos = select()
+  .from("meetingMemoRegular")
+  .where(eq("id", meetingMemoId))
+  .execute();
+
+  if(meetingMemoDaos.isEmpty()) {
+    return null;
+  }
+  return meetingMemoDaos.get(0);
+}
+
+function getProspectMeetingMemoById(meetingMemoId) {
+  var meetingMemoDaos = select()
+  .from("meetingMemoProspect")
+  .where(eq("id", meetingMemoId))
+  .execute();
+
+  if(meetingMemoDaos.isEmpty()) {
+    return null;
+  }
+  return meetingMemoDaos.get(0);
+}
+
+function getMeetingMemoProgressByMeetingMemoId(meetingMemoId) {
+  var meetingMemoProgressDaos = select()
+  .from("meetingMemoProgress")
+  .where(eq("meetingMemoId", meetingMemoId))
+  .execute();
+
+  if(meetingMemoProgressDaos.isEmpty()) {
+    return null;
+  }
+  return meetingMemoProgressDaos.get(0);
+}
+
+function getBuyersByMeetingMemoId(meetingMemoId) {
+  return select()
+  .from("buyerSupplier")
+  .where(and(eq("meetingMemoId", meetingMemoId), eq("type", "B")))
+  .execute();
+}
+
+function getSuppliersByMeetingMemoId(meetingMemoId) {
+  return select()
+  .from("buyerSupplier")
+  .where(and(eq("meetingMemoId", meetingMemoId), eq("type", "S")))
+  .execute();
+}
+
+function searchMemoByDateAndContent(content, fromDate, toDate, isBCM, rowCount, offsetCount) {
+  var data = searchMemoProspectByDateAndContent(content, fromDate, toDate, isBCM, rowCount, offsetCount);
+  data.addAll(searchMemoRegularByDateAndContent(content, fromDate, toDate, isBCM, rowCount, offsetCount));
+
+  return data.sort(function(lmemo, rmemo) {
+    return rmemo.plannedMeetingDateInNumber.compareTo(lmemo.plannedMeetingDateInNumber);
+  });
+}
+
+function searchMemoProspectByDateAndContent(content, fromDate, toDate, isBCM, rowCount, offsetCount) {
+  var memoQuery = select()
+    .selectAs("meetingMemoProspect.id")
+    .selectAs("companyProspectId")
+    .selectAs("strftime('%d.%m.%Y %H:%M', datetime(plannedMeetingDate/1000, 'unixepoch'))", "plannedMeetingDate")
+    .selectAs("plannedMeetingDate", "plannedMeetingDateInNumber")
+    .selectAs("wantsOffer")
+    .selectAs("comment")
+    .selectAs("status")
+    .selectAs("company.name", "companyName")
+    .selectAs("strftime('%d.%m.%Y %H:%M', datetime(nextCallDate/1000, 'unixepoch'))", "nextCallDate")
+    .selectAs("strftime('%d.%m.%Y %H:%M', datetime(completedAt/1000, 'unixepoch'))", "completedAt")
+    .selectAs("strftime('%d.%m.%Y', datetime(createdAt/1000, 'unixepoch'))", "createdAt")
+    .selectAs("strftime('%d.%m.%Y', datetime(updatedAt/1000, 'unixepoch'))", "updatedAt")
+    .from("meetingMemoProspect")
+    .join("innerJoin", table("company"), custom("meetingMemoProspect.companyProspectId = company.companyId"));
+
+  if(isBCM) {
+    memoQuery
+    .selectAs("user.name", "userName")
+    .join("innerJoin", table("user"), custom("company.userId = user.id"));
+  }
+
+  if (content != null && !content.isEmpty()) {
+    if (fromDate == null && toDate == null) {
+      memoQuery.where(wantsOfferEmptyOrValue(content));
+    } else if (fromDate != null && toDate == null) {
+      memoQuery.where(and(gEq("plannedMeetingDate", fromDate), wantsOfferEmptyOrValue(content)));
+    } else if (fromDate == null && toDate != null) {
+      memoQuery.where(and(lEq("plannedMeetingDate", toDate), wantsOfferEmptyOrValue(content)));
+    } else if (fromDate != null && toDate != null) {
+      memoQuery.where(and(between("plannedMeetingDate", fromDate, toDate), wantsOfferEmptyOrValue(content)));
+    }
+  } else {
+    if (fromDate == null && toDate == null) {
+      return [];
+    } else if (fromDate != null && toDate == null) {
+      memoQuery.where(gEq("plannedMeetingDate", fromDate));
+    } else if (fromDate == null && toDate != null) {
+      memoQuery.where(lEq("plannedMeetingDate", toDate));
+    } else if (fromDate != null && toDate != null) {
+      memoQuery.where(between("plannedMeetingDate", fromDate, toDate));
+    }
+  }
+
+  return memoQuery
+  .orderBy("company.name", "asc")
+  .limit(rowCount, offsetCount)
+  .execute();
+}
+
+function searchMemoRegularByDateAndContent(content, fromDate, toDate, isBCM, rowCount, offsetCount) {
+  var memoQuery = select()
+    .selectAs("meetingMemoRegular.id")
+    .selectAs("companyRegularId")
+    .selectAs("strftime('%d.%m.%Y %H:%M', datetime(plannedMeetingDate/1000, 'unixepoch'))", "plannedMeetingDate")
+    .selectAs("plannedMeetingDate", "plannedMeetingDateInNumber")
+    .selectAs("wantsOffer")
+    .selectAs("comment")
+    .selectAs("status")
+    .selectAs("company.name", "companyName")
+    .selectAs("strftime('%d.%m.%Y %H:%M', datetime(nextCallDate/1000, 'unixepoch'))", "nextCallDate")
+    .selectAs("strftime('%d.%m.%Y %H:%M', datetime(completedAt/1000, 'unixepoch'))", "completedAt")
+    .selectAs("strftime('%d.%m.%Y', datetime(createdAt/1000, 'unixepoch'))", "createdAt")
+    .selectAs("strftime('%d.%m.%Y', datetime(updatedAt/1000, 'unixepoch'))", "updatedAt")
+    .from("meetingMemoRegular")
+    .join("innerJoin", table("company"), custom("meetingMemoRegular.companyRegularId = company.companyId"));
+
+  if(isBCM) {
+    memoQuery
+    .selectAs("user.name", "userName")
+    .join("innerJoin", table("user"), custom("company.userId = user.id"));
+  }
+
+  if (content != null && !content.isEmpty()) {
+    if (fromDate == null && toDate == null) {
+      memoQuery.where(wantsOfferEmptyOrValue(content));
+    } else if (fromDate != null && toDate == null) {
+      memoQuery.where(and(gEq("plannedMeetingDate", fromDate), wantsOfferEmptyOrValue(content)));
+    } else if (fromDate == null && toDate != null) {
+      memoQuery.where(and(lEq("plannedMeetingDate", toDate), wantsOfferEmptyOrValue(content)));
+    } else if (fromDate != null && toDate != null) {
+      memoQuery.where(and(between("plannedMeetingDate", fromDate, toDate), wantsOfferEmptyOrValue(content)));
+    }
+  } else {
+    if (fromDate == null && toDate == null) {
+      return [];
+    } else if (fromDate != null && toDate == null) {
+      memoQuery.where(gEq("plannedMeetingDate", fromDate));
+    } else if (fromDate == null && toDate != null) {
+      memoQuery.where(lEq("plannedMeetingDate", toDate));
+    } else if (fromDate != null && toDate != null) {
+      memoQuery.where(between("plannedMeetingDate", fromDate, toDate));
+    }
+  }
+
+  return memoQuery
+  .orderBy("company.name", "asc")
+  .limit(rowCount, offsetCount)
+  .execute();
+}
+
+function wantsOfferEmptyOrValue(wantsOffer) {
+  if(wantsOffer == "empty") {
+    return custom("wantsOffer is NULL");
+  } else {
+    return eq("wantsOffer", content);
+  }
+}

@@ -1,0 +1,139 @@
+import {
+  /mhub/DataChange,
+  /mhub/Builders,
+  /mhub/SessionUser,
+  /mhub/user/CreateModifyUserCommon,
+  /mhub/common/CorporateCommon,
+  /common/TypeDefinitionExtension,
+  /mhub/repository/BusinessCenterRepository,
+  /mhub/repository/UserRepository
+}
+
+function displayCreateUserPage(originId) {
+  createUserSelectedRole = null;
+  createUserSelectedBusinesCenterId = null;
+
+  var data = {
+    "CreateUserPage": {
+      "CreateUserForm": {
+        "roleOptions": getRoleOptions(null),
+        "corporateOptions": getCorporateOptions(null),
+        "businessCenterOptions": getBusinessCenterOptions(null)
+      }
+    }
+  };
+
+  var actionEvents = [
+    buildSourceValueChangedEvent("Role", "RoleValueChanged"),
+    buildSourceValueChangedEvent("Corporate", "CorporateValueChanged"),
+    buildSourceValueChangedEvent("BusinessCenter", "BusinessCenterValueChanged"),
+    buildTargetVisibilityChangeEvent("Corporate", "gone"),
+    buildTargetVisibilityChangeEvent("BusinessCenter", "gone"),
+    buildTargetVisibilityChangeEvent("RmIdCode", "gone")
+  ];
+
+  display(CreateUserPage, data, originId, actionEvents);
+}
+
+page CreateUserPage {
+  layout: vertical;
+  template: general;
+
+  form CreateUserForm {
+    template: normal;
+    span: 24;
+    actions: [
+      BackToUsers,
+      SaveUser
+    ]
+    fields: [
+      field Name => name formItemInputNormal,
+      field Email => email formItemInputNormal,
+      field Phone => phone formItemInputNormal,
+      field Role => role formItemSelectNormal,
+      field Corporate => corporate formItemSelectNormal,
+      field BusinessCenter => businessCenter formItemSelectNormal,
+      field RmIdCode => rmIdCode formItemInputNormal,
+      field Username => username formItemInputNormal,
+      field Password => password formItemInputPassword,
+      field ConfirmPassword => confirmPassword formItemInputPassword
+    ]
+  }
+}
+
+function onCreateUserPageLoaded(originId) {}
+
+function onBackToUsers(originId) {
+  onUsers(originId);
+}
+
+var createdUserPassword;
+
+function onSaveUser(originId) {
+  var userData = $IN.data;
+  var userValidationResult = validateUserData(userData, originId);
+  if (userValidationResult.messages.size() != 0) {
+    publish(userValidationResult);
+    return null;
+  }
+
+  var businessCenterId = createUserSelectedBusinesCenterId;
+
+  if (sessionUserIsBusinessCenterManager()) {
+    businessCenterId = getUserById(sessionUserId()).businessCenterId;
+  }
+
+  var userDao = {
+    "id": uuid(),
+    "name": userData.Name,
+    "role": userData.Role
+    "email": userData.Email,
+    "phone": userData.Phone,
+    "corporate": createUserSelectedCorporate,
+    "role": createUserSelectedRole,
+    "rmCode": userData.RmIdCode,
+    "username": userData.Username,
+    "status": "active",
+    "businessCenterId": businessCenterId,
+    "changeType": "INSERT"
+  };
+
+  createdUserPassword = userData.Password;
+
+  var requestData = {
+    "type": "userDataValidationRequest",
+    "requestId": getRequestId(),
+    "userDao": userDao,
+    "operation": "create"
+  };
+
+  sendDataChangeRq(originId, "request", [requestData]);
+}
+
+function saveUser(userDao, isEmailAddressAvailable) {
+  if (!isEmailAddressAvailable) {
+    var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+    validationResult.addMessage("ERROR", "Email", DICTIONARY.validationMsg_mailAlreadyExists);
+    publish(validationResult);
+  } else {
+    insertExecution("user", userDao);
+    userDao.put("password", createdUserPassword);
+    sendDataChangeRq(originId, "user", [userDao]);
+
+    onUsers(originId);
+  }
+}
+
+//========================== Validation
+function validateUserData(userData, originId) {
+  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+  validateUserName(validationResult, userData);
+  validateUserMail(validationResult, userData);
+  validateUserRole(validationResult, userData);
+  if (userData.Role == ROLE_RELATIONSHIP_MANAGER) {
+    validateRmIdCode(validationResult, userData);
+  }
+  validateUsername(validationResult, userData);
+  validateUserPassword(validationResult, userData);
+  return validationResult;
+}

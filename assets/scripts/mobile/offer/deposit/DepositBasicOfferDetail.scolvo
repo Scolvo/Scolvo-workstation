@@ -1,0 +1,201 @@
+import {
+  /mobile/Builders,
+  /mobile/repository/OfferRepository
+}
+
+var depositOfferData = {};
+
+function displayDepositBasicOfferDetailFragment(offerId, originId) {
+  if (offerId != null && !offerId.isEmpty()) {
+    depositOfferData.clear();
+    depositOfferData.put("offerId", offerId);
+    depositOfferData.putAll(getDepositOfferByOfferId(offerId));
+  }
+
+  var termDepositAmount = depositOfferData.termDepositAmount;
+  if (depositOfferData.termDepositAmount != null && isNumber(depositOfferData.termDepositAmount.toString())) {
+    termDepositAmount = decimalFormat(depositOfferData.termDepositAmount, "###,##0.00");
+  }
+
+  var data = {
+    "DepositBasicOfferDetailFragment": {
+      "TermDepositCurrencyOptions": buildCurrencyOptions(depositOfferData.getOrDefault("currency", ""))
+    }
+  };
+
+  var actionEvents = [
+    buildSourceValueChangedEvent("TermDepositAmount", "TermDepositAmountValueChanged"),
+    buildSourceSelectionChanged("TermDepositCurrency", "TermDepositCurrencySelectionChanged"),
+    buildSourceValueChangedEvent("TermDepositPeriod", "TermDepositPeriodValueChanged"),
+    buildSourceValueChangedEvent("AmountOfNominalEffectiveInterestRate", "AmountOfNominalEffectiveInterestRateValueChanged"),
+    buildSourceValueChangedEvent("MethodOfInterestCalculationPayment", "MethodOfInterestCalculationPaymentValueChanged"),
+    buildSourceValueChangedEvent("InterestRate", "DepositOfferInterestRateValueChanged"),
+    buildSourceValueChangedEvent("DepositSecurity", "DepositSecurityValueChanged"),
+    buildSourceValueChangedEvent("OfferValidityPeriod", "DepositOfferOfferValidityPeriodValueChanged"),
+    buildSourceClickedEvent("PrevButton", "DepositBasicOfferDetailPrevButtonClicked"),
+    buildSourceClickedEvent("FinishButton", "DepositBasicOfferDetailFinishButtonClicked"),
+    buildTargetValueChangeEvent("TermDepositAmount", termDepositAmount),
+    buildTargetValueChangeEvent("TermDepositPeriod", depositOfferData.termDepositPeriod),
+    buildTargetValueChangeEvent("AmountOfNominalEffectiveInterestRate", depositOfferData.amountOfNominalEffectiveInterestRate),
+    buildTargetValueChangeEvent("MethodOfInterestCalculationPayment", depositOfferData.methodOfInterestCalculationPayment),
+    buildTargetValueChangeEvent("InterestRate", depositOfferData.interestRate),
+    buildTargetValueChangeEvent("DepositSecurity", depositOfferData.depositSecurity),
+    buildTargetValueChangeEvent("OfferValidityPeriod", depositOfferData.offerValidityPeriod)
+  ];
+  displayFragment("IndicativeOfferFormContainer", DepositBasicOfferDetailFragment, data, originId, actionEvents);
+}
+
+fragment DepositBasicOfferDetailFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+  isScrollable: true;
+
+  inputField TermDepositAmount {
+    template: inputFieldSimple;
+    inputType: number;
+  }
+
+  inputField TermDepositCurrency {
+    inputType: selectOne;
+  }
+
+  inputField TermDepositPeriod {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField AmountOfNominalEffectiveInterestRate {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField MethodOfInterestCalculationPayment {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField InterestRate {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField DepositSecurity {
+    template: inputFieldSimple;
+    inputType: text;
+  }
+
+  inputField OfferValidityPeriod {
+    template: inputFieldSimple;
+    inputType: date;
+  }
+
+  container ButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button PrevButton {
+      template: secondaryMedium;
+    }
+
+    button FinishButton {
+      template: primaryMedium;
+    }
+  }
+
+}
+
+function onDepositBasicOfferDetailFragmentLoaded(originId) {}
+
+function onTermDepositAmountValueChanged(originId) {
+  if ($IN.data.message != null && !$IN.data.message.isEmpty()) {
+    depositOfferData.put("termDepositAmount", parseNumber($IN.data.message));
+  } else {
+    depositOfferData.put("termDepositAmount", null);
+  }
+}
+
+function onTermDepositCurrencySelectionChanged(originId) {
+  depositOfferData.put("currency", $IN.data.value);
+}
+
+function onTermDepositPeriodValueChanged(originId) {
+  depositOfferData.put("termDepositPeriod", $IN.data.message);
+}
+
+function onAmountOfNominalEffectiveInterestRateValueChanged(originId) {
+  depositOfferData.put("amountOfNominalEffectiveInterestRate", $IN.data.message);
+}
+
+function onMethodOfInterestCalculationPaymentValueChanged(originId) {
+  depositOfferData.put("methodOfInterestCalculationPayment", $IN.data.message);
+}
+
+function onDepositOfferInterestRateValueChanged(originId) {
+  depositOfferData.put("interestRate", $IN.data.message);
+}
+
+function onDepositSecurityValueChanged(originId) {
+  depositOfferData.put("depositSecurity", $IN.data.message);
+}
+
+function onDepositOfferOfferValidityPeriodValueChanged(originId) {
+  depositOfferData.put("offerValidityPeriod", $IN.data.date);
+}
+
+function onDepositBasicOfferDetailPrevButtonClicked(originId) {
+  displayIndicativeOfferFragment(originId);
+}
+
+function onDepositBasicOfferDetailFinishButtonClicked(originId) {
+  if (validateDepositOfferDetailFragment(originId)) {
+    saveDepositOffer(originId);
+  }
+}
+
+function validateDepositOfferDetailFragment(originId) {
+  var isValid = true;
+  if(depositOfferData.currency == null || depositOfferData.currency.isEmpty()) {
+    fireEvent(buildErrorValueChangeEvent("TermDepositCurrency", DICTIONARY.validationMsg_requiredField), originId);
+    isValid = false;
+  }
+  if(depositOfferData.termDepositPeriod != null && depositOfferData.termDepositPeriod.length() > 50) {
+    fireEvent(buildErrorValueChangeEvent("termDepositPeriod", DICTIONARY.validationMsg_TooLong50), originId);
+    isValid = false;
+  }
+  if(depositOfferData.amountOfNominalEffectiveInterestRate != null && depositOfferData.amountOfNominalEffectiveInterestRate.length() > 100) {
+    fireEvent(buildErrorValueChangeEvent("termDepositPeriod", DICTIONARY.validationMsg_TooLong100), originId);
+    isValid = false;
+  }
+  if(depositOfferData.methodOfInterestCalculationPayment != null && depositOfferData.methodOfInterestCalculationPayment.length() > 50) {
+    fireEvent(buildErrorValueChangeEvent("termDepositPeriod", DICTIONARY.validationMsg_TooLong50), originId);
+    isValid = false;
+  }
+  if(depositOfferData.interestRate != null && depositOfferData.interestRate.length() > 100) {
+    fireEvent(buildErrorValueChangeEvent("termDepositPeriod", DICTIONARY.validationMsg_TooLong100), originId);
+    isValid = false;
+  }
+  if(depositOfferData.depositSecurity != null && depositOfferData.depositSecurity.length() > 255) {
+    fireEvent(buildErrorValueChangeEvent("termDepositPeriod", DICTIONARY.validationMsg_TooLong255), originId);
+    isValid = false;
+  }
+  if (depositOfferData.termDepositAmount == null) {
+    fireEvent(buildErrorValueChangeEvent("TermDepositAmount", DICTIONARY.validationMsg_requiredField), originId);
+    isValid = false;
+  }
+  return isValid;
+}
+
+function saveDepositOffer(originId) {
+  finishPage("IndicativeOfferPage", originId);
+  if (depositOfferData.containsKey("id")) {
+    depositOfferData.put("changeType", "UPDATE");
+
+    updateExecution("offerDeposit", depositOfferData.id, depositOfferData);
+  } else {
+    depositOfferData.put("id", uuid());
+    depositOfferData.put("changeType", "INSERT");
+
+    insertExecution("offerDeposit", depositOfferData);
+  }
+  sendDataChangeRq(originId, "offerDeposit", [depositOfferData]);
+}

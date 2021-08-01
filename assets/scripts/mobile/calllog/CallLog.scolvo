@@ -1,0 +1,109 @@
+import {
+  /mobile/SessionUser,
+  /mobile/repository/CallLogRepository,
+  /mobile/calllog/AddCallLog,
+  /mobile/calllog/CallLogDetail
+}
+
+var callLogCompanyId = null;
+var isCallLogCalledFromSearch;
+var callLogParentPageId;
+
+function getCallLogListData(companyId) {
+  return getOrderedCallLogsForCompany(companyId).map(function (callLogDao) {
+    return buildCallLogListItem(callLogDao, false);
+  });
+}
+
+function displayCallLogsFragment(originId, fragmentContainerId, companyId, parentPageId) {
+  callLogCompanyId = companyId;
+  callLogParentPageId = parentPageId;
+  var data = {};
+  var callLogListData = {"CallLogsList": getCallLogListData(companyId)};
+
+  if (sessionUserIsRM() || sessionUserIsBCM()) {
+    data.put("CallLogsFragment", callLogListData);
+    displayFragment(fragmentContainerId, CallLogsFragment, data, originId);
+  } else {
+    data.put("CallLogsBCMFragment", callLogListData);
+    displayFragment(fragmentContainerId, CallLogsBCMFragment, data, originId);
+  }
+}
+
+
+fragment CallLogsFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list CallLogsList {
+    template: listVerticalNormal;
+    span: 0;
+    itemTemplate: listItemCard;
+    actions: [
+      AddCallLog
+    ]
+    columns: [
+      mainText => createdAt,
+      text => comment
+    ]
+  }
+}
+
+fragment CallLogsBCMFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list CallLogsList {
+    template: listVerticalNormal;
+    span: 0;
+    itemTemplate: listItemCard;
+    columns: [
+      mainText => createdAt,
+      text => comment
+    ]
+  }
+}
+
+function buildCallLogListItem(callLogDao, isSearch) {
+  isCallLogCalledFromSearch = isSearch;
+  var callLogListItem = {
+    "id": callLogDao.id
+  };
+  if(isSearch) {
+    var client = getCompanyByCompanyId(callLogDao.companyId);
+    var clientName = "";
+    if(client != null) {
+      clientName = client.name;
+    }
+    var createdAtAndComment = callLogDao.createdAt;
+    var callLogComment = callLogDao.getOrDefault("comment", "");
+    if(!callLogComment.isEmpty()) {
+      createdAtAndComment += "\n" + callLogComment;
+    }
+    if(!sessionUserIsRM() && callLogDao.userName != null && !callLogDao.userName.isEmpty()) {
+      createdAtAndComment = createdAtAndComment + "\n" + DICTIONARY.rm + ": " + callLogDao.getOrDefault("userName", "");
+    }
+    callLogListItem.put("clientName", clientName);
+    callLogListItem.put("createdAtAndComment", createdAtAndComment);
+  }
+  else {
+    callLogListItem.put("comment", callLogDao.comment);
+    callLogListItem.put("createdAt", callLogDao.createdAt);
+  }
+
+  return callLogListItem;
+}
+
+function onCallLogsBCMFragmentLoaded(originId) {}
+
+function onCallLogsFragmentLoaded(originId) {}
+
+function onAddCallLog(originId) {
+  displayCallLogPage(originId, callLogCompanyId, callLogParentPageId);
+}
+
+function onCallLogsListSelectionChanged(originId) {
+  displayCallLogDetailPage(originId, $IN.data.id, callLogParentPageId);
+}

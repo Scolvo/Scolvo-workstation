@@ -1,0 +1,101 @@
+import {
+  /mobile/Builders,
+  /mobile/repository / CompanyRepository,
+  /mobile/client / RegularClientDetail,
+  /mobile/client / ProspectClientDetail
+}
+
+var companySearchContent = null;
+
+function displayCompanySearchFragment(originId, fragmentContainerId) {
+  companySearchContent = null;
+  displayFragment(fragmentContainerId, CompanySearchFragment, {}, originId);
+}
+
+fragment CompanySearchFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list CompanySearchList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCard;
+    span: 0;
+    paged: true;
+    pageThreshold: 20;
+    actions: [
+      CompanySearch
+    ]
+    columns: [
+      mainText => name,
+      text => companyIdAndContactPerson
+    ]
+  }
+}
+
+function onCompanySearchListLoadData(originId) {
+  return getCompanySearchDataBySearchContent($IN.data.rowCount, $IN.data.offsetCount);
+}
+
+function onCompanySearchFragmentLoaded(originId) {}
+
+function onCompanySearch(originId) {
+  var actionEvents = [
+    buildSourceValueChangedEvent("ContentSearch", "CompanyContentSearchValueChanged"),
+    buildSourceClickedEvent("SearchButton", "CompanySearchButtonClicked"),
+    buildTargetTextChange("ContentSearch", companySearchContent)
+  ];
+  display(CompanySearchPopup, {}, originId, actionEvents);
+}
+
+page CompanySearchPopup {
+  layout: vertical;
+  template: popup;
+
+  inputField ContentSearch {
+    template: inputFieldSimple;
+    inputType: text;
+    isDeletable: true;
+  }
+
+  button SearchButton {
+    template: primaryMedium;
+  }
+
+}
+
+function onCompanySearchPopupCancel(originId) {}
+
+function onCompanyContentSearchValueChanged(originId) {
+  companySearchContent = $IN.data.message;
+}
+
+function onCompanySearchButtonClicked(originId) {
+  hideSoftKeyboard();
+  finishPage("CompanySearchPopup", originId);
+  fireEvent(buildRefreshItemEvent("CompanySearchList", getCompanySearchDataBySearchContent(20, 0)), originId);
+}
+
+function getCompanySearchDataBySearchContent(rowCount, offsetCount) {
+  return searchCompanyByContent(companySearchContent, rowCount, offsetCount).map(function(companySearchResultDao) {
+    var companyIdAndContactPerson = companySearchResultDao.companyId;
+    if (companySearchResultDao.contactPerson != null) {
+      companyIdAndContactPerson = companyIdAndContactPerson + ", " + companySearchResultDao.contactPerson;
+    }
+    return {
+      "id": companySearchResultDao.id,
+      "name": companySearchResultDao.name,
+      "companyIdAndContactPerson": companyIdAndContactPerson,
+      "companyId": companySearchResultDao.companyId,
+      "companyType": companySearchResultDao.companyType
+    };
+  });
+}
+
+function onCompanySearchListSelectionChanged(originId) {
+  if ($IN.data.companyType == "prospect") {
+    displayProspectClientDetailPage(originId, $IN.data.name, $IN.data.companyId);
+  } else {
+    displayRegularClientDetailPage(originId, $IN.data.name, $IN.data.companyId);
+  }
+}

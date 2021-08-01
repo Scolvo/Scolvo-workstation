@@ -1,0 +1,68 @@
+function buildMeetingMemoListData(meetingMemoDaos) {
+  return meetingMemoDaos.map(function (meetingMemoDao) {
+    return mapMeetingMemoListData(meetingMemoDao);
+  });
+}
+
+function buildAdvancedMeetingMemoListData(meetingMemoDaos) {
+  return meetingMemoDaos.map(function (meetingMemoDao) {
+    return mapMeetingMemoAdvancedListData(meetingMemoDao);
+  });
+}
+
+function mapMeetingMemoListData(meetingMemoDao) {
+  var title = DICTIONARY.meeting_date + ": " + meetingMemoDao.plannedMeetingDate;
+  var description = DICTIONARY.meeting_memo_status + ": " + resolveMeetingMemoStatus(meetingMemoDao.status) + "\n" + DICTIONARY.meeting_memo_offer_interest + ": ";
+
+  if (meetingMemoDao.wantsOffer != null) {
+    description = description + meetingMemoDao.wantsOffer;
+  } else {
+    description = description + "-";
+  }
+
+  return {
+    "id": meetingMemoDao.id
+    "title": title,
+    "description": description,
+    "companyProspectId": meetingMemoDao.companyProspectId,
+    "companyRegularId": meetingMemoDao.companyRegularId
+  };
+}
+
+function mapMeetingMemoAdvancedListData(meetingMemoDao) {
+  var title = meetingMemoDao.companyName;
+  var description = DICTIONARY.meeting_date + ": " + meetingMemoDao.plannedMeetingDate + "\n" + DICTIONARY.meeting_memo_status + ": " + resolveMeetingMemoStatus(meetingMemoDao.status) + "\n" + DICTIONARY.meeting_memo_offer_interest + ": ";
+
+  if (meetingMemoDao.wantsOffer != null) {
+    description = description + resolveWantsOffer(meetingMemoDao.wantsOffer);
+  } else {
+    description = description + "-";
+  }
+
+  if(!sessionUserIsRM() && meetingMemoDao.userName != null && !meetingMemoDao.userName.isEmpty()) {
+    description = description + "\n" + DICTIONARY.rm + ": " + meetingMemoDao.getOrDefault("userName", "");
+  }
+
+  return {
+    "id": meetingMemoDao.id
+    "title": title,
+    "description": description,
+    "companyProspectId": meetingMemoDao.companyProspectId,
+    "companyRegularId": meetingMemoDao.companyRegularId
+  };
+}
+
+function resolveMeetingMemoStatus(status) {
+  if(status == "prepared") {
+    return DICTIONARY.status_prepared;
+  }
+  else if(status == "inProgress") {
+    return DICTIONARY.status_inProgress;
+  }
+  else if(status == "finished") {
+    return DICTIONARY.status_finished;
+  }
+  else {
+    throw UnknownMemoStatusException;
+  }
+}

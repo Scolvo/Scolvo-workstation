@@ -1,0 +1,178 @@
+import {
+  /common/TypeDefinitionExtension,
+  /common/Roles,
+  /mobile/repository/CompanyRepository,
+  /mobile/client/RegularClients,
+  /mobile/client/ProspectClients
+}
+
+function sendDataChangeRq(originId_, typeDefinition_, changeset_) {
+  var dataChangeMsg = com.scolvo.core.vm.action.rq.DataChangeRq(uuid());
+  dataChangeMsg.setTypeDefinition(typeDefinition_);
+  dataChangeMsg.setTypeDefinitionVersion(nowInMillis());
+  dataChangeMsg.setChangeset(changeset_);
+  publish(dataChangeMsg);
+}
+
+var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
+  "regularClient": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "prospectClient": {
+    "roles": [RELATIONSHIP_MANAGER]
+  },
+  "exposure": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "attachment": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "callLog": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "contact": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "meetingMemoRegular": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "meetingMemoProspect": {
+    "roles": [RELATIONSHIP_MANAGER]
+  },
+  "offer": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "offerLoan": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "offerDeposit": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "offerGuarantee": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  },
+  "offerFrameLine": {
+    "roles": [RELATIONSHIP_MANAGER, BUSINESS_CENTER_MANAGER, CORPORATE_MANAGER, HEAD_CORPORATE_MANAGER]
+  }
+};
+
+function onDataChangeDg(originId) {
+  if (getCurrentUser() == null) {
+    return null;
+  }
+  var changeset = $IN.changeset;
+  var typeDefinition = $IN.typeDefinition;
+  debug("Data change message arrive with type definition: " + typeDefinition + ", size: " + changeset.size());
+  var typeDefinitionDescriptor = SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS.get(typeDefinition);
+  if (typeDefinitionDescriptor == null) {
+    debug(typeDefinition + " type definition is not supported by data change");
+    return null;
+  }
+  if (!sessionUserIsAvaibleRoles(typeDefinitionDescriptor.roles)) {
+    debug(typeDefinition + " type definition is not supported by user role");
+    return null;
+  }
+  if(typeDefinition == "exposure") {
+    deleteExposures();
+  }
+    changeset.each(function(changeDao) {
+      var changeType = changeDao.changeType;
+      if(typeDefinition == "regularClient" || typeDefinition == "prospectClient") {
+        var companyDao = changeDao.getOrDefault("company", null);
+        var regularClientDao = changeDao.getOrDefault("companyRegular", null);
+        var prospectClientDao = changeDao.getOrDefault("companyProspect", null);
+        if (changeType == "INSERT") {
+          if(companyDao != null) {
+            insertChangeDao("company", companyDao);
+          }
+          if(regularClientDao != null) {
+            insertChangeDao("companyRegular", regularClientDao);
+          }
+          if(prospectClientDao != null) {
+            insertChangeDao("companyProspect", prospectClientDao);
+          }
+        } else if (changeType == "UPDATE") {
+          if(companyDao != null) {
+            updateExecution("company", companyDao.id, companyDao);
+          }
+          if(regularClientDao != null) {
+            updateExecution("companyRegular", regularClientDao.id, regularClientDao);
+          }
+          if(prospectClientDao != null) {
+            updateExecution("companyProspect", prospectClientDao.id, prospectClientDao);
+          }
+        } else if (changeType == "DELETE") {
+          if(companyDao != null) {
+            deleteExecution("company", companyDao.id);
+          }
+          if(regularClientDao != null) {
+            deleteExecution("companyRegular", regularClientDao.id);
+          }
+          if(prospectClientDao != null) {
+            deleteExecution("companyProspect", prospectClientDao.id);
+          }
+        }
+      }
+      else {
+        if (changeType == "INSERT") {
+          insertChangeDao(typeDefinition, changeDao);
+        } else if (changeType == "UPDATE") {
+          updateExecution(typeDefinition, changeDao.id, changeDao);
+        } else if (changeType == "DELETE") {
+          deleteExecution(typeDefinition, changeDao.id);
+        }
+      }
+    });
+}
+
+function insertChangeDao(typeDefinition, changeDao) {
+  if (typeDefinition == "company") {
+    var user = getUserByUserId(sessionUserId());
+    var rmUser = getUserByUserId(changeDao.userId);
+    var businessCenter = getBusinessCenterById(rmUser.businessCenterId);
+    if((sessionUserIsRM() && changeDao.userId == sessionUserId())
+    || (sessionUserIsBCM() && rmUser.businessCenterId == user.businessCenterId && businessCenter != null)
+    || (sessionUserIsCM() && businessCenter != null && user.corporate == businessCenter.corporate)
+    || sessionUserIsHeadCM()) {
+      insertOrReplaceExecution(typeDefinition, changeDao);
+    }
+  }
+  else if((typeDefinition == "companyProspect" || typeDefinition == "companyRegular") && getCompanyByCompanyId(changeDao.companyId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  } else if(typeDefinition == "exposure" && getCompanyByCompanyId(changeDao.companyRegularId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "callLog" && getCompanyByCompanyId(changeDao.companyId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "contact" && getCompanyByCompanyId(changeDao.companyId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "meetingMemoRegular" && getCompanyByCompanyId(changeDao.companyRegularId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "meetingMemoProspect" && getCompanyByCompanyId(changeDao.companyProspectId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "offer" && getCompanyByCompanyId(changeDao.companyId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "offerLoan" && getCompanyByCompanyId(getOfferById(changeDao.offerId).companyId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "offerDeposit" && getCompanyByCompanyId(getOfferById(changeDao.offerId).companyId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "offerGuarantee" && getCompanyByCompanyId(getOfferById(changeDao.offerId).companyId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "offerFrameLine" && getCompanyByCompanyId(getOfferById(changeDao.offerId).companyId) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "attachment" && getCompanyByCompanyId(getCompanyIdForAttachment(changeDao)) != null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else {
+    debug("Unknown type definition or related company does not exist in local database!");
+  }
+}

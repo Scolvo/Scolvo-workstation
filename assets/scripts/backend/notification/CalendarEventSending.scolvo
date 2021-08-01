@@ -1,0 +1,51 @@
+import {
+  /backend/repository/CompanyRepository,
+  /backend/repository/UserRepository
+}
+
+function sendCalendarInvitation(meetingMemoDao) {
+  var companyDao = getCompanyByProspectCompanyId(meetingMemoDao.companyProspectId);
+  var calendarInviteSummary = "Meeting reminder " + companyDao.name;
+
+  var year = dateToString(now(), "yyyy");
+  var month = meetingMemoDao.beginningOfSeason.intValue();
+  if (meetingMemoDao.beginningOfSeason < 10) {
+    month = "0" + month;
+  }
+
+  var calendarInviteStartDate = year + month + "01T080000Z";
+  var calendarInviteEndDate = year + month + "01T090000Z";
+
+  var calendarInviteDesc = companyDao.contactPerson + " - phone: " + companyDao.phone;
+  if (meetingMemoDao.newPhoneNumber != null && !meetingMemoDao.newPhoneNumber.isEmpty()) {
+    calendarInviteDesc = calendarInviteDesc + " - new phone: " + meetingMemoDao.newPhoneNumber;
+  }
+
+  var calendarInviteTransformData = {
+    "summary": calendarInviteSummary,
+    "startDate": calendarInviteStartDate,
+    "endDate": calendarInviteEndDate,
+    "description": calendarInviteDesc
+  };
+
+  var transformedCalendarInviteFile = transformFileByKeys("documents/invite.ics", calendarInviteTransformData);
+  var user = getUserById(companyDao.userId);
+  try {
+    var emailText = "Poštovani " + user.name + ",
+
+dole je link da zakažete sastanak sa vašim klijentom.
+
+Pozdrav,
+
+VobanApp";
+    sendEmail(
+      getEnv("EMAIL_USERNAME"),
+      user.email,
+      "",
+      companyDao.name + " - obaveštenje o sastanku",
+      emailText,
+      [transformedCalendarInviteFile]);
+  } finally {
+    fileDelete(transformedCalendarInviteFile);
+  }
+}

@@ -1,0 +1,137 @@
+import {
+  /common/EmailFormatValidator
+}
+
+var ROLE_ADMIN = "administrator";
+var ROLE_CORPORATE_MANAGER = "corporateManager";
+var ROLE_BUSINESS_CENTER_MANAGER = "businessCenterManager";
+var ROLE_RELATIONSHIP_MANAGER = "relationshipManager";
+var ROLE_HEAD_CORPORATE_MANAGER = "headCorporateManager";
+
+var createUserSelectedRole = null;
+var createUserSelectedCorporate = null;
+var createUserSelectedBusinesCenterId = null;
+
+//========================== Events
+function onRoleValueChanged(originId) {
+  createUserSelectedRole = $IN.data.value;
+  createUserSelectedCorporate = null;
+  updateCreateUserViewWithSelectedRole(createUserSelectedRole, originId);
+}
+
+function onCorporateValueChanged(originId) {
+  createUserSelectedCorporate = $IN.data.value;
+}
+
+function onBusinessCenterValueChanged(originId) {
+  createUserSelectedBusinesCenterId = $IN.data.value;
+}
+
+function updateCreateUserViewWithSelectedRole(roleValue, originId) {
+  if (roleValue == ROLE_ADMIN) {
+    fireEvent(buildTargetVisibilityChangeEvent("Corporate", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("BusinessCenter", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("RmIdCode", "gone"), originId);
+  } else if (roleValue == ROLE_CORPORATE_MANAGER) {
+    fireEvent(buildTargetVisibilityChangeEvent("Corporate", "visible"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("BusinessCenter", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("RmIdCode", "gone"), originId);
+  } else if (roleValue == ROLE_BUSINESS_CENTER_MANAGER) {
+    fireEvent(buildTargetVisibilityChangeEvent("Corporate", "gone"), originId);
+    if (sessionUserIsAdmin()) {
+      fireEvent(buildTargetVisibilityChangeEvent("BusinessCenter", "visible"), originId);
+    }
+    fireEvent(buildTargetVisibilityChangeEvent("RmIdCode", "gone"), originId);
+  } else if (roleValue == ROLE_RELATIONSHIP_MANAGER) {
+    fireEvent(buildTargetVisibilityChangeEvent("Corporate", "gone"), originId);
+    if (sessionUserIsAdmin()) {
+      fireEvent(buildTargetVisibilityChangeEvent("BusinessCenter", "visible"), originId);
+    }
+    fireEvent(buildTargetVisibilityChangeEvent("RmIdCode", "visible"), originId);
+  } else {
+    fireEvent(buildTargetVisibilityChangeEvent("Corporate", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("BusinessCenter", "gone"), originId);
+    fireEvent(buildTargetVisibilityChangeEvent("RmIdCode", "gone"), originId);
+  }
+}
+
+//========================== Options
+function getBusinessCenterOptions(selectedId) {
+  return getBusinessCenters().map(function(businessCenterDao) {
+    return buildSelectOptions(businessCenterDao.id, businessCenterDao.name, businessCenterDao.id == selectedId);
+  });
+}
+
+function getRoleOptions(selectedRole) {
+  var options = [
+    buildSelectOptions(ROLE_BUSINESS_CENTER_MANAGER, DICTIONARY.role_business_center_manager, ROLE_BUSINESS_CENTER_MANAGER == selectedRole),
+    buildSelectOptions(ROLE_RELATIONSHIP_MANAGER, DICTIONARY.role_relationship_manager, ROLE_RELATIONSHIP_MANAGER == selectedRole)
+  ];
+  if (sessionUserIsAdmin()) {
+    options.add(buildSelectOptions(ROLE_ADMIN, DICTIONARY.role_admin, ROLE_ADMIN == selectedRole));
+    options.add(buildSelectOptions(ROLE_CORPORATE_MANAGER, DICTIONARY.role_corporate_manager, ROLE_CORPORATE_MANAGER == selectedRole));
+    options.add(buildSelectOptions(ROLE_HEAD_CORPORATE_MANAGER, DICTIONARY.role_head_corporate_manager, ROLE_HEAD_CORPORATE_MANAGER == selectedRole));
+  }
+  return options;
+}
+
+
+//========================== Validation
+function validateUserName(result, data) {
+  if (data.Name == null || data.Name.isEmpty()) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_UserName);
+  } else if (data.Name.length() > 50) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_UserNameTooLong);
+  }
+}
+
+function validateUserMail(result, data) {
+  if (data.Email == null || data.Email.isEmpty()) {
+    result.addMessage("ERROR", "Email", DICTIONARY.userValidationMsg_Mail);
+  } else if (data.Email.length() > 50) {
+    result.addMessage("ERROR", "Email", DICTIONARY.userValidationMsg_MailTooLong);
+  } else if (!isEmailFormatValid(data.Email)) {
+    result.addMessage("ERROR", "Email", DICTIONARY.validationMsg_wrongEmailFormat);
+  }
+}
+
+function validateUserRole(result, data) {
+  if (data.Role == null || data.Role.isEmpty()) {
+    result.addMessage("ERROR", "Role", DICTIONARY.userValidationMsg_Role);
+  }
+}
+
+function validateRmIdCode(result, data) {
+  if (data.RmIdCode == null || data.RmIdCode.isEmpty()) {
+    result.addMessage("ERROR", "RmIdCode", DICTIONARY.userValidationMsg_RmIdCode);
+  }
+}
+
+function validateUsername(result, data) {
+  if (data.Username == null || data.Username.isEmpty()) {
+    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_Username);
+  } else if (data.Username.length() > 20) {
+    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernameTooLong);
+  } else if(data.Username == "su") {
+    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernamuSuNotAllowed);
+  } else {
+    var userDaos = select()
+      .selectAs("id")
+      .from("user")
+      .where(eq("username", data.Username))
+      .execute();
+    if (!userDaos.isEmpty()) {
+      result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernameAlreadyExists);
+    }
+  }
+}
+
+function validateUserPassword(result, data) {
+  if (data.Password == null || data.Password.isEmpty()) {
+    result.addMessage("ERROR", "Password", DICTIONARY.userValidationMsg_Password);
+  } else if (data.ConfirmPassword == null || data.ConfirmPassword.isEmpty()) {
+    result.addMessage("ERROR", "ConfirmPassword", DICTIONARY.userValidationMsg_ConfirmPassword);
+  } else if (data.Password != data.ConfirmPassword) {
+    result.addMessage("ERROR", "Password", DICTIONARY.userValidationMsg_PasswordNotMatch);
+  }
+}

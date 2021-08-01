@@ -1,0 +1,4 @@
+var RELATIONSHIP_MANAGER="relationshipManager";
+var BUSINESS_CENTER_MANAGER="businessCenterManager";
+var CORPORATE_MANAGER="corporateManager";
+var HEAD_CORPORATE_MANAGER="headCorporateManager";

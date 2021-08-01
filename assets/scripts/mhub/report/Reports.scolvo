@@ -1,0 +1,257 @@
+import {
+  /mhub/SessionUser,
+  /mhub/repository / UserRepository
+}
+
+function onCallLogReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getCallLogReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function getCallLogReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Call%20log%20list?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Call%20log%20list?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function onClientReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getClientReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function getClientReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Client%20list?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Client%20list?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function onLoanReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getLoanReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function getLoanReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Loans%20pipeline?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Loans%20pipeline?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function onMeetingsWithProspect(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getMeetingsWithProspectReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function getMeetingsWithProspectReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Meetings%20with%20prospect%20clients?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Meetings%20with%20prospect%20clients?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function onMeetingsWithRegularReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getMeetingsWithRegularReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function getMeetingsWithRegularReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Meetings%20with%20regular%20clients?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Meetings%20with%20regular%20clients?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function onOfferReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getOfferReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function getOfferReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Offers%20pipeline?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Offers%20pipeline?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function onProspectMeetingMemoReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getProspectMeetingMemoUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function getProspectMeetingMemoUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Prospect%20meeting%20memo?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Prospect%20meeting%20memo?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function onRegularMeetingMemoReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getRegularMeetingMemoReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function getRegularMeetingMemoReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Regular%20meeting%20memo?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Regular%20meeting%20memo?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function onLoanOffersReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getLoanOffersReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function onDepositOffersReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getDepositOffersReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function onFrameLineOffersReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getFrameLineOffersReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function onGuaranteeOffersReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getGuaranteeOffersReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function onOtherOffersReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getOtherOffersReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function onContactListReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getContactListReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function onRmActivityReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getRmActivityReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+function onUserActivityReport(originId) {
+  var getEmbedUrlRp = httpCall(buildReportRequest(getUserActivityReportUrl()));
+  displayReportPage(originId, getEmbedUrlRp.data.toMap().response.result.embedurl);
+}
+
+
+function getLoanOffersReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Loan%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Loan%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function getDepositOffersReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Deposit%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Deposit%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function getFrameLineOffersReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Frame%20line%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Frame%20line%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function getGuaranteeOffersReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Guarantee%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Guarantee%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function getOtherOffersReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Business%20card%20Payments%20Leasing%20Other%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Business%20card%20Payments%20Leasing%20Other%20offers?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function getContactListReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/Contact%20list?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/Contact%20list?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function getRmActivityReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/RM%20activity?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/RM%20activity?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+function getUserActivityReportUrl() {
+  if (getEnvType() == "prod") {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20Prod/User%20activity?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  } else {
+    return "https://otpvb-zoho.scolvo.solutions/api/otpvb-support@scolvo.com/Voban%20UAT/User%20activity?ZOHO_ACTION=GETEMBEDURL&ZOHO_API_VERSION=1.0&authtoken=eeb52ba4260009f3d9b12b4434509841&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_ERROR_FORMAT=JSON&ZOHO_INCLUDE_TOOLBAR=true&ZOHO_EXPORT_PERMISSION=true&NEW_ENCRYPTION=false";
+  }
+}
+
+
+function buildReportRequest(baseReportUrl) {
+  return {
+    "requestMethod": "GET",
+    "url": baseReportUrl + getReportCriteria()
+  };
+}
+
+function getReportCriteria() {
+  if (sessionUserIsAdmin()) {
+    return "";
+  } else if (sessionUserIsBusinessCenterManager()) {
+    var businessCenterId = getUserById(sessionUserId()).businessCenterId;
+    return "&ZOHO_CRITERIA=businessCenter.id%3D%27" + businessCenterId + "%27";
+  } else if (sessionUserIsCorporateManager()) {
+    var corporate = getUserById(sessionUserId()).corporate;
+    return "&ZOHO_CRITERIA=businessCenter.corporate%3D%27" + corporate + "%27";
+  }
+}
+
+function displayReportPage(originId, url) {
+  var data = {
+    "ReportPage": {
+      "ReportIframeContainer": {
+        "link": url
+      }
+    }
+  };
+  display(ReportPage, data, originId);
+}
+
+page ReportPage {
+  layout: vertical;
+  template: fullscreen;
+
+  container ReportIframeContainer {
+    template: iframe;
+    span: 24;
+  }
+
+}
+
+function onReportPageLoaded(originId) {}

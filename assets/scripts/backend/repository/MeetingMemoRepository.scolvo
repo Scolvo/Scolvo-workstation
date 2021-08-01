@@ -1,0 +1,285 @@
+function getRegularMeetingMemosByUserId(userId) {
+  return select()
+  .selectAs("meetingMemoRegular.id", "id")
+  .selectAs("meetingMemoRegular.companyRegularId", "companyRegularId")
+  .selectAs("meetingMemoRegular.bankId", "bankId")
+  .selectAs("meetingMemoRegular.mainBankId", "mainBankId")
+  .selectAs("meetingMemoRegular.plannedMeetingDate", "plannedMeetingDate")
+  .selectAs("meetingMemoRegular.hasComment", "hasComment")
+  .selectAs("meetingMemoRegular.mainComment", "mainComment")
+  .selectAs("meetingMemoRegular.newCreditArrangement", "newCreditArrangement")
+  .selectAs("meetingMemoRegular.loanType", "loanType")
+  .selectAs("meetingMemoRegular.mainNeeds", "mainNeeds")
+  .selectAs("meetingMemoRegular.documentarySupport", "documentarySupport")
+  .selectAs("meetingMemoRegular.ducumentaryBusiness", "ducumentaryBusiness")
+  .selectAs("meetingMemoRegular.ducumentaryBusinessNotes", "ducumentaryBusinessNotes")
+  .selectAs("meetingMemoRegular.preferentialTariff", "preferentialTariff")
+  .selectAs("meetingMemoRegular.posNetwork", "posNetwork")
+  .selectAs("meetingMemoRegular.numberOfDevices", "numberOfDevices")
+  .selectAs("meetingMemoRegular.posNotes", "posNotes")
+  .selectAs("meetingMemoRegular.anyImportantNotice", "anyImportantNotice")
+  .selectAs("meetingMemoRegular.importantTopic", "importantTopic")
+  .selectAs("meetingMemoRegular.importantNotice", "importantNotice")
+  .selectAs("meetingMemoRegular.wantsOffer", "wantsOffer")
+  .selectAs("meetingMemoRegular.comment", "comment")
+  .selectAs("meetingMemoRegular.nextCallDate", "nextCallDate")
+  .selectAs("meetingMemoRegular.completedAt", "completedAt")
+  .selectAs("meetingMemoRegular.status", "status")
+  .selectAs("meetingMemoRegular.createdAt", "createdAt")
+  .selectAs("meetingMemoRegular.updatedAt", "updatedAt")
+  .from("meetingMemoRegular")
+  .join("innerJoin", table("company"), and(custom("meetingMemoRegular.companyRegularId = company.companyId"), eq("company.userId", userId)))
+  .execute();
+}
+
+function getRegularMeetingMemosByBusinessCenterId(businessCenterId) {
+  return select()
+  .selectAs("meetingMemoRegular.id", "id")
+  .selectAs("meetingMemoRegular.companyRegularId", "companyRegularId")
+  .selectAs("meetingMemoRegular.bankId", "bankId")
+  .selectAs("meetingMemoRegular.mainBankId", "mainBankId")
+  .selectAs("meetingMemoRegular.plannedMeetingDate", "plannedMeetingDate")
+  .selectAs("meetingMemoRegular.hasComment", "hasComment")
+  .selectAs("meetingMemoRegular.mainComment", "mainComment")
+  .selectAs("meetingMemoRegular.newCreditArrangement", "newCreditArrangement")
+  .selectAs("meetingMemoRegular.loanType", "loanType")
+  .selectAs("meetingMemoRegular.mainNeeds", "mainNeeds")
+  .selectAs("meetingMemoRegular.documentarySupport", "documentarySupport")
+  .selectAs("meetingMemoRegular.ducumentaryBusiness", "ducumentaryBusiness")
+  .selectAs("meetingMemoRegular.ducumentaryBusinessNotes", "ducumentaryBusinessNotes")
+  .selectAs("meetingMemoRegular.preferentialTariff", "preferentialTariff")
+  .selectAs("meetingMemoRegular.posNetwork", "posNetwork")
+  .selectAs("meetingMemoRegular.numberOfDevices", "numberOfDevices")
+  .selectAs("meetingMemoRegular.posNotes", "posNotes")
+  .selectAs("meetingMemoRegular.anyImportantNotice", "anyImportantNotice")
+  .selectAs("meetingMemoRegular.importantTopic", "importantTopic")
+  .selectAs("meetingMemoRegular.importantNotice", "importantNotice")
+  .selectAs("meetingMemoRegular.wantsOffer", "wantsOffer")
+  .selectAs("meetingMemoRegular.comment", "comment")
+  .selectAs("meetingMemoRegular.nextCallDate", "nextCallDate")
+  .selectAs("meetingMemoRegular.completedAt", "completedAt")
+  .selectAs("meetingMemoRegular.status", "status")
+  .selectAs("meetingMemoRegular.createdAt", "createdAt")
+  .selectAs("meetingMemoRegular.updatedAt", "updatedAt")
+  .from("meetingMemoRegular")
+  .join("innerJoin", table("company"), custom("meetingMemoRegular.companyRegularId = company.companyId"))
+  .join("innerJoin", table("user"), and(custom("company.userId = user.id"), eq("user.businessCenterId", businessCenterId), eq("user.role", "relationshipManager")))
+  .execute();
+}
+
+function getRegularMeetingMemos() {
+  return select()
+  .selectAs("meetingMemoRegular.id", "id")
+  .selectAs("meetingMemoRegular.companyRegularId", "companyRegularId")
+  .selectAs("meetingMemoRegular.bankId", "bankId")
+  .selectAs("meetingMemoRegular.mainBankId", "mainBankId")
+  .selectAs("meetingMemoRegular.plannedMeetingDate", "plannedMeetingDate")
+  .selectAs("meetingMemoRegular.hasComment", "hasComment")
+  .selectAs("meetingMemoRegular.mainComment", "mainComment")
+  .selectAs("meetingMemoRegular.newCreditArrangement", "newCreditArrangement")
+  .selectAs("meetingMemoRegular.loanType", "loanType")
+  .selectAs("meetingMemoRegular.mainNeeds", "mainNeeds")
+  .selectAs("meetingMemoRegular.documentarySupport", "documentarySupport")
+  .selectAs("meetingMemoRegular.ducumentaryBusiness", "ducumentaryBusiness")
+  .selectAs("meetingMemoRegular.ducumentaryBusinessNotes", "ducumentaryBusinessNotes")
+  .selectAs("meetingMemoRegular.preferentialTariff", "preferentialTariff")
+  .selectAs("meetingMemoRegular.posNetwork", "posNetwork")
+  .selectAs("meetingMemoRegular.numberOfDevices", "numberOfDevices")
+  .selectAs("meetingMemoRegular.posNotes", "posNotes")
+  .selectAs("meetingMemoRegular.anyImportantNotice", "anyImportantNotice")
+  .selectAs("meetingMemoRegular.importantTopic", "importantTopic")
+  .selectAs("meetingMemoRegular.importantNotice", "importantNotice")
+  .selectAs("meetingMemoRegular.wantsOffer", "wantsOffer")
+  .selectAs("meetingMemoRegular.comment", "comment")
+  .selectAs("meetingMemoRegular.nextCallDate", "nextCallDate")
+  .selectAs("meetingMemoRegular.completedAt", "completedAt")
+  .selectAs("meetingMemoRegular.status", "status")
+  .selectAs("meetingMemoRegular.createdAt", "createdAt")
+  .selectAs("meetingMemoRegular.updatedAt", "updatedAt")
+  .from("meetingMemoRegular")
+  .execute();
+}
+
+function getRegularMeetingMemosByBusinessCenterIds(businessCenterIds) {
+  var regularMeetingMemos = [];
+  businessCenterIds.each(function (businessCenterId) {
+    regularMeetingMemos.addAll(getRegularMeetingMemosByBusinessCenterId(businessCenterId));
+  });
+  return regularMeetingMemos;
+}
+
+function getProspectMeetingMemosByUserId(userId) {
+  return select()
+  .selectAs("meetingMemoProspect.id", "id")
+  .selectAs("meetingMemoProspect.companyProspectId", "companyProspectId")
+  .selectAs("meetingMemoProspect.bankId", "bankId")
+  .selectAs("meetingMemoProspect.plannedMeetingDate", "plannedMeetingDate")
+  .selectAs("meetingMemoProspect.registeredActivityIsMain", "registeredActivityIsMain")
+  .selectAs("meetingMemoProspect.coreBusiness", "coreBusiness")
+  .selectAs("meetingMemoProspect.significantSeasonality", "significantSeasonality")
+  .selectAs("meetingMemoProspect.beginningOfSeason", "beginningOfSeason")
+  .selectAs("meetingMemoProspect.retailNetwork", "retailNetwork")
+  .selectAs("meetingMemoProspect.numberOfStores", "numberOfStores")
+  .selectAs("meetingMemoProspect.termOfBuyersPayment", "termOfBuyersPayment")
+  .selectAs("meetingMemoProspect.termOfSuppliersPayment", "termOfSuppliersPayment")
+  .selectAs("meetingMemoProspect.hasNewPhoneNumber", "hasNewPhoneNumber")
+  .selectAs("meetingMemoProspect.newPhoneNumber", "newPhoneNumber")
+  .selectAs("meetingMemoProspect.wantsOffer", "wantsOffer")
+  .selectAs("meetingMemoProspect.comment", "comment")
+  .selectAs("meetingMemoProspect.nextCallDate", "nextCallDate")
+  .selectAs("meetingMemoProspect.completedAt", "completedAt")
+  .selectAs("meetingMemoProspect.status", "status")
+  .selectAs("meetingMemoProspect.createdAt", "createdAt")
+  .selectAs("meetingMemoProspect.updatedAt", "updatedAt")
+  .from("meetingMemoProspect")
+  .join("innerJoin", table("company"), and(custom("meetingMemoProspect.companyProspectId = company.companyId"), eq("company.userId", userId)))
+  .execute();
+}
+
+function getProspectMeetingMemosByBusinessCenterId(businessCenterId) {
+  return select()
+  .selectAs("meetingMemoProspect.id", "id")
+  .selectAs("meetingMemoProspect.companyProspectId", "companyProspectId")
+  .selectAs("meetingMemoProspect.bankId", "bankId")
+  .selectAs("meetingMemoProspect.plannedMeetingDate", "plannedMeetingDate")
+  .selectAs("meetingMemoProspect.registeredActivityIsMain", "registeredActivityIsMain")
+  .selectAs("meetingMemoProspect.coreBusiness", "coreBusiness")
+  .selectAs("meetingMemoProspect.significantSeasonality", "significantSeasonality")
+  .selectAs("meetingMemoProspect.beginningOfSeason", "beginningOfSeason")
+  .selectAs("meetingMemoProspect.retailNetwork", "retailNetwork")
+  .selectAs("meetingMemoProspect.numberOfStores", "numberOfStores")
+  .selectAs("meetingMemoProspect.termOfBuyersPayment", "termOfBuyersPayment")
+  .selectAs("meetingMemoProspect.termOfSuppliersPayment", "termOfSuppliersPayment")
+  .selectAs("meetingMemoProspect.hasNewPhoneNumber", "hasNewPhoneNumber")
+  .selectAs("meetingMemoProspect.newPhoneNumber", "newPhoneNumber")
+  .selectAs("meetingMemoProspect.wantsOffer", "wantsOffer")
+  .selectAs("meetingMemoProspect.comment", "comment")
+  .selectAs("meetingMemoProspect.nextCallDate", "nextCallDate")
+  .selectAs("meetingMemoProspect.completedAt", "completedAt")
+  .selectAs("meetingMemoProspect.status", "status")
+  .selectAs("meetingMemoProspect.createdAt", "createdAt")
+  .selectAs("meetingMemoProspect.updatedAt", "updatedAt")
+  .from("meetingMemoProspect")
+  .join("innerJoin", table("company"), custom("meetingMemoProspect.companyProspectId = company.companyId"))
+  .join("innerJoin", table("user"), and(custom("company.userId = user.id"), eq("user.businessCenterId", businessCenterId), eq("user.role", "relationshipManager")))
+  .execute();
+}
+
+function getMeetingMemoProgressByUserId(userId) {
+  return select()
+  .selectAs("id")
+  .selectAs("userId")
+  .selectAs("meetingMemoId")
+  .selectAs("lastEntryPoint")
+  .from("meetingMemoProgress")
+  .where(eq("userId", userId))
+  .execute();
+}
+
+function getBuyersSuppliersByUserId(userId) {
+  return select()
+  .selectAs("buyerSupplier.id", "id")
+  .selectAs("buyerSupplier.meetingMemoId", "meetingMemoId")
+  .selectAs("buyerSupplier.type", "type")
+  .selectAs("buyerSupplier.name", "name")
+  .from("buyerSupplier")
+  .join("innerJoin", table("meetingMemoProspect"), custom("meetingMemoProspect.id = buyerSupplier.meetingMemoId"))
+  .join("innerJoin", table("company"), and(custom("meetingMemoProspect.companyProspectId = company.companyId"), eq("company.userId", userId)))
+  .execute();
+}
+
+function getBuyersSuppliersByBusinessCenterId(businessCenterId) {
+  return select()
+  .selectAs("buyerSupplier.id", "id")
+  .selectAs("buyerSupplier.meetingMemoId", "meetingMemoId")
+  .selectAs("buyerSupplier.type", "type")
+  .selectAs("buyerSupplier.name", "name")
+  .from("buyerSupplier")
+  .join("innerJoin", table("meetingMemoProspect"), custom("meetingMemoProspect.id = buyerSupplier.meetingMemoId"))
+  .join("innerJoin", table("company"), and(custom("meetingMemoProspect.companyProspectId = company.companyId"), eq("company.userId", userId)))
+  .join("innerJoin", table("user"), and(custom("user.id = company.userId"), eq("user.businessCenterId", businessCenterId), eq("user.role", "relationshipManager")))
+  .execute();
+}
+
+function getBuyersSuppliersByMeetingMemoId(meetingMemoId) {
+  return select()
+  .selectAs("buyerSupplier.id", "id")
+  .selectAs("buyerSupplier.meetingMemoId", "meetingMemoId")
+  .selectAs("buyerSupplier.type", "type")
+  .selectAs("buyerSupplier.name", "name")
+  .from("buyerSupplier")
+  .where(eq("meetingMemoId", meetingMemoId))
+  .execute();
+}
+
+function getRegularCompaniesToCall(sysDateDay) {
+  return select()
+  .selectAs("userId")
+  .selectAs("name")
+  .from("company")
+  .join("innerJoin", table("meetingMemoRegular"), and(custom("company.companyId = meetingMemoRegular.companyRegularId"), eq("wantsOffer", "maybe"), custom("DATE_FORMAT(from_unixtime(meetingMemoRegular.nextCallDate/1000), '%d') = " + sysDateDay)))
+  .execute();
+}
+
+function getProspectCompaniesToCall(sysDateDay) {
+  return select()
+  .selectAs("userId")
+  .selectAs("name")
+  .from("company")
+  .join("innerJoin", table("meetingMemoProspect"), and(custom("company.companyId = meetingMemoProspect.companyProspectId"), eq("wantsOffer", "maybe"), custom("DATE_FORMAT(from_unixtime(meetingMemoProspect.nextCallDate/1000), '%d') = " + sysDateDay)))
+  .execute();
+}
+
+function getRegularMeetingMemosByCompanyId(companyId) {
+  return select()
+  .from("meetingMemoRegular")
+  .where(eq("companyRegularId", companyId))
+  .execute();
+}
+
+function getProspectMeetingMemosByCompanyId(companyId) {
+  return select()
+  .from("meetingMemoProspect")
+  .where(eq("companyProspectId", companyId))
+  .execute();
+}
+
+function deleteRegularMeetingMemos(companyId) {
+  var regularMeetingMemosDg = [];
+  getRegularMeetingMemosByCompanyId(companyId).each(function (regularMeetingMemoDao) {
+    regularMeetingMemosDg.add({
+      "id": regularMeetingMemoDao.id,
+      "changeType": "DELETE"
+    });
+    insertHistoryExecution("meetingMemoRegular", regularMeetingMemoDao);
+    deleteExecution("meetingMemoRegular", regularMeetingMemoDao.id);
+  });
+  publishBroadcast("meetingMemoRegular", regularMeetingMemosDg);
+}
+
+function deleteBuyerSuppliers(meetingMemoId) {
+  var buyerSuppliersDg = [];
+  getBuyersSuppliersByMeetingMemoId(meetingMemoId).each(function (buyerSupplierDao) {
+    buyerSuppliersDg.add({
+      "id": buyerSupplierDao.id,
+      "changeType": "DELETE"
+    });
+    insertHistoryExecution("buyerSupplier", buyerSupplierDao);
+    deleteExecution("buyerSupplier", buyerSupplierDao.id);
+  });
+  publishBroadcast("buyerSupplier", buyerSuppliersDg);
+}
+
+function deleteProspectMeetingMemos(companyId) {
+  var prospectMeetingMemosDg = [];
+  getProspectMeetingMemosByCompanyId(companyId).each(function (prospectMeetingMemoDao) {
+    prospectMeetingMemosDg.add({
+      "id": prospectMeetingMemoDao.id,
+      "changeType": "DELETE"
+    });
+    deleteBuyerSuppliers(prospectMeetingMemoDao.id);
+    insertHistoryExecution("meetingMemoProspect", prospectMeetingMemoDao);
+    deleteExecution("meetingMemoProspect", prospectMeetingMemoDao.id);
+  });
+  publishBroadcast("meetingMemoProspect", prospectMeetingMemosDg);
+}

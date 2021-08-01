@@ -1,0 +1,21 @@
+function getUserById(id) {
+  var userDaos = select().from("user").where(eq("id", id)).execute();
+  if (userDaos.isEmpty()) {
+    throw UserNotFoundException;
+  }
+  return userDaos.get(0);
+}
+
+function getUsers() {
+  return select()
+    .selectAs("user.id", "id")
+    .selectAs("user.name", "name")
+    .selectAs("user.email", "email")
+    .selectAs("user.status", "status")
+    .selectAs("user.role", "role")
+    .selectAs("businessCenter.name", "businessCenter")
+    .from("user")
+    .join("leftJoin", table("businessCenter"), custom("user.businessCenterId = businessCenter.id"))
+    .orderBy("name", "asc")
+    .execute();
+}

@@ -1,0 +1,105 @@
+import {
+  /mobile/repository / CompanyRepository
+}
+
+function displayExposureListFragment(originId, fragmentContainerId, companyId) {
+  var exposureListData = buildExposureListData(getClientExposuresByCompanyId(companyId));
+  var data = {
+    "ExposureListFragment": {
+      "ExposureList": exposureListData
+    }
+  };
+  displayFragment(fragmentContainerId, ExposureListFragment, data, originId);
+}
+
+fragment ExposureListFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list ExposureList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCard;
+    span: 0;
+    columns: [
+      logo => stageIcon,
+      title => amountAndCurrency,
+      subTitle => productType,
+      text => exposureInfo
+    ]
+  }
+}
+
+function onExposureListFragmentLoaded(originId) {}
+
+function onExposureListSelectionChanged(originId) {}
+
+function buildExposureListData(exposureDaos) {
+  return exposureDaos.map(function(exposureDao) {
+    return {
+      "stageIcon": getIconForStage(exposureDao.stage),
+      "productType": exposureDao.productType,
+      "exposureInfo": buildExposureInfo(exposureDao),
+      "amountAndCurrency": buildExposureAmountAndCurrency(exposureDao)
+    };
+  });
+}
+
+function getIconForStage(stageText) {
+  if (stageText == null || stageText.isEmpty()) {
+    return null;
+  }
+  var stage = parseNumber(stageText);
+  if (stage == -3) {
+    return "money_loan_light_green";
+  } else if (stage == -2) {
+    return "money_loan_green";
+  } else if (stage == -1) {
+    return "money_loan_dark_green";
+  } else if (stage == 0) {
+    return "money_loan_white";
+  } else if (stage == 1) {
+    return "money_loan_red";
+  } else if (stage == 2) {
+    return "money_loan_dark_red";
+  } else if (stage == 3) {
+    return "money_loan_black";
+  } else if (stage == 4) {
+    return "money_loan_yellow";
+  } else if (stage == 10) {
+    return "money_loan_orange";
+  } else if (stage == 20) {
+    return "money_loan_dark_orange";
+  } else if (stage == 30) {
+    return "money_loan_dark_black";
+  } else if (stage == 41) {
+    return "money_loan_light_grey";
+  } else if (stage == 42) {
+    return "money_loan_grey";
+  } else if (stage == 43) {
+    return "money_loan_dark_grey";
+  } else {
+    throw UknownExposureStageException;
+  }
+}
+
+function buildExposureInfo(exposureDao) {
+  var exposureInfo = DICTIONARY.exposureInfo_account + " " + exposureDao.account;
+  exposureInfo += " " + DICTIONARY.exposureInfo_rate + " ";
+  if (exposureDao.interestRate != null) {
+    exposureInfo += decimalFormat(exposureDao.interestRate, "#0.00") + "%";
+  }
+  exposureInfo += " " + DICTIONARY.exposureInfo_dueDate + " ";
+  if (exposureDao.dueDate != null) {
+    exposureInfo += exposureDao.dueDate;
+  }
+  return exposureInfo;
+}
+
+function buildExposureAmountAndCurrency(exposureDao) {
+  var amountInfo = "";
+  if (exposureDao.amount != null) {
+    amountInfo = decimalFormat(exposureDao.amount, "###,##0.00");
+  }
+  return amountInfo + " " + exposureDao.currency;
+}

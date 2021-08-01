@@ -1,0 +1,84 @@
+import {
+  /mobile/Builders,
+  /mobile/contact/ContactBuilder,
+  /mobile/repository/ContactRepository
+}
+
+var contactSearchName = null;
+
+function displayContactSearchFragment(originId, fragmentContainerId) {
+  contactSearchName = null;
+  displayFragment(fragmentContainerId, ContactSearchFragment, {}, originId);
+}
+
+fragment ContactSearchFragment {
+  layout: vertical;
+  span: 0;
+  template: general;
+
+  list ContactSearchList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCard;
+    span: 0;
+    paged: true;
+    pageThreshold: 20;
+    actions: [
+      ContactSearch
+    ]
+    columns: [
+      mainText => clientName,
+      text => namePhoneEmail
+    ]
+  }
+}
+
+function onContactSearchFragmentLoaded(originId) {}
+
+function onContactSearchListLoadData(originId) {
+  return getContactSearchDataByName($IN.data.rowCount, $IN.data.offsetCount);
+}
+
+function onContactSearchListSelectionChanged(originId) {}
+
+function onContactSearch(originId) {
+  var actionEvents = [
+    buildSourceValueChangedEvent("ContentSearch", "ContactNameSearchValueChanged"),
+    buildSourceClickedEvent("SearchButton", "ContactSearchButtonClicked"),
+    buildTargetTextChange("ContentSearch", contactSearchName)
+  ];
+  display(ContactSearchPopup, {}, originId, actionEvents);
+}
+
+page ContactSearchPopup {
+  layout: vertical;
+  template: popup;
+
+  inputField ContentSearch {
+    template: inputFieldSimple;
+    inputType: text;
+    isDeletable: true;
+  }
+
+  button SearchButton {
+    template: primaryMedium;
+  }
+
+}
+
+function onContactSearchPopupCancel(originId) {}
+
+function onContactNameSearchValueChanged(originId) {
+  contactSearchName = $IN.data.message;
+}
+
+function getContactSearchDataByName(rowCount, offsetCount) {
+  return searchContactsByName(contactSearchName, !sessionUserIsRM(), rowCount, offsetCount).map(function(contactDao) {
+    return getContactListDataFrom(contactDao, true);
+  });
+}
+
+function onContactSearchButtonClicked(originId) {
+  hideSoftKeyboard();
+  finishPage("ContactSearchPopup", originId);
+  fireEvent(buildRefreshItemEvent("ContactSearchList", getContactSearchDataByName(20, 0)), originId);
+}

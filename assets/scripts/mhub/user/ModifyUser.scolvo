@@ -1,0 +1,167 @@
+import {
+  /mhub/DataChange,
+  /mhub/Builders,
+  /mhub/user/CreateModifyUserCommon,
+  /mhub/common/CorporateCommon,
+  /common/TypeDefinitionExtension,
+  /mhub/repository/UserRepository
+}
+
+var modifyUserData = null;
+
+function displayUserModifyPage(originId, selectedUserId) {
+  modifyUserData = getUserById(selectedUserId);
+  var data = {
+    "ModifyUserPage": {
+      "ModifyUserForm": {
+        "id": modifyUserData.id,
+        "name": modifyUserData.name,
+        "email": modifyUserData.email,
+        "phone": modifyUserData.phone,
+        "username": modifyUserData.username,
+        "rmIdCode": modifyUserData.rmCode,
+        "role": resolveUserRole(modifyUserData.role),
+        "corporateOptions": getCorporateOptions(modifyUserData.corporate),
+        "businessCenterOptions": getBusinessCenterOptions(modifyUserData.businessCenterId)
+      }
+    }
+  };
+  var actionEvents = [
+    buildSourceValueChangedEvent("Role", "RoleValueChanged"),
+    buildSourceValueChangedEvent("Corporate", "CorporateValueChanged"),
+    buildSourceValueChangedEvent("BusinessCenter", "BusinessCenterValueChanged")
+  ];
+  display(ModifyUserPage, data, originId, actionEvents);
+}
+
+page ModifyUserPage {
+  layout: vertical;
+  template: general;
+
+  form ModifyUserForm {
+    template: normal;
+    span: 24;
+    actions: [
+      BackToUsersList,
+      SaveModifyUser
+    ]
+    fields: [
+      field Name => name formItemInputNormal,
+      field Email => email formItemInputNormal,
+      field Phone => phone formItemInputNormal,
+      field Role => role formItemReadOnlyNormal,
+      field Corporate => corporate formItemSelectNormal,
+      field BusinessCenter => businessCenter formItemSelectNormal,
+      field RmIdCode => rmIdCode formItemReadOnlyNormal,
+      field Username => username formItemInputNormal,
+      field Password => password formItemInputPassword,
+      field ConfirmPassword => confirmPassword formItemInputPassword
+    ]
+  }
+}
+
+function onModifyUserPageLoaded(originId) {
+  updateCreateUserViewWithSelectedRole(modifyUserData.role, originId);
+}
+
+var modifiedUserPassword;
+
+function onSaveModifyUser(originId) {
+  var modifiedUserPassword = null;
+  var userModifyData = $IN.data;
+  var userValidationResult = validateModifyUserData(userModifyData, originId);
+  if (userValidationResult.messages.size() != 0) {
+    publish(userValidationResult);
+    return null;
+  }
+
+  var businessCenterId = userModifyData.BusinessCenter;
+
+  if (sessionUserIsBusinessCenterManager()) {
+    businessCenterId = getUserById(getCurrentUser().id).businessCenterId;
+  }
+
+  var userDao = {
+    "id": userModifyData.id,
+    "name": userModifyData.Name,
+    "email": userModifyData.Email,
+    "phone": userModifyData.Phone,
+    "username": userModifyData.Username,
+    "corporate": userModifyData.Corporate,
+    "businessCenterId": businessCenterId,
+    "changeType": "UPDATE"
+  };
+
+  if (userModifyData.Password != null && !userModifyData.Password.isEmpty()) {
+    modifiedUserPassword = userModifyData.Password;
+  }
+
+  if (userModifyData.Email == modifyUserData.email) {
+    modifyUser(userDao, true);
+  } else {
+    var requestData = {
+      "type": "userDataValidationRequest",
+      "requestId": getRequestId(),
+      "userDao": userDao,
+      "operation": "modify"
+    };
+
+    sendDataChangeRq(originId, "request", [requestData]);
+  }
+}
+
+function modifyUser(userDao, isEmailAddressAvailable) {
+  if (!isEmailAddressAvailable) {
+    var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+    validationResult.addMessage("ERROR", "Email", DICTIONARY.validationMsg_mailAlreadyExists);
+    publish(validationResult);
+  } else {
+    updateExecution("user", userDao.id, userDao);
+    if(modifiedUserPassword != null) {
+      userDao.put("password", modifiedUserPassword);
+    }
+    sendDataChangeRq(originId, "user", [userDao]);
+
+    onUsers(originId);
+  }
+}
+
+function onBackToUsersList(originId) {
+  onUsers(originId);
+}
+
+function validateModifyUserData(userData, originId) {
+  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+  validateUserName(validationResult, userData);
+  validateUserMail(validationResult, userData);
+  validateUserRole(validationResult, userData);
+  if (userData.Role == ROLE_RELATIONSHIP_MANAGER) {
+    validateRmIdCode(validationResult, userData);
+  }
+  validateModifyUsername(validationResult, userData);
+  if (userData.Password != null && !userData.Password.isEmpty()) {
+    validateUserPassword(validationResult, userData);
+  }
+  return validationResult;
+}
+
+function validateModifyUsername(result, data) {
+  if (data.Username == modifyUserData.username) {
+    return null;
+  }
+
+  if (data.Username == null || data.Username.isEmpty()) {
+    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_Username);
+  } else if(data.Username == "su") {
+    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernamuSuNotAllowed);
+  } else {
+    var userDaos = select()
+      .selectAs("id")
+      .from("user")
+      .where(eq("username", data.Username))
+      .execute();
+    if (!userDaos.isEmpty()) {
+      result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernameAlreadyExists);
+    }
+  }
+}

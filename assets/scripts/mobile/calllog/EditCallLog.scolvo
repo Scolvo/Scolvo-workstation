@@ -1,0 +1,80 @@
+import {
+  /mobile/Builders
+}
+
+var editedCallLogComment;
+var editedCallLog;
+var editedCallLogParentPageId;
+
+function displayEditCallLogPage(originId, selectedCallLog, parentPageId) {
+  editedCallLogComment = null;
+  editedCallLog = selectedCallLog;
+  editedCallLogParentPageId = parentPageId;
+
+  var actionEvents = [
+    buildTargetValueChangeEvent("EditCallLogCommentInput", editedCallLog.comment),
+    buildSourceValueChangedEvent("EditCallLogCommentInput", "EditCallLogCommentChanged"),
+    buildSourceClickedEvent("CancelButton", "EditCallLogCancelButtonClicked"),
+    buildSourceClickedEvent("SaveButton", "EditCallLogSaveButtonClicked")
+  ];
+
+  display(EditCallLogPage, {}, originId, actionEvents);
+}
+
+page EditCallLogPage {
+  layout: vertical;
+  template: general;
+
+  inputField EditCallLogCommentInput {
+    inputType: textArea;
+  }
+
+  container ActionContainer {
+    layout: horizontalButtonGroup;
+    span: 0;
+
+    button CancelButton {
+      template: secondaryMedium;
+    }
+
+    button SaveButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onEditCallLogPageLoaded(originId) {}
+
+function onEditCallLogSaveButtonClicked(originId) {
+  if (editedCallLogComment == null) {
+    return null;
+  }
+
+  var callLogDao = {
+    "id": editedCallLog.id,
+    "comment": editedCallLogComment,
+    "changeType": "UPDATE"
+  };
+
+  updateExecution("callLog", callLogDao.id, callLogDao);
+  sendDataChangeRq(originId, "callLog", [callLogDao]);
+
+  var changedCallLogDao = callLogDao.deepClone();
+  changedCallLogDao.put("createdAt", editedCallLog.createdAt);
+  var callLogData = buildCallLogListItem(changedCallLogDao, isCallLogCalledFromSearch);
+  selectedCallLogDao.put("comment", editedCallLogComment);
+
+  fireEvent(buildTargetValueChangeEvent("Comment", editedCallLogComment), "CallLogDetailPage");
+  fireEvent(buildTargetReplaceItemEvent("CallLogsList", callLogData), editedCallLogParentPageId);
+  fireEvent(buildRefreshItemEvent("CallLogSearchList", getCallLogSearchDataByDateAndComment(20, 0)), "AdvancedSearchPage");
+
+  finishPage("EditCallLogPage", originId);
+}
+
+function onEditCallLogCancelButtonClicked(originId) {
+  finishPage("EditCallLogPage", originId);
+}
+
+function onEditCallLogCommentChanged(originId) {
+  editedCallLogComment = $IN.data.message;
+}

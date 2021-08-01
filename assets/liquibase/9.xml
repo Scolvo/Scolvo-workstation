@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="9" author="attila.kesztyus@scolvo.com">
+
+    <createTable tableName="userActivity">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="username" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="activityType" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="timestamp" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="userId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="deviceType" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+    <createIndex tableName="userActivity" indexName="userActivity_username_idx">
+      <column name="username"/>
+    </createIndex>
+    <createIndex tableName="userActivity" indexName="userActivity_userId_idx">
+      <column name="userId"/>
+    </createIndex>
+    <createIndex tableName="userActivity" indexName="userActivity_activityTypeTimestamp_idx">
+      <column name="activityType"/>
+      <column name="timestamp"/>
+    </createIndex>
+
+    <createTable tableName="userActivity_history">
+      <column name="id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="username" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="activityType" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="timestamp" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="userId" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="deviceType" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="createdBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedAt" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="updatedBy" type="VARCHAR(36)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+  </changeSet>
+
+</databaseChangeLog>

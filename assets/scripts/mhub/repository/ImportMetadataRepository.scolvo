@@ -1,0 +1,20 @@
+function getImportMetadata() {
+  return select()
+    .selectAs("importMetadata.id", "id")
+    .selectAs("importMetadata.importType", "importType")
+    .selectAs("importMetadata.importDate", "importDate")
+    .selectAs("strftime('%d.%m.%Y.', datetime(importMetadata.importDate/1000, 'unixepoch', 'localtime'))", "importDateFormatted")
+    .from("importMetadata")
+    .orderBy("importDate", "desc")
+    .execute();
+}
+
+function getImportMetadataForImportTypes() {
+  return select()
+    .selectAs("importMetadata.importType", "importType")
+    .selectAs("max(importMetadata.importDate)", "importDate")
+    .selectAs("strftime('%d.%m.%Y.', datetime(max(importMetadata.importDate)/1000, 'unixepoch', 'localtime'))", "importDateFormatted")
+    .from("importMetadata")
+    .groupBy(["importType"])
+    .execute();
+}

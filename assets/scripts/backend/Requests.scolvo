@@ -1,0 +1,89 @@
+import {
+  /backend/importClient / ProspectClientImport,
+  /backend/userHandling / ChangePassword,
+  /backend/notification / CalendarEventSending,
+  /backend/share / Share,
+  /backend/repository / UserRepository
+}
+
+function onImportProspectClientRequest(originId) {
+  var requestData = $IN.data.map;
+  importProspectClientsData(requestData.path, requestData.userId);
+}
+
+function onChangePasswordRequest(originId) {
+  var requestData = $IN.data.map;
+  handlingChangePasswordRequest(requestData);
+}
+
+function onSendCalendarInvitationRequest(originId) {
+  var requestData = $IN.data.map;
+  sendCalendarInvitation(requestData.meetingMemoData);
+}
+
+function onShareCallLogRequest(originId) {
+  var requestData = $IN.data.map;
+  info("Share call log request data: " + requestData.toString());
+  shareCallLog(requestData);
+}
+
+function onShareGuaranteeOfferRequest(originId) {
+  var requestData = $IN.data.map;
+  info("Share guarantee offer request data: " + requestData.toString());
+  shareGuaranteeOffer(requestData);
+}
+
+function onShareFrameLineOfferRequest(originId) {
+  var requestData = $IN.data.map;
+  info("Share frame line offer request data: " + requestData.toString());
+  shareFrameLineOffer(requestData);
+}
+
+function onShareLoanOfferRequest(originId) {
+  var requestData = $IN.data.map;
+  info("Share loan offer request data: " + requestData.toString());
+  shareLoanOffer(requestData);
+}
+
+function onShareOtherOfferRequest(originId) {
+  var requestData = $IN.data.map;
+  info("Share other offer request data: " + requestData.toString());
+  shareOtherOffer(requestData);
+}
+
+function onShareDepositOfferRequest(originId) {
+  var requestData = $IN.data.map;
+  info("Share deposit offer request data: " + requestData.toString());
+  shareDepositOffer(requestData);
+}
+
+function onShareProspectMeetingMemo(originId) {
+  var requestData = $IN.data.map;
+  info("Share prospect meeting memo request data: " + requestData.toString());
+  shareProspectMeetingMemo(requestData);
+}
+
+function onShareRegularMeetingMemo(originId) {
+  var requestData = $IN.data.map;
+  info("Share regular meeting memo request data: " + requestData.toString());
+  shareRegularMeetingMemo(requestData);
+}
+
+function onUserDataValidationRequest(originId) {
+  var requestData = $IN.data.map;
+  info("User validataion request arrive. Email: " + requestData.userDao.email);
+
+  var isEmailAddressAvailable = false;
+  try {
+    getUserByEmail(requestData.userDao.email);
+  } catch (UserNotFoundException e) {
+    isEmailAddressAvailable = true;
+  }
+  var response = {
+    "requestId": requestData.requestId,
+    "userDao": requestData.userDao,
+    "isEmailAddressAvailable": isEmailAddressAvailable,
+    "operation": requestData.operation
+  };
+  publishBroadcast("userDataValidationResponse", [response]);
+}
