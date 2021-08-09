@@ -12,283 +12,22 @@
       <column name="id" type="TEXT">
         <constraints nullable="false" primaryKey="true"/>
       </column>
-      <column name="businessCenterId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="name" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="company">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="name" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="userId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="companyType" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="companyId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="companySize" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="businessActivityId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="businessActivity" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="address" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="city" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="contactPerson" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="phone" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="blockade" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="businessCenter">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="corporate" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="businessCenterCode" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="name" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="contact">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="companyId" type="TEXT">
+      <column name="teamId" type="TEXT">
         <constraints nullable="false"/>
       </column>
       <column name="name" type="TEXT">
         <constraints nullable="false"/>
       </column>
-      <column name="phone" type="TEXT">
-        <constraints nullable="true"/>
+      <column name="role" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="username" type="TEXT">
+        <constraints nullable="false"/>
       </column>
       <column name="email" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="callLog">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="companyId" type="TEXT">
         <constraints nullable="false"/>
       </column>
-      <column name="comment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="createdAt" type="INT">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="companyProspect">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="companyId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="ownerName" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="nbsClassification" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="financialRating" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="groupOfRelatedParties" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="accountInVoban" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="totalIncome" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="netProfit" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="debtEbitda" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="exporter" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="companyRegular">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="companyId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="mb" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="established" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="email" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="branch" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="totalExposure" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="internalRating" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="overdue" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="daysInDelay" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="turnoverRsdYearly" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="turnoverFxYearly" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="incomeFromPayment" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="employeesOnPayroll" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="tariffForPayment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="lastCorporateBalanceDate" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="revenue" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="netIncome" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="leverageRatio" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="liquidityRatio" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="equityRatio" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="eBank" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="businessCard" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="posTerminal" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="bank">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="name" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="meetingMemoProspect">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="companyProspectId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="bankId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="plannedMeetingDate" type="INT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="registeredActivityIsMain" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="coreBusiness" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="significantSeasonality" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="beginningOfSeason" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="retailNetwork" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="numberOfStores" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="termOfBuyersPayment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="termOfSuppliersPayment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="hasNewPhoneNumber" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="newPhoneNumber" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="wantsOffer" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="comment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="nextCallDate" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="createdAt" type="INT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="updatedAt" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="completedAt" type="INT">
+      <column name="visible" type="TEXT">
         <constraints nullable="true"/>
       </column>
       <column name="status" type="TEXT">
@@ -296,366 +35,78 @@
       </column>
     </createTable>
 
-    <createTable tableName="meetingMemoProgress">
+    <createTable tableName="workplace">
+      <column name="id" type="TEXT">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="teamId" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="canBeBooked" type="TEXT">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="team">
+      <column name="id" type="TEXT">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="name" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="location" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="mapPictureName" type="TEXT">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="meetingRoom">
+      <column name="id" type="TEXT">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="name" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="capacity" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="location" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="mapPictureName" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="library" type="TEXT">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <createTable tableName="reservation">
       <column name="id" type="TEXT">
         <constraints nullable="false" primaryKey="true"/>
       </column>
       <column name="userId" type="TEXT">
         <constraints nullable="false"/>
       </column>
-      <column name="meetingMemoId" type="TEXT">
+      <column name="workplaceId" type="TEXT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="meetingRoomId" type="TEXT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="from" type="REAL">
         <constraints nullable="false"/>
       </column>
-      <column name="lastEntryPoint" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="buyerSupplier">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="meetingMemoId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="type" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="name" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="meetingMemoRegular">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="companyRegularId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="bankId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="mainBankId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="plannedMeetingDate" type="INT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="hasComment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="mainComment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="newCreditArrangement" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="loanType" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="mainNeeds" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="documentarySupport" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="ducumentaryBusiness" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="ducumentaryBusinessNotes" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="preferentialTariff" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="posNetwork" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="numberOfDevices" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="posNotes" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="anyImportantNotice" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="importantTopic" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="importantNotice" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="wantsOffer" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="comment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="nextCallDate" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="createdAt" type="INT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="updatedAt" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="completedAt" type="INT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="status" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="exposure">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="companyRegularId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="account" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="stage" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="productType" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="amount" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="currency" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="interestRate" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="dueDate" type="INT">
-        <constraints nullable="true"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="offer">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="companyId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="offerType" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="subject" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="receiver" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="deliveryDeadline" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="importantNotice" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="additionalConditionsNotes" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="status" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="statusDate" type="INT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="createdAt" type="INT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="updatedAt" type="INT">
-        <constraints nullable="true"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="offerLoan">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="offerId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="typeOfLoan" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="amount" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="currency" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="purpose" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="repaymentPeriod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="availabilityPeriod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="gracePeriod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="withdrawalMethod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="repaymentMethod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="interest" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="placementApprovalFee" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="feeForUndrawnFunds" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="monitoringFee" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="collaterals" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="offerGuarantee">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="offerId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="typeOfPlacement" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="purposeOfPlacement" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="amount" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="repaymentPeriod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="currency" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="availabilityPeriod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="feesCommissions" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="interestRateInCaseOfDelay" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="collaterals" type="TEXT">
+      <column name="to" type="REAL">
         <constraints nullable="true"/>
       </column>
-    </createTable>
-
-    <createTable tableName="offerFrameLine">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="offerId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="typeOfPlacements" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="amount" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="currency" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="repaymentPeriod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="useOfFunds" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="prices" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="interestRate" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="paymentMethod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="collaterals" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="offerDeposit">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="offerId" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="termDepositAmount" type="REAL">
-        <constraints nullable="true"/>
-      </column>
-      <column name="termDepositPeriod" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="amountOfNominalEffectiveInterestRate" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="methodOfInterestCalculationPayment" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="interestRate" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="depositSecurity" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="offerValidityPeriod" type="INT">
+      <column name="numberOfParticipants" type="INT">
         <constraints nullable="true"/>
-      </column>
-    </createTable>
-
-    <createTable tableName="attachment">
-      <column name="id" type="TEXT">
-        <constraints nullable="false" primaryKey="true"/>
-      </column>
-      <column name="callLogId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="offerId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="meetingMemoRegularId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="meetingMemoProspectId" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
-      <column name="name" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="attachmentType" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="attachment" type="TEXT">
-        <constraints nullable="false"/>
       </column>
     </createTable>
 
