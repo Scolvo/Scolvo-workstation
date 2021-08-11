@@ -99,10 +99,10 @@
       <column name="meetingRoomId" type="TEXT">
         <constraints nullable="true"/>
       </column>
-      <column name="from" type="REAL">
+      <column name="start" type="REAL">
         <constraints nullable="false"/>
       </column>
-      <column name="to" type="REAL">
+      <column name="end" type="REAL">
         <constraints nullable="true"/>
       </column>
       <column name="numberOfParticipants" type="INT">
