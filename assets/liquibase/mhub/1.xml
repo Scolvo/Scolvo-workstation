@@ -284,10 +284,10 @@
       <column name="meetingRoomId" type="VARCHAR(36)">
         <constraints nullable="true"/>
       </column>
-      <column name="from" type="BIGINT">
+      <column name="start" type="BIGINT">
         <constraints nullable="false"/>
       </column>
-      <column name="to" type="BIGINT">
+      <column name="end" type="BIGINT">
         <constraints nullable="true"/>
       </column>
       <column name="numberOfParticipants" type="INT">
