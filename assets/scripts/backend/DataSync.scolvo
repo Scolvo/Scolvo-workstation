@@ -23,6 +23,6 @@ function onDataSync(userId, deviceType) {
 function dataSyncByAdministrator() {
   return [
     createDataSyncElement("team", getTeamsForMhub()),
-    //createDataSyncElement("user", getUsers())
+    createDataSyncElement("user", getUsersForMhub())
   ];
 }

@@ -5,5 +5,9 @@ function getTeams() {
 }
 
 function getTeamById(teamId) {
-
+  var teams = select().from("team").where(eq("id", teamId)).execute();
+  if(teams.isEmpty()) {
+    return null;
+  }
+  return teams.get(0);
 }

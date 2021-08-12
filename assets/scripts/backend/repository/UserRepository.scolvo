@@ -1,7 +1,6 @@
 function getUsers() {
   return select()
     .selectAs("id")
-    .selectAs("businessCenterId")
     .selectAs("name")
     .selectAs("role")
     .selectAs("corporate")
@@ -14,74 +13,15 @@ function getUsers() {
     .execute();
 }
 
-function getRmUsersByBusinessCenterId(businessCenterId) {
-  return select()
-    .from("user")
-    .where(and(eq("businessCenterId", businessCenterId), eq("role", "relationshipManager")))
-    .execute();
-}
-
-function getRmUsersForMobileByBusinessCenterId(businessCenterId) {
+function getUsersForMhub() {
   return select()
     .selectAs("id")
-    .selectAs("businessCenterId")
-    .selectAs("corporate")
     .selectAs("name")
+    .selectAs("role")
+    .selectAs("teamId")
+    .selectAs("username")
+    .selectAs("email")
+    .selectAs("status")
     .from("user")
-    .where(and(eq("businessCenterId", businessCenterId), eq("role", "relationshipManager")))
     .execute();
-}
-
-function getRmUsersForMobile() {
-  return select()
-    .selectAs("id")
-    .selectAs("businessCenterId")
-    .selectAs("corporate")
-    .selectAs("name")
-    .from("user")
-    .where(eq("role", "relationshipManager"))
-    .execute();
-}
-
-function getRmUsersForMobileByBusinessCenterIds(businessCenterIds) {
-  var rmUsers = [];
-  businessCenterIds.each(function (businessCenterId) {
-    rmUsers.addAll(getRmUsersForMobileByBusinessCenterId(businessCenterId));
-  });
-  return rmUsers;
-}
-
-function getUserByUsername(username) {
-  var userDaos = select().from("user").where(eq("username", username)).execute();
-  if (userDaos.isEmpty()) {
-    throw UserNotFoundException;
-  }
-  return userDaos.get(0);
-}
-
-function getUserByRMCode(rmCode) {
-  var userDaos = select()
-  .from("user")
-  .where(eq("rmCode", rmCode))
-  .execute();
-  if(userDaos.isEmpty()) {
-    throw UserNotFoundException;
-  }
-  return userDaos.get(0);
-}
-
-function getUserById(id) {
-  var userDaos = select().from("user").where(eq("id", id)).execute();
-  if (userDaos.isEmpty()) {
-    throw UserNotFoundException;
-  }
-  return userDaos.get(0);
-}
-
-function getUserByEmail(email) {
-  var userDaos = select().from("user").where(eq("email", email)).execute();
-  if (userDaos.isEmpty()) {
-    throw UserNotFoundException;
-  }
-  return userDaos.get(0);
 }

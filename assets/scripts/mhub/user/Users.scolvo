@@ -5,10 +5,13 @@ import {
 }
 
 function displayUsersPage(originId) {
+  var usersData = getUsers().map(function (userDao) {
+    return buildUserListRowFromDao(userDao);
+  });
 
   var data = {
     "UsersPage": {
-      "UsersList": []
+      "UsersList": usersData
     }
   };
   display(UsersPage, data, originId);
@@ -29,10 +32,13 @@ page UsersPage {
     columns: [
       name,
       team,
-      email
+      email,
+      role
     ]
   }
 }
+
+
 
 function getUserRowById(id) {
   var userDaos = select()
@@ -40,7 +46,6 @@ function getUserRowById(id) {
     .selectAs("name")
     .selectAs("email")
     .selectAs("team")
-    .selectAs("role")
     .from("user")
     .where(eq("id", id))
     .execute();
@@ -79,21 +84,38 @@ function changeUserStatus(newUserStatus, recordId, originId) {
 }
 
 function buildUserListRowFromDao(userDao) {
-  userDao.put("actions", ["ModifyUser"]);
+  var userData = {
+    "id": userDao.id,
+    "name": userDao.name,
+    "team": resolveTeam(userDao.teamId),
+    "role": resolveUserRole(userDao.role),
+    "email": userDao.email
+  };
+  userData.put("actions", ["ModifyUser"]);
   if (userDao.status == "active") {
-    userDao.get("actions").add("DisableUser");
+    userData.get("actions").add("DisableUser");
   } else {
-    userDao.get("actions").add("EnableUser");
+    userData.get("actions").add("EnableUser");
   }
-  userDao.put("role", resolveUserRole(userDao.role));
-  return userDao;
+  return userData;
 }
 
 function resolveUserRole(userRole) {
   if (userRole == ROLE_ADMIN) {
     return DICTIONARY.role_admin;
   }
+  else if(userRole == ROLE_WORKER) {
+    return DICTIONARY.role_worker;
+  }
   else {
     throw UnknownAuthorization;
   }
+}
+
+function resolveTeam(teamId) {
+  var team = getTeamById(teamId);
+  if(team == null) {
+    return "Unknown team";
+  }
+  return team.get("name");
 }

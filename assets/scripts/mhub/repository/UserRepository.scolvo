@@ -8,10 +8,6 @@ function getUserById(id) {
 
 function getUsers() {
   return select()
-  .selectAs("id")
-  .selectAs("teamId")
-  .selectAs("name")
-  .selectAs("email")
   .from("user")
   .execute();
 }

@@ -2,7 +2,8 @@ import {
   /common/TypeDefinitionExtension,
   /backend/Jobs,
   /backend/DataSync,
-  /backend/Requests
+  /backend/Requests,
+  /backend/Broadcast
 }
 
 function onuser_insert(originId) {
