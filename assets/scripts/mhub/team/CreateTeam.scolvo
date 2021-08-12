@@ -1,12 +1,17 @@
 function displayCreateTeamPage(originId) {
-  display(CreateTeamPage, {}, originId);
+  var data = {
+    "CreateTeamPage": {
+      "CreateTeamForm": {}
+    }
+  };
+  display(CreateTeamPage, data, originId);
 }
 
 page CreateTeamPage {
   layout: vertical;
   template: general;
 
-  form CreateUserForm {
+  form CreateTeamForm {
     template: normal;
     span: 24;
     actions: [
@@ -45,9 +50,10 @@ function onSaveTeam(originId) {
     "mapPictureName": createTeamMapPictureName(teamData.Name),
     "changeType": "INSERT"
   };
-  
+
   insertExecution("team", teamDao);
   sendDataChangeRq(originId, "team", [teamDao]);
+  onTeams(originId);
 }
 
 function validateTeamName(result, data) {
@@ -68,7 +74,7 @@ function validateTeamLocation(result, data) {
 
 function validateTeamData(teamData, originId) {
   var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
-  validateTeamName(validationResult, userData);
-  validateTeamLocation(validationResult, userData);
+  validateTeamName(validationResult, teamData);
+  validateTeamLocation(validationResult, teamData);
   return validationResult;
 }

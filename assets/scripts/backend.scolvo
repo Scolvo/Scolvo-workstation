@@ -45,38 +45,6 @@ function onuser_update(originId) {
   updateKeycloakUser(userConfig);
 }
 
-function oncallLog_insert(originId) {}
+function onteam_insert(originId) {}
 
-function oncallLog_update(originId) {}
-
-function oncallLog_delete(originId) {}
-
-function onoffer_insert(originId) {}
-
-function onmeetingMemoProspect_insert(originId) {}
-
-function onmeetingMemoProspect_update(originId) {}
-
-function onmeetingMemoProspect_delete(originId) {}
-
-function onmeetingMemoRegular_insert(originId) {}
-
-function onmeetingMemoRegular_update(originId) {}
-
-function onmeetingMemoRegular_delete(originId) {}
-
-function onmeetingMemoProgress_insert(originId) {}
-
-function onmeetingMemoProgress_update(originId) {}
-
-function onmeetingMemoProgress_delete(originId) {}
-
-function onoffer_update(originId) {}
-
-function onoffer_delete(originId) {}
-
-function onuserActivity_insert(originId) {}
-
-function onuserActivity_update(originId) {}
-
-function onuserActivity_delete(originId) {}
+function onteam_update(originId) {}

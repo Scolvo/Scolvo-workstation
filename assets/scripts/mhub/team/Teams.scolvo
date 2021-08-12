@@ -1,11 +1,13 @@
 import {
-  /mhub/team/CreateTeam
+  /mhub/team/CreateTeam,
+  /mhub/repository/TeamRepository
 }
 
 function displayTeamsPage(originId) {
+  var teamsData = getTeams();
   var data = {
     "TeamsPage": {
-      "TeamsList": []
+      "TeamsList": teamsData
     }
   };
   display(TeamsPage, data, originId);

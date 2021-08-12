@@ -1,7 +1,6 @@
 import {
   mhub / SessionUser,
-  common / TypeDefinitionExtension,
-  mhub / repository / BusinessCenterRepository
+  common / TypeDefinitionExtension
 }
 
 var requestIds = [];
@@ -21,18 +20,12 @@ function sendDataChangeRq(originId_, typeDefinition_, changeset_) {
 }
 
 var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
-  "businessCenter": {
+  "team": {
     "roles": ["administrator", "superAdministrator"]
   },
   "user": {
-    "roles": ["administrator", "superAdministrator", "businessCenterManager"]
-  },
-  "importMetadata": {
-    "roles": ["administrator", "superAdministrator", "businessCenterManager"]
-  },
-  "prospectClientImport": {
     "roles": ["administrator", "superAdministrator"]
-  },
+  }
 };
 
 function onDataChangeDg(originId) {
@@ -63,28 +56,6 @@ function onDataChangeDg(originId) {
       updateExecution(typeDefinition, changeDao.id, changeDao);
     } else if (changeType == "DELETE") {
       deleteExecution(typeDefinition, changeDao.id);
-    } else if (typeDefinition == "prospectClientImport") {
-      if (changeDao.userId == getCurrentUser().userId) {
-        if (!changeDao.errors) {
-          publishNotification({
-            "userId": changeDao.userId,
-            "level": "default",
-            "type": "text",
-            "duration": "long",
-            "message": DICTIONARY.prospectClient_import_success_msg
-          }, originId);
-        } else {
-          publishNotification({
-            "userId": changeDao.userId,
-            "level": "warning",
-            "type": "link",
-            "duration": "long",
-            "message": DICTIONARY.prospectClient_import_errors_msg,
-            "contentUrl": changeDao.reportUrl,
-            "contentUrlLabel" : "Download"
-          }, originId);
-        }
-      }
     }
   });
 }
@@ -103,17 +74,10 @@ function handlingUserDataValidationResponse(response) {
 }
 
 function insertChangeDao(typeDefinition, changeDao, originId) {
-  if (typeDefinition == "businessCenter" && sessionUserIsAdmin()) {
+  if (typeDefinition == "user") {
     insertOrReplaceExecution(typeDefinition, changeDao);
-  } else if (typeDefinition == "user") {
-    if (sessionUserIsAdmin()) {
-      insertOrReplaceExecution(typeDefinition, changeDao);
-    } else if (sessionUserIsBusinessCenterManager() && getBusinessCenterById(changeDao.businessCenterId) != null) {
-      insertOrReplaceExecution(typeDefinition, changeDao);
-    }
-  } else if (typeDefinition == "importMetadata") {
+  } else if (typeDefinition == "team") {
     insertOrReplaceExecution(typeDefinition, changeDao);
-    refreshImportMetadataList(originId);
   }
 }
 

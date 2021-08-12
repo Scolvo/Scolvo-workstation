@@ -1,14 +1,6 @@
 import {
   /backend/repository/UserRepository,
-  /backend/repository/BusinessCenterRepository,
-  /backend/repository/CompanyRepository,
-  /backend/repository/CallLogRepository,
-  /backend/repository/ContactRepository,
-  /backend/repository/MeetingMemoRepository,
-  /backend/repository/OfferRepository,
-  /backend/repository/BankRepository,
-  /backend/repository/AttachmentRepository,
-  /backend/repository/ImportMetadataRepository
+  /backend/repository/TeamRepository
 }
 
 function onDataSync(userId, deviceType) {
@@ -19,33 +11,10 @@ function onDataSync(userId, deviceType) {
     return [];
   }
   var user = getUserById(userId);
-  if (user.role == "relationshipManager" && deviceType == "MHUB") {
+  if (user.role == "worker" && deviceType == "MHUB") {
     return [];
   }
-  if (user.role == "corporateManager" && deviceType == "MOBILE") {
-    return dataSyncByCM(user);
-  }
-  if (user.role == "headCorporateManager" && deviceType == "MOBILE") {
-    return dataSyncByHeadCM(user);
-  }
-  if ((user.role == "corporateManager" || user.role == "headCorporateManager") && deviceType == "MHUB") {
-    return [createDataSyncElement("user", [user])];
-  }
-  if (user.role == "administrator") {
-    if (deviceType == "MHUB") {
-      return dataSyncByAdministrator();
-    }
-    return [];
-  }
-  if (user.role == "relationshipManager" && deviceType == "MOBILE") {
-    return dataSyncByRM(user);
-  }
-  if (user.role == "businessCenterManager" && deviceType == "MOBILE") {
-    return dataSyncByBCM(user);
-  }
-  if (user.role == "businessCenterManager" && deviceType == "MHUB") {
-    return dataSyncByBCMForMhub(user);
-  } else {
+  else {
     error("Data sync unknown role: " + user.role);
     throw UnknownUserRoleException;
   }
@@ -53,129 +22,7 @@ function onDataSync(userId, deviceType) {
 
 function dataSyncByAdministrator() {
   return [
-    createDataSyncElement("businessCenter", getBusinessCenters()),
-    createDataSyncElement("user", getUsers()),
-    createDataSyncElement("importMetadata", getImportMetadata())
-  ];
-}
-
-function dataSyncByRM(user) {
-  var currentUser = {
-    "id": user.id,
-    "name": user.name,
-    "businessCenterId": user.businessCenterId,
-    "corporate": user.corporate
-  };
-  return [
-    createDataSyncElement("user", [currentUser]),
-    createDataSyncElement("businessCenter", [getBusinessCenterById(user.businessCenterId)]),
-    createDataSyncElement("company", getCompaniesByUserId(user.id)),
-    createDataSyncElement("companyRegular", getRegularCompaniesByUserId(user.id)),
-    createDataSyncElement("companyProspect", getProspectCompaniesByUserId(user.id)),
-    createDataSyncElement("exposure", getClientExposuresByUserId(user.id)),
-    createDataSyncElement("callLog", getCallLogsByUserId(user.id)),
-    createDataSyncElement("contact", getContactsByUserId(user.id)),
-    createDataSyncElement("meetingMemoRegular", getRegularMeetingMemosByUserId(user.id)),
-    createDataSyncElement("meetingMemoProspect", getProspectMeetingMemosByUserId(user.id)),
-    createDataSyncElement("meetingMemoProgress", getMeetingMemoProgressByUserId(user.id)),
-    createDataSyncElement("buyerSupplier", getBuyersSuppliersByUserId(user.id)),
-    createDataSyncElement("bank", getBanks()),
-    createDataSyncElement("offer", getOffersByUserId(user.id)),
-    createDataSyncElement("offerloan", getOfferLoansByUserId(user.id)),
-    createDataSyncElement("offerGuarantee", getOfferGuaranteesByUserId(user.id)),
-    createDataSyncElement("offerFrameLine", getOfferFrameLinesByUserId(user.id)),
-    createDataSyncElement("offerDeposit", getOfferDepositesByUserId(user.id)),
-    createDataSyncElement("attachment", getAttachmentsByUserId(user.id))
-  ];
-}
-
-function dataSyncByBCM(user) {
-  var businessCenters = getBusinessCentersByCorporate(user.corporate);
-  var businessCenterIds = businessCenters.map(function (businessCenter) {
-    return businessCenter.id;
-  });
-  var currentUser = {
-    "id": user.id,
-    "name": user.name,
-    "businessCenterId": user.businessCenterId,
-    "corporate": user.corporate
-  };
-  var users = getRmUsersForMobileByBusinessCenterId(user.businessCenterId);
-  users.add(currentUser);
-  return [
-    createDataSyncElement("user", users),
-    createDataSyncElement("businessCenter", [getBusinessCenterById(user.businessCenterId)]),
-    createDataSyncElement("company", getRegularTypeCompaniesByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("companyRegular", getRegularCompaniesByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("exposure", getClientExposuresByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("callLog", getRegularClientCallLogsByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("contact", getRegularClientContactsByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("meetingMemoRegular", getRegularMeetingMemosByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("bank", getBanks()),
-    createDataSyncElement("offer", getRegularClientOffersByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("offerLoan", getRegularClientOfferLoansByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("offerGuarantee", getRegularClientOfferGuaranteesByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("offerFrameLine", getRegularClientOfferFrameLinesByBusinessCenterId(user.businessCenterId)),
-    createDataSyncElement("offerDeposit", getRegularClientOfferDepositesByBusinessCenterId(user.businessCenterId))
-  ];
-}
-
-function dataSyncByCM(user) {
-  var businessCenters = getBusinessCentersByCorporate(user.corporate);
-  var businessCenterIds = businessCenters.map(function (businessCenter) {
-    return businessCenter.id;
-  });
-  var currentUser = {
-    "id": user.id,
-    "name": user.name,
-    "businessCenterId": user.businessCenterId,
-    "corporate": user.corporate
-  };
-  var users = getRmUsersForMobileByBusinessCenterIds(businessCenterIds);
-  users.add(currentUser);
-  return [
-    createDataSyncElement("user", users),
-    createDataSyncElement("businessCenter", businessCenters),
-    createDataSyncElement("company", getRegularTypeCompaniesByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("companyRegular", getRegularCompaniesByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("exposure", getClientExposuresByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("callLog", getRegularClientCallLogsByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("contact", getRegularClientContactsByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("meetingMemoRegular", getRegularMeetingMemosByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("bank", getBanks()),
-    createDataSyncElement("offer", getRegularClientOffersByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("offerLoan", getRegularClientOfferLoansByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("offerGuarantee", getRegularClientOfferGuaranteesByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("offerFrameLine", getRegularClientOfferFrameLinesByBusinessCenterIds(businessCenterIds)),
-    createDataSyncElement("offerDeposit", getRegularClientOfferDepositesByBusinessCenterIds(businessCenterIds))
-  ];
-}
-
-function dataSyncByHeadCM(user) {
-  return [
-    createDataSyncElement("user", getRmUsersForMobile()),
-    createDataSyncElement("businessCenter", getBusinessCenters()),
-    createDataSyncElement("company", getRegularTypeCompanies()),
-    createDataSyncElement("companyRegular", getRegularCompaniesForMobile()),
-    createDataSyncElement("exposure", getClientExposuresForMobile()),
-    createDataSyncElement("callLog", getRegularClientCallLogs()),
-    createDataSyncElement("contact", getRegularClientContacts()),
-    createDataSyncElement("meetingMemoRegular", getRegularMeetingMemos()),
-    createDataSyncElement("bank", getBanks()),
-    createDataSyncElement("offer", getRegularClientOffers()),
-    createDataSyncElement("offerLoan", getRegularClientOfferLoans()),
-    createDataSyncElement("offerGuarantee", getRegularClientOfferGuarantees()),
-    createDataSyncElement("offerFrameLine", getRegularClientOfferFrameLines()),
-    createDataSyncElement("offerDeposit", getRegularClientOfferDeposites())
-  ];
-}
-
-function dataSyncByBCMForMhub(user) {
-  var userDaos = getRmUsersByBusinessCenterId(user.businessCenterId);
-  userDaos.add(user);
-  return [
-    createDataSyncElement("user", userDaos),
-    createDataSyncElement("businessCenter", [getBusinessCenterById(user.businessCenterId)]),
-    createDataSyncElement("importMetadata", getImportMetadata())
+    createDataSyncElement("team", getTeamsForMhub()),
+    //createDataSyncElement("user", getUsers())
   ];
 }
