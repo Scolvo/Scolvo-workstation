@@ -1,0 +1,12 @@
+function getTeams() {
+  return select()
+  .selectAs("id")
+  .selectAs("name")
+  .selectAs("location")
+  .from("team")
+  .execute();
+}
+
+function getTeamById(teamId) {
+
+}

@@ -1,14 +1,8 @@
 import {
-  /backend/importClient / ProspectClientImport,
   /backend/userHandling / ChangePassword,
   /backend/notification / CalendarEventSending,
   /backend/share / Share,
   /backend/repository / UserRepository
-}
-
-function onImportProspectClientRequest(originId) {
-  var requestData = $IN.data.map;
-  importProspectClientsData(requestData.path, requestData.userId);
 }
 
 function onChangePasswordRequest(originId) {

@@ -1,11 +1,8 @@
 import {
   /mhub/user/Users,
   /mhub/user/ChangePassword,
-  /mhub/businessCenter/BusinessCenters,
-  /mhub/clientImport/ImportProspectClient,
-  /mhub/DataChange,
-  /mhub/report/Reports,
-  /mhub/test/UserActivity
+  /mhub/team/Teams,
+  /mhub/DataChange
 }
 
 //========================== UsersPage
@@ -13,63 +10,35 @@ function onUsers(originId) {
   displayUsersPage(originId);
 }
 
-function onBusinessCenters(originId) {
-  displayBusinessCentersPage(originId);
+function onTeams(originId) {
+  displayTeamsPage(originId);
 }
 
-function onImport(originId) {
-  displayImportPage(originId);
+function onWorkstations(originId) {
+  
 }
 
 function onPasswordChange(originId) {
   displayPasswordChangePage(originId);
 }
 
-function onAddUserActivity(originId) {
-  sendAppStartUserActivity(originId);
-}
 //========================== Menu
 menu defaultChild Users {
   item Users {
-    roles: ["administrator", "superAdministrator", "businessCenterManager"]
-  },
-  item BusinessCenters {
     roles: ["administrator", "superAdministrator"]
   },
-  item Import {
-    roles: ["administrator", "superAdministrator", "businessCenterManager"]
+  item Teams {
+    roles: ["administrator", "superAdministrator"]
   },
-  group Reports defaultChild CallLogReport {
-    roles: ["administrator", "superAdministrator", "corporateManager", "businessCenterManager"],
-    item ClientReport,
-    item CallLogReport,
-    item MeetingsWithRegularReport,
-    item RegularMeetingMemoReport,
-    item MeetingsWithProspect,
-    item ProspectMeetingMemoReport,
-    item LoanReport,
-    item OfferReport,
-    item LoanOffersReport,
-    item DepositOffersReport,
-    item FrameLineOffersReport,
-    item GuaranteeOffersReport,
-    item OtherOffersReport,
-    item ContactListReport,
-    item RmActivityReport,
-    item UserActivityReport
+  item Workstations {
+    roles: ["administrator", "superAdministrator"]
   },
   item PasswordChange {
-    roles: ["administrator", "relationshipManager", "businessCenterManager", "corporateManager"]
-  },
-  group TestFeatures defaultChild AddUserActivity {
-    roles: ["superAdministrator"],
-    item AddUserActivity
+    roles: ["administrator", "worker"]
   },
   item Logout,
   defaultPages: {
     "administrator": "Users",
-    "relationshipManager": "PasswordChange",
-    "businessCenterManager": "Users",
-    "corporateManager": "PasswordChange"
+    "worker": "PasswordChange",
   }
 }

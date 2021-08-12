@@ -1,0 +1,74 @@
+function displayCreateTeamPage(originId) {
+  display(CreateTeamPage, {}, originId);
+}
+
+page CreateTeamPage {
+  layout: vertical;
+  template: general;
+
+  form CreateUserForm {
+    template: normal;
+    span: 24;
+    actions: [
+      BackToTeams,
+      SaveTeam
+    ]
+    fields: [
+      field Name => name formItemInputNormal,
+      field Location => location formItemInputNormal
+    ]
+  }
+}
+
+function onCreateTeamPageLoaded(originId) {}
+
+function onBackToTeams(originId) {
+  onTeams(originId);
+}
+
+function createTeamMapPictureName(teamName) {
+  return ("team_" + teamName + "_map");
+}
+
+function onSaveTeam(originId) {
+  var teamData = $IN.data;
+  var teamalidationResult = validateTeamData(teamData, originId);
+  if (teamalidationResult.messages.size() != 0) {
+    publish(teamalidationResult);
+    return null;
+  }
+
+  var teamDao = {
+    "id": uuid(),
+    "name": teamData.Name,
+    "location": teamData.Location,
+    "mapPictureName": createTeamMapPictureName(teamData.Name),
+    "changeType": "INSERT"
+  };
+  
+  insertExecution("team", teamDao);
+  sendDataChangeRq(originId, "team", [teamDao]);
+}
+
+function validateTeamName(result, data) {
+  if (data.Location == null || data.Location.isEmpty()) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamName);
+  } else if (data.Location.length() > 50) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamNameTooLong);
+  }
+}
+
+function validateTeamLocation(result, data) {
+  if (data.Name == null || data.Name.isEmpty()) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamLocation);
+  } else if (data.Name.length() > 50) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamLocationTooLong);
+  }
+}
+
+function validateTeamData(teamData, originId) {
+  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+  validateTeamName(validationResult, userData);
+  validateTeamLocation(validationResult, userData);
+  return validationResult;
+}

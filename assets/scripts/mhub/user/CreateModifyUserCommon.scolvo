@@ -3,10 +3,7 @@ import {
 }
 
 var ROLE_ADMIN = "administrator";
-var ROLE_CORPORATE_MANAGER = "corporateManager";
-var ROLE_BUSINESS_CENTER_MANAGER = "businessCenterManager";
-var ROLE_RELATIONSHIP_MANAGER = "relationshipManager";
-var ROLE_HEAD_CORPORATE_MANAGER = "headCorporateManager";
+var WORKER = "worker";
 
 var createUserSelectedRole = null;
 var createUserSelectedCorporate = null;

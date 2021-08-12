@@ -8,14 +8,10 @@ function getUserById(id) {
 
 function getUsers() {
   return select()
-    .selectAs("user.id", "id")
-    .selectAs("user.name", "name")
-    .selectAs("user.email", "email")
-    .selectAs("user.status", "status")
-    .selectAs("user.role", "role")
-    .selectAs("businessCenter.name", "businessCenter")
-    .from("user")
-    .join("leftJoin", table("businessCenter"), custom("user.businessCenterId = businessCenter.id"))
-    .orderBy("name", "asc")
-    .execute();
+  .selectAs("id")
+  .selectAs("teamId")
+  .selectAs("name")
+  .selectAs("email")
+  .from("user")
+  .execute();
 }

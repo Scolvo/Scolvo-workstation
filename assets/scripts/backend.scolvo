@@ -2,16 +2,8 @@ import {
   /common/TypeDefinitionExtension,
   /backend/Jobs,
   /backend/DataSync,
-  /backend/Requests,
-  /backend/importClient/ClientImport,
-  /backend/importClient/BankImport
+  /backend/Requests
 }
-
-importBanks();
-
-function onbusinessCenter_insert(originId) {}
-
-function onbusinessCenter_update(originId) {}
 
 function onuser_insert(originId) {
   var userDao = $IN.data.map;

@@ -5,14 +5,10 @@ import {
 }
 
 function displayUsersPage(originId) {
-  var usersData = getUsers()
-    .map(function(userDao) {
-      return buildUserListRowFromDao(userDao);
-    });
 
   var data = {
     "UsersPage": {
-      "UsersList": usersData
+      "UsersList": []
     }
   };
   display(UsersPage, data, originId);
@@ -32,9 +28,8 @@ page UsersPage {
     ]
     columns: [
       name,
-      email,
-      role,
-      businessCenter
+      team,
+      email
     ]
   }
 }
@@ -44,7 +39,7 @@ function getUserRowById(id) {
     .selectAs("id")
     .selectAs("name")
     .selectAs("email")
-    .selectAs("status")
+    .selectAs("team")
     .selectAs("role")
     .from("user")
     .where(eq("id", id))
@@ -95,16 +90,8 @@ function buildUserListRowFromDao(userDao) {
 }
 
 function resolveUserRole(userRole) {
-  if (userRole == ROLE_RELATIONSHIP_MANAGER) {
-    return DICTIONARY.role_relationship_manager;
-  } else if (userRole == ROLE_ADMIN) {
+  if (userRole == ROLE_ADMIN) {
     return DICTIONARY.role_admin;
-  } else if (userRole == ROLE_CORPORATE_MANAGER) {
-    return DICTIONARY.role_corporate_manager;
-  } else if (userRole == ROLE_BUSINESS_CENTER_MANAGER) {
-    return DICTIONARY.role_business_center_manager;
-  } else if (userRole == ROLE_HEAD_CORPORATE_MANAGER) {
-    return DICTIONARY.role_head_corporate_manager;
   }
   else {
     throw UnknownAuthorization;

@@ -4,9 +4,7 @@ import {
   /mhub/SessionUser,
   /mhub/user/CreateModifyUserCommon,
   /mhub/common/CorporateCommon,
-  /common/TypeDefinitionExtension,
-  /mhub/repository/BusinessCenterRepository,
-  /mhub/repository/UserRepository
+  /common/TypeDefinitionExtension
 }
 
 function displayCreateUserPage(originId) {

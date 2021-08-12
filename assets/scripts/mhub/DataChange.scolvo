@@ -1,8 +1,7 @@
 import {
   mhub / SessionUser,
   common / TypeDefinitionExtension,
-  mhub / repository / BusinessCenterRepository,
-  mhub/clientImport/ImportProspectClient
+  mhub / repository / BusinessCenterRepository
 }
 
 var requestIds = [];

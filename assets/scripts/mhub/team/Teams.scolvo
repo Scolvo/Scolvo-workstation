@@ -1,0 +1,37 @@
+import {
+  /mhub/team/CreateTeam
+}
+
+function displayTeamsPage(originId) {
+  var data = {
+    "TeamsPage": {
+      "TeamsList": []
+    }
+  };
+  display(TeamsPage, data, originId);
+}
+
+page TeamsPage {
+  layout: vertical;
+  template: general;
+
+  list TeamsList {
+    template: normal;
+    itemTemplate: defaultItem;
+    span: 24;
+    filterVisible: true;
+    actions: [
+      CreateTeam
+    ]
+    columns: [
+      name,
+      location
+    ]
+  }
+}
+
+function onTeamsPageLoaded(originId) {}
+
+function onCreateTeam(originId) {
+  displayCreateTeamPage(originId);
+}
