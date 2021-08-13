@@ -2,7 +2,6 @@ import {
   /mhub/DataChange,
   /mhub/Builders,
   /mhub/user/CreateModifyUserCommon,
-  /mhub/common/CorporateCommon,
   /common/TypeDefinitionExtension,
   /mhub/repository/UserRepository
 }
@@ -21,14 +20,12 @@ function displayUserModifyPage(originId, selectedUserId) {
         "username": modifyUserData.username,
         "rmIdCode": modifyUserData.rmCode,
         "role": resolveUserRole(modifyUserData.role),
-        "corporateOptions": getCorporateOptions(modifyUserData.corporate),
         "businessCenterOptions": getBusinessCenterOptions(modifyUserData.businessCenterId)
       }
     }
   };
   var actionEvents = [
     buildSourceValueChangedEvent("Role", "RoleValueChanged"),
-    buildSourceValueChangedEvent("Corporate", "CorporateValueChanged"),
     buildSourceValueChangedEvent("BusinessCenter", "BusinessCenterValueChanged")
   ];
   display(ModifyUserPage, data, originId, actionEvents);
@@ -50,7 +47,6 @@ page ModifyUserPage {
       field Email => email formItemInputNormal,
       field Phone => phone formItemInputNormal,
       field Role => role formItemReadOnlyNormal,
-      field Corporate => corporate formItemSelectNormal,
       field BusinessCenter => businessCenter formItemSelectNormal,
       field RmIdCode => rmIdCode formItemReadOnlyNormal,
       field Username => username formItemInputNormal,
@@ -135,9 +131,6 @@ function validateModifyUserData(userData, originId) {
   validateUserName(validationResult, userData);
   validateUserMail(validationResult, userData);
   validateUserRole(validationResult, userData);
-  if (userData.Role == ROLE_RELATIONSHIP_MANAGER) {
-    validateRmIdCode(validationResult, userData);
-  }
   validateModifyUsername(validationResult, userData);
   if (userData.Password != null && !userData.Password.isEmpty()) {
     validateUserPassword(validationResult, userData);

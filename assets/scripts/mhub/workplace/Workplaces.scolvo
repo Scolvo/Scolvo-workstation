@@ -1,0 +1,45 @@
+import {
+  /mhub/workplace/CreateWorkplace,
+  /mhub/repository/WorkplaceRepository
+}
+
+function displayWorkplacesPage(originId) {
+  var workplacesData = getWorkplaces().map(function (workplaceDao) {
+    return {
+      "id": workplaceDao.id,
+      "name": workplaceDao.name,
+      "team": resolveTeam(workplaceDao.teamId)
+    };
+  });
+  var data = {
+    "WorkplacesPage": {
+      "WorkplacesList": workplacesData
+    }
+  };
+  display(WorkplacesPage, data, originId);
+}
+
+page WorkplacesPage {
+  layout: vertical;
+  template: general;
+
+  list WorkplacesList {
+    template: normal;
+    itemTemplate: defaultItem;
+    span: 24;
+    filterVisible: true;
+    actions: [
+      CreateWorkplace
+    ]
+    columns: [
+      name,
+      team
+    ]
+  }
+}
+
+function onWorkplacesPageLoaded(originId) {}
+
+function onCreateWorkplace(originId) {
+  displayCreateWorkplacePage(originId);
+}

@@ -25,6 +25,9 @@ var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
   },
   "user": {
     "roles": ["administrator", "superAdministrator"]
+  },
+  "workplace": {
+    "roles": ["administrator", "superAdministrator"]
   }
 };
 
@@ -51,7 +54,7 @@ function onDataChangeDg(originId) {
   changeset.each(function(changeDao) {
     var changeType = changeDao.changeType;
     if (changeType == "INSERT") {
-      insertChangeDao(typeDefinition, changeDao, originId);
+      insertOrReplaceExecution(typeDefinition, changeDao);
     } else if (changeType == "UPDATE") {
       updateExecution(typeDefinition, changeDao.id, changeDao);
     } else if (changeType == "DELETE") {
@@ -70,14 +73,6 @@ function handlingUserDataValidationResponse(response) {
   } else if(response.operation == "modify") {
     // implementatot: ModifyUser.scolvo
     modifyUser(response.userDao, response.isEmailAddressAvailable);
-  }
-}
-
-function insertChangeDao(typeDefinition, changeDao, originId) {
-  if (typeDefinition == "user") {
-    insertOrReplaceExecution(typeDefinition, changeDao);
-  } else if (typeDefinition == "team") {
-    insertOrReplaceExecution(typeDefinition, changeDao);
   }
 }
 

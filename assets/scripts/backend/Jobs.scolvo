@@ -1,21 +1,8 @@
-import {
-  /backend/notification/MeetingMemoNotification,
-  /backend/repository/UserActivityRepository
-}
-
-function initScheduledJobs() {
-}
+function initScheduledJobs() {}
 
 //========================== Execute initScheduledJobs
 initScheduledJobs();
 //==========================
-
-function onDeleteOldUserActivitiesJob(originId) {
-  var timeLimit = getTimeLimitForDays(90);
-  info("Deleting old userActivity records with time limit: " + timeLimit);
-  var count = deleteOldUserActivity(timeLimit);
-  info("Old userActivity records (" + count + ") have been deleted.");
-}
 
 function getTimeLimitForDays(days) {
   return nowInMillis() - (days * 86400000);

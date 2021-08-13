@@ -1,0 +1,23 @@
+import {
+  /mhub/repository/TeamRepository
+}
+
+function resolveTeam(teamId) {
+  var team = getTeamById(teamId);
+  if(team == null) {
+    return "Unknown team";
+  }
+  return team.get("name");
+}
+
+function getTeamOptions(selectedId) {
+  return getTeams().map(function(teamDao) {
+    return buildSelectOptions(teamDao.id, teamDao.name, teamDao.id == selectedId);
+  });
+}
+
+function validateTeam(result, data) {
+  if (data.Team == null || data.Team.isEmpty()) {
+    result.addMessage("ERROR", "Team", DICTIONARY.userValidationMsg_Team);
+  }
+}

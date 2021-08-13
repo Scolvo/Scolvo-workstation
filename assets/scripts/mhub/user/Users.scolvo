@@ -111,11 +111,3 @@ function resolveUserRole(userRole) {
     throw UnknownAuthorization;
   }
 }
-
-function resolveTeam(teamId) {
-  var team = getTeamById(teamId);
-  if(team == null) {
-    return "Unknown team";
-  }
-  return team.get("name");
-}

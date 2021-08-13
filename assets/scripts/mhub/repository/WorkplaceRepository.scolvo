@@ -1,0 +1,3 @@
+function getWorkplaces() {
+  return select().from("workplace").execute();
+}

@@ -1,0 +1,70 @@
+function displayCreateWorkplacePage(originId) {
+  var data = {
+    "CreateWorkplacePage": {
+      "CreateWorkplaceForm": {
+        "teamOptions": getTeamOptions(null)
+      }
+    }
+  };
+  display(CreateWorkplacePage, data, originId);
+}
+
+page CreateWorkplacePage {
+  layout: vertical;
+  template: general;
+
+  form CreateWorkplaceForm {
+    template: normal;
+    span: 24;
+    actions: [
+      BackToWorkplaces,
+      SaveWorkplace
+    ]
+    fields: [
+      field Name => name formItemInputNormal,
+      field Team => team formItemSelectNormal
+    ]
+  }
+}
+
+function onCreateWorkplacePageLoaded(originId) {}
+
+function onBackToWorkplaces(originId) {
+  onWorkstations(originId);
+}
+
+function onSaveWorkplace(originId) {
+  var workplaceData = $IN.data;
+  var userValidationResult = validateWorkplaceData(workplaceData, originId);
+  if (userValidationResult.messages.size() != 0) {
+    publish(userValidationResult);
+    return null;
+  }
+
+  var workplaceDao = {
+    "id": uuid(),
+    "name": workplaceData.Name,
+    "teamId": workplaceData.Team,
+    "canBeBooked": true,
+    "changeType": "INSERT"
+  };
+
+  insertExecution("workplace", workplaceDao);
+  sendDataChangeRq(originId, "workplace", [workplaceDao]);
+  onWorkstations(originId);
+}
+
+function validateWorkplaceData(workplaceData, originId) {
+  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+  validateWorkplaceName(validationResult, workplaceData);
+  validateTeam(validationResult, workplaceData);
+  return validationResult;
+}
+
+function validateWorkplaceName(result, data) {
+  if (data.Name == null || data.Name.isEmpty()) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_WorkstationName);
+  } else if (data.Name.length() > 50) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_WorkstationNameTooLong);
+  }
+}

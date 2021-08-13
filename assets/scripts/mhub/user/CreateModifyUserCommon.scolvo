@@ -1,17 +1,11 @@
 import {
-  /common/EmailFormatValidator,
-  /mhub/repository/TeamRepository
+  /common/EmailFormatValidator
 }
 
 var ROLE_ADMIN = "administrator";
 var ROLE_WORKER = "worker";
 
 //========================== Options
-function getTeamOptions(selectedId) {
-  return getTeams().map(function(teamDao) {
-    return buildSelectOptions(teamDao.id, teamDao.name, teamDao.id == selectedId);
-  });
-}
 
 function getRoleOptions(selectedId) {
   return [
@@ -36,12 +30,6 @@ function validateUserMail(result, data) {
     result.addMessage("ERROR", "Email", DICTIONARY.userValidationMsg_MailTooLong);
   } else if (!isEmailFormatValid(data.Email)) {
     result.addMessage("ERROR", "Email", DICTIONARY.validationMsg_wrongEmailFormat);
-  }
-}
-
-function validateUserTeam(result, data) {
-  if (data.Team == null || data.Team.isEmpty()) {
-    result.addMessage("ERROR", "Team", DICTIONARY.userValidationMsg_Team);
   }
 }
 

@@ -2,7 +2,9 @@ import {
   /mhub/user/Users,
   /mhub/user/ChangePassword,
   /mhub/team/Teams,
-  /mhub/DataChange
+  /mhub/workplace/Workplaces,
+  /mhub/DataChange,
+  /mhub/common/TeamCommon
 }
 
 //========================== UsersPage
@@ -15,7 +17,7 @@ function onTeams(originId) {
 }
 
 function onWorkstations(originId) {
-  
+  displayWorkplacesPage(originId);
 }
 
 function onPasswordChange(originId) {

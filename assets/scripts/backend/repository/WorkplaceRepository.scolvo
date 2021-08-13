@@ -1,0 +1,8 @@
+function getWorkplacesForMhub() {
+  return select()
+  .selectAs("id")
+  .selectAs("teamId")
+  .selectAs("name")
+  .from("workplace")
+  .execute();
+}

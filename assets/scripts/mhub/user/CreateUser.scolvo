@@ -106,7 +106,7 @@ function validateUserData(userData, originId) {
   var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
   validateUserName(validationResult, userData);
   validateUserMail(validationResult, userData);
-  validateUserTeam(validationResult, userData);
+  validateTeam(validationResult, userData);
   validateUserRole(validationResult, userData);
   validateUsername(validationResult, userData);
   validateUserPassword(validationResult, userData);
