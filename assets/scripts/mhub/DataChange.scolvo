@@ -28,6 +28,9 @@ var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
   },
   "workplace": {
     "roles": ["administrator", "superAdministrator"]
+  },
+  "meetingRoom": {
+    "roles": ["administrator", "superAdministrator"]
   }
 };
 

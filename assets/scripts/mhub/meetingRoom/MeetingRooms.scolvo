@@ -1,0 +1,39 @@
+import {
+  /mhub/meetingRoom/CreateMeetingRoom,
+  /mhub/repository/MeetingRoomRepository
+}
+
+function displayMeetingRoomsPage(originId) {
+  var data = {
+    "MeetingRoomsPage": {
+      "MeetingRoomsList": getMeetingRooms()
+    }
+  };
+  display(MeetingRoomsPage, data, originId);
+}
+
+page MeetingRoomsPage {
+  layout: vertical;
+  template: general;
+
+  list MeetingRoomsList {
+    template: normal;
+    itemTemplate: defaultItem;
+    span: 24;
+    filterVisible: true;
+    actions: [
+      CreateMeetingRoom
+    ]
+    columns: [
+      name,
+      location,
+      capacity
+    ]
+  }
+}
+
+function onMeetingRoomsPageLoaded(originId) {}
+
+function onCreateMeetingRoom(originId) {
+  displayCreateMeetingRoomPage(originId);
+}

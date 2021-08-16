@@ -1,0 +1,3 @@
+function getMeetingRooms() {
+  return select().from("meetingRoom").execute();
+}

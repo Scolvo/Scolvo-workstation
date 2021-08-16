@@ -1,7 +1,8 @@
 import {
   /backend/repository/UserRepository,
   /backend/repository/TeamRepository,
-  /backend/repository/WorkplaceRepository
+  /backend/repository/WorkplaceRepository,
+  /backend/repository/MeetingRoomRepository
 }
 
 function onDataSync(userId, deviceType) {
@@ -25,6 +26,7 @@ function dataSyncByAdministrator() {
   return [
     createDataSyncElement("team", getTeamsForMhub()),
     createDataSyncElement("user", getUsersForMhub()),
-    createDataSyncElement("workplace", getWorkplacesForMhub())
+    createDataSyncElement("workplace", getWorkplacesForMhub()),
+    createDataSyncElement("meetingRoom", getMeetingRoomsForMhub())
   ];
 }

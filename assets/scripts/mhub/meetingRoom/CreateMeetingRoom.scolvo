@@ -1,0 +1,113 @@
+function displayCreateMeetingRoomPage(originId) {
+  var data = {
+    "CreateMeetingRoomPage": {
+      "CreateMeetingRoomForm": {
+        "isLibraryOptions": createYesNoOptions("no")
+      }
+    }
+  };
+  display(CreateMeetingRoomPage, data, originId);
+}
+
+page CreateMeetingRoomPage {
+  layout: vertical;
+  template: general;
+
+  form CreateMeetingRoomForm {
+    template: normal;
+    span: 24;
+    actions: [
+      BackToMeetingRooms,
+      SaveMeetingRoom
+    ]
+    fields: [
+      field Name => name formItemInputNormal,
+      field Location => location formItemInputNormal,
+      field Capacity => capacity formItemInputNormal,
+      field IsLibrary => isLibrary formItemSelectNormal
+    ]
+  }
+}
+
+function onCreateMeetingRoomPageLoaded(originId) {}
+
+function onBackToMeetingRooms(originId) {
+  onMeetingRooms(originId);
+}
+
+function onSaveMeetingRoom(originId) {
+  var meetingRoomData = $IN.data;
+  var userValidationResult = validateMeetingRoomData(meetingRoomData, originId);
+  if (userValidationResult.messages.size() != 0) {
+    publish(userValidationResult);
+    return null;
+  }
+
+  var isRoomLibrary = false;
+  if(meetingRoomData.IsLibrary == "yes") {
+    isRoomLibrary = true;
+  }
+
+  var meetingRoomDao = {
+    "id": uuid(),
+    "name": meetingRoomData.Name,
+    "location": meetingRoomData.Location,
+    "capacity": parseNumber(meetingRoomData.Capacity),
+    "library": isRoomLibrary,
+    "mapPictureName": createMeetingRoomMapPictureName(meetingRoomData.Name),
+    "changeType": "INSERT"
+  };
+
+  insertExecution("meetingRoom", meetingRoomDao);
+  sendDataChangeRq(originId, "meetingRoom", [meetingRoomDao]);
+  onMeetingRooms(originId);
+}
+
+function validateMeetinRoomName(result, data) {
+  if (data.Name == null || data.Name.isEmpty()) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_MeetingRoomName);
+  } else if (data.Name.length() > 50) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_MeetingRoomNameTooLong);
+  }
+}
+
+function validateMeetinRoomLocation(result, data) {
+  if (data.Location == null || data.Location.isEmpty()) {
+    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_MeetingRoomLocation);
+  } else if (data.Location.length() > 50) {
+    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_MeetingRoomLocationTooLong);
+  }
+}
+
+function validateMeetingRoomCapacity(result, data) {
+  if (data.Capacity == null || data.Capacity.isEmpty()) {
+    result.addMessage("ERROR", "Capacity", DICTIONARY.userValidationMsg_MeetingRoomCapacity);
+  }
+  else if(!isNumber(data.getOrDefault("Capacity", ""))) {
+    result.addMessage("ERROR", "Capacity", DICTIONARY.userValidationMsg_MeetingRoomCapacityNonNumber);
+  }
+  else if(isNumber(data.getOrDefault("Capacity", "")) && parseNumber(data.Capacity) > 999) {
+    result.addMessage("ERROR", "Capacity", DICTIONARY.userValidationMsg_MeetingRoomCapacityTooBig);
+  }
+}
+
+function isLibraryValidation(result, data) {
+  if (data.IsLibrary == null || data.IsLibrary.isEmpty()) {
+    result.addMessage("ERROR", "IsLibrary", DICTIONARY.userValidationMsg_IsLibrary);
+  } else if (data.IsLibrary != "yes" && data.IsLibrary != "no") {
+    result.addMessage("ERROR", "IsLibrary", DICTIONARY.userValidationMsg_IsLibrary_Invalid);
+  }
+}
+
+function validateMeetingRoomData(meetingRoomData, originId) {
+  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+  validateMeetinRoomName(validationResult, meetingRoomData);
+  validateMeetinRoomLocation(validationResult, meetingRoomData);
+  validateMeetingRoomCapacity(validationResult, meetingRoomData);
+  isLibraryValidation(validationResult, meetingRoomData);
+  return validationResult;
+}
+
+function createMeetingRoomMapPictureName(meetingRoomName) {
+  return ("meetingRoom" + meetingRoomName + "_map");
+}

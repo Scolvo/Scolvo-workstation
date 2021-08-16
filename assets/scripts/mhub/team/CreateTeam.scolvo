@@ -57,18 +57,18 @@ function onSaveTeam(originId) {
 }
 
 function validateTeamName(result, data) {
-  if (data.Location == null || data.Location.isEmpty()) {
+  if (data.Name == null || data.Name.isEmpty()) {
     result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamName);
-  } else if (data.Location.length() > 50) {
+  } else if (data.Name.length() > 50) {
     result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamNameTooLong);
   }
 }
 
 function validateTeamLocation(result, data) {
-  if (data.Name == null || data.Name.isEmpty()) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamLocation);
-  } else if (data.Name.length() > 50) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamLocationTooLong);
+  if (data.Location == null || data.Location.isEmpty()) {
+    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocation);
+  } else if (data.Location.length() > 50) {
+    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocationTooLong);
   }
 }
 

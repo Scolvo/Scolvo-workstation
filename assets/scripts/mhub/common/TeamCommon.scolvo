@@ -21,3 +21,10 @@ function validateTeam(result, data) {
     result.addMessage("ERROR", "Team", DICTIONARY.userValidationMsg_Team);
   }
 }
+
+function createYesNoOptions(selected) {
+  return [
+    buildSelectOptions("yes", DICTIONARY.text_Yes, selected == "yes"),
+    buildSelectOptions("no", DICTIONARY.text_No, selected == "no")
+  ];
+}

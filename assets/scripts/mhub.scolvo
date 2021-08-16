@@ -3,6 +3,7 @@ import {
   /mhub/user/ChangePassword,
   /mhub/team/Teams,
   /mhub/workplace/Workplaces,
+  /mhub/meetingRoom/MeetingRooms,
   /mhub/DataChange,
   /mhub/common/TeamCommon
 }
@@ -20,6 +21,10 @@ function onWorkstations(originId) {
   displayWorkplacesPage(originId);
 }
 
+function onMeetingRooms(originId) {
+  displayMeetingRoomsPage(originId);
+}
+
 function onPasswordChange(originId) {
   displayPasswordChangePage(originId);
 }
@@ -33,6 +38,9 @@ menu defaultChild Users {
     roles: ["administrator", "superAdministrator"]
   },
   item Workstations {
+    roles: ["administrator", "superAdministrator"]
+  },
+  item MeetingRooms {
     roles: ["administrator", "superAdministrator"]
   },
   item PasswordChange {

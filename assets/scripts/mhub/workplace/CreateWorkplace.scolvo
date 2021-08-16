@@ -2,7 +2,8 @@ function displayCreateWorkplacePage(originId) {
   var data = {
     "CreateWorkplacePage": {
       "CreateWorkplaceForm": {
-        "teamOptions": getTeamOptions(null)
+        "teamOptions": getTeamOptions(null),
+        "canBeBookedOptions": createYesNoOptions("yes")
       }
     }
   };
@@ -22,7 +23,8 @@ page CreateWorkplacePage {
     ]
     fields: [
       field Name => name formItemInputNormal,
-      field Team => team formItemSelectNormal
+      field Team => team formItemSelectNormal,
+      field CanBeBooked => canBeBooked formItemSelectNormal
     ]
   }
 }
@@ -41,11 +43,16 @@ function onSaveWorkplace(originId) {
     return null;
   }
 
+  var bookingEnabled = true;
+  if(workplaceData.CanBeBooked == "no") {
+    bookingEnabled = false;
+  }
+
   var workplaceDao = {
     "id": uuid(),
     "name": workplaceData.Name,
     "teamId": workplaceData.Team,
-    "canBeBooked": true,
+    "canBeBooked": bookingEnabled,
     "changeType": "INSERT"
   };
 
@@ -58,6 +65,7 @@ function validateWorkplaceData(workplaceData, originId) {
   var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
   validateWorkplaceName(validationResult, workplaceData);
   validateTeam(validationResult, workplaceData);
+  validateCanBeBooked(validationResult, workplaceData);
   return validationResult;
 }
 
@@ -66,5 +74,13 @@ function validateWorkplaceName(result, data) {
     result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_WorkstationName);
   } else if (data.Name.length() > 50) {
     result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_WorkstationNameTooLong);
+  }
+}
+
+function validateCanBeBooked(result, data) {
+  if (data.CanBeBooked == null || data.CanBeBooked.isEmpty()) {
+    result.addMessage("ERROR", "CanBeBooked", DICTIONARY.userValidationMsg_CanBeBooked);
+  } else if (data.CanBeBooked != "yes" && data.CanBeBooked != "no") {
+    result.addMessage("ERROR", "CanBeBooked", DICTIONARY.userValidationMsg_CanBeBooked_Invalid);
   }
 }

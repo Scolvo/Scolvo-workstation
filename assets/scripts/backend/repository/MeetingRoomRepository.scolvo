@@ -1,0 +1,10 @@
+function getMeetingRoomsForMhub() {
+  return select()
+  .selectAs("id")
+  .selectAs("name")
+  .selectAs("capacity")
+  .selectAs("location")
+  .selectAs("mapPictureName")
+  .from("meetingRoom")
+  .execute();
+}
