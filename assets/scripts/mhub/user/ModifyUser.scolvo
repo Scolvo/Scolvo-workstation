@@ -16,19 +16,13 @@ function displayUserModifyPage(originId, selectedUserId) {
         "id": modifyUserData.id,
         "name": modifyUserData.name,
         "email": modifyUserData.email,
-        "phone": modifyUserData.phone,
+        "teamOptions": getTeamOptions(modifyUserData.teamId),
         "username": modifyUserData.username,
-        "rmIdCode": modifyUserData.rmCode,
-        "role": resolveUserRole(modifyUserData.role),
-        "businessCenterOptions": getBusinessCenterOptions(modifyUserData.businessCenterId)
+        "roleOptions": getRoleOptions(modifyUserData.role)
       }
     }
   };
-  var actionEvents = [
-    buildSourceValueChangedEvent("Role", "RoleValueChanged"),
-    buildSourceValueChangedEvent("BusinessCenter", "BusinessCenterValueChanged")
-  ];
-  display(ModifyUserPage, data, originId, actionEvents);
+  display(ModifyUserPage, data, originId);
 }
 
 page ModifyUserPage {
@@ -45,10 +39,8 @@ page ModifyUserPage {
     fields: [
       field Name => name formItemInputNormal,
       field Email => email formItemInputNormal,
-      field Phone => phone formItemInputNormal,
-      field Role => role formItemReadOnlyNormal,
-      field BusinessCenter => businessCenter formItemSelectNormal,
-      field RmIdCode => rmIdCode formItemReadOnlyNormal,
+      field Team => team formItemSelectNormal,
+      field Role => role formItemSelectNormal,
       field Username => username formItemInputNormal,
       field Password => password formItemInputPassword,
       field ConfirmPassword => confirmPassword formItemInputPassword
@@ -56,9 +48,7 @@ page ModifyUserPage {
   }
 }
 
-function onModifyUserPageLoaded(originId) {
-  updateCreateUserViewWithSelectedRole(modifyUserData.role, originId);
-}
+function onModifyUserPageLoaded(originId) {}
 
 var modifiedUserPassword;
 
@@ -81,10 +71,9 @@ function onSaveModifyUser(originId) {
     "id": userModifyData.id,
     "name": userModifyData.Name,
     "email": userModifyData.Email,
-    "phone": userModifyData.Phone,
+    "teamId": userModifyData.Team,
     "username": userModifyData.Username,
-    "corporate": userModifyData.Corporate,
-    "businessCenterId": businessCenterId,
+    "role": userModifyData.Role,
     "changeType": "UPDATE"
   };
 
@@ -130,6 +119,7 @@ function validateModifyUserData(userData, originId) {
   var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
   validateUserName(validationResult, userData);
   validateUserMail(validationResult, userData);
+  validateTeam(validationResult, userData);
   validateUserRole(validationResult, userData);
   validateModifyUsername(validationResult, userData);
   if (userData.Password != null && !userData.Password.isEmpty()) {

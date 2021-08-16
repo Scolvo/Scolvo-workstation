@@ -25,3 +25,11 @@ function getUsersForMhub() {
     .from("user")
     .execute();
 }
+
+function getUserByEmail(email) {
+  var userDaos = select().from("user").where(eq("email", email)).execute();
+  if (userDaos.isEmpty()) {
+    throw UserNotFoundException;
+  }
+  return userDaos.get(0);
+}
