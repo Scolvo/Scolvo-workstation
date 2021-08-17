@@ -18,20 +18,11 @@
       <column name="name" type="TEXT">
         <constraints nullable="false"/>
       </column>
-      <column name="role" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
-      <column name="username" type="TEXT">
-        <constraints nullable="false"/>
-      </column>
       <column name="email" type="TEXT">
         <constraints nullable="false"/>
       </column>
       <column name="visible" type="TEXT">
         <constraints nullable="true"/>
-      </column>
-      <column name="status" type="TEXT">
-        <constraints nullable="false"/>
       </column>
     </createTable>
 
