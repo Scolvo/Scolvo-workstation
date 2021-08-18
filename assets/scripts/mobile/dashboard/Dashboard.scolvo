@@ -1,0 +1,76 @@
+import {
+  /mobile/repository/TeamRepository
+}
+
+var selectedTeamId = null;
+
+function onDashboardPage(originId) {
+  selectedTeamId = getUser().teamId;
+  var dashboardListData = [];
+  var today = nowInMillis();
+  var lastDay = dateAdd(today, 29, "day").getTime();
+
+  for(var i = 0; i < 30; i += 1) {
+    var dateString;
+    if(i == 0) {
+      dateString = dateToString(today, "yyyy MM dd.");
+      dateString = "Ma, " + dateString;
+    }
+    else if(i == 1) {
+      dateString = dateToString(dateAdd(today, i, "day"), "yyyy MM dd.");
+      dateString = "Holnap, " + dateString;
+    }
+    else {
+      dateString = dateToString(dateAdd(today, i, "day"), "yyyy MM dd.");
+    }
+    var dayData = {
+      "day": dateString,
+      "availableWorkstations": ""
+    };
+    dashboardListData.add(dayData);
+  }
+  var data = {
+    "DashboardPage": {
+      "DashboardTeamSelectOptions": createTeamOptions(selectedTeamId),
+      "DashboardList": dashboardListData
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("DashboardTeamSelect", "DashboardTeamSelectChanged")
+  ];
+  display(DashboardPage, data, originId, actionEvents);
+}
+
+function createTeamOptions(selectedId) {
+  return getTeams().map(function (teamDao) {
+    return buildSelectOptions(teamDao.id, teamDao.name, selectedId == teamDao.id);
+  });
+}
+
+page DashboardPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: true;
+
+  inputField  DashboardTeamSelect {
+    inputType: selectOne;
+  }
+
+  list DashboardList {
+    template: listVerticalNormal;
+    filterVisible: false;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+    columns: [
+      mainText => day,
+      subText => availableWorkstations
+    ]
+  }
+}
+
+function onDashboardPageLoaded(originId) {}
+
+function onDashboardTeamSelectChanged(originId) {
+  selectedTeamId = $IN.data.value;
+}
