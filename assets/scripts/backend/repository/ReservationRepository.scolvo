@@ -1,0 +1,24 @@
+function getReservations() {
+  return select()
+  .selectAs("id")
+  .selectAs("userId")
+  .selectAs("workplaceId")
+  .selectAs("meetingRoomId")
+  .selectAs("start")
+  .selectAs("end")
+  .selectAs("numberOfParticipants")
+  .from("reservation")
+  .execute();
+}
+
+function getWorkstationReservationsForTeam(teamId) {
+  return select()
+  .selectAs("reservation.id", "id")
+  .selectAs("reservation.userId", "userId")
+  .selectAs("reservation.workplaceId", "workplaceId")
+  .selectAs("reservation.start", "start")
+  .from("reservation")
+  .join("innerJoin", table("user"), and(custom("reservation.userId = user.id"), eq("user.teamId", teamId)))
+  .where(custom("reservation.workplaceId IS NOT NULL"))
+  .execute();
+}

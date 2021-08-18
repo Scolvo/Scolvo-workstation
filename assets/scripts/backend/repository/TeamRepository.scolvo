@@ -6,3 +6,13 @@ function getTeamsForMhub() {
   .from("team")
   .execute();
 }
+
+function getTeamsForMobile() {
+  return select()
+  .selectAs("id")
+  .selectAs("name")
+  .selectAs("location")
+  .selectAs("mapPictureName")
+  .from("team")
+  .execute();
+}
