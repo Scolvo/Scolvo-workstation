@@ -1,0 +1,3 @@
+function getWorkstationsForTeam(teamId) {
+  return select().from("workplace").where(eq("teamId", teamId)).execute();
+}

@@ -1,5 +1,8 @@
 import {
-  /mobile/repository/TeamRepository
+  /mobile/repository/TeamRepository,
+  /mobile/repository/ReservationRepository,
+  /mobile/repository/WorkstationRepository,
+  /mobile/workstation/Workstations
 }
 
 var selectedTeamId = null;
@@ -7,25 +10,25 @@ var selectedTeamId = null;
 function onDashboardPage(originId) {
   selectedTeamId = getUser().teamId;
   var dashboardListData = [];
-  var today = nowInMillis();
-  var lastDay = dateAdd(today, 29, "day").getTime();
-
+  var todayString = dateToString(now(), "yyyy-MM-dd") + " 0:00";
+  var today = parseStringToDate(todayString, "yyyy-MM-dd HH:mm");
+  var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
   for(var i = 0; i < 30; i += 1) {
-    var dateString;
+    var currentDay = today;
+    if(i != 0) {
+      currentDay = dateAdd(today, i, "day");
+    }
+    var dateString = dateToString(currentDay, "yyyy MM dd.");
     if(i == 0) {
-      dateString = dateToString(today, "yyyy MM dd.");
-      dateString = "Ma, " + dateString;
+      dateString = DICTIONARY.today + ", " + dateString;
     }
     else if(i == 1) {
-      dateString = dateToString(dateAdd(today, i, "day"), "yyyy MM dd.");
-      dateString = "Holnap, " + dateString;
+      dateString = DICTIONARY.tomorrow + ", " + dateString;
     }
-    else {
-      dateString = dateToString(dateAdd(today, i, "day"), "yyyy MM dd.");
-    }
+    var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
     var dayData = {
       "day": dateString,
-      "availableWorkstations": ""
+      "availableWorkstations": resolveAvailableWorkstations(totalWorkstationsForTeam - reservationsForCurrentDay)
     };
     dashboardListData.add(dayData);
   }
@@ -39,6 +42,13 @@ function onDashboardPage(originId) {
     buildSourceSelectionChanged("DashboardTeamSelect", "DashboardTeamSelectChanged")
   ];
   display(DashboardPage, data, originId, actionEvents);
+}
+
+function resolveAvailableWorkstations(availableWorkstations) {
+  if(availableWorkstations == 0) {
+    return DICTIONARY.noAvailableWorkstations;
+  }
+  return availableWorkstations + " " + DICTIONARY.numberOfAvailableWorkstations;
 }
 
 function createTeamOptions(selectedId) {
@@ -73,4 +83,8 @@ function onDashboardPageLoaded(originId) {}
 
 function onDashboardTeamSelectChanged(originId) {
   selectedTeamId = $IN.data.value;
+}
+
+function onDashboardListSelectionChanged(originId) {
+
 }
