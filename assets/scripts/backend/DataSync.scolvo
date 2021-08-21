@@ -2,7 +2,8 @@ import {
   /backend/repository/UserRepository,
   /backend/repository/TeamRepository,
   /backend/repository/WorkplaceRepository,
-  /backend/repository/MeetingRoomRepository
+  /backend/repository/MeetingRoomRepository,
+  /backend/repository/ReservationRepository
 }
 
 function onDataSync(userId, deviceType) {
@@ -13,8 +14,14 @@ function onDataSync(userId, deviceType) {
     return [];
   }
   var user = getUserById(userId);
+  if (user.role == "administrator" && deviceType == "MHUB") {
+    return dataSyncByAdministrator();
+  }
   if (user.role == "worker" && deviceType == "MHUB") {
     return [];
+  }
+  if (user.role == "worker" && deviceType == "MOBILE") {
+    return dataSyncByWorker(user);
   }
   else {
     error("Data sync unknown role: " + user.role);
@@ -28,5 +35,22 @@ function dataSyncByAdministrator() {
     createDataSyncElement("user", getUsersForMhub()),
     createDataSyncElement("workplace", getWorkplacesForMhub()),
     createDataSyncElement("meetingRoom", getMeetingRoomsForMhub())
+  ];
+}
+
+function dataSyncByWorker(user) {
+  var currentUser = {
+    "id": user.id,
+    "teamId": user.teamId,
+    "name": user.name,
+    "email": user.email,
+    "visible": user.visible
+  };
+  return [
+    createDataSyncElement("user", [currentUser]),
+    createDataSyncElement("team", getTeamsForMobile()),
+    createDataSyncElement("workplace", getWorkplacesForMobile()),
+    createDataSyncElement("meetingRoom", getMeetingRoomsForMobile()),
+    createDataSyncElement("reservation", getReservations()),
   ];
 }

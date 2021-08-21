@@ -1,0 +1,90 @@
+import {
+  /mobile/repository/TeamRepository,
+  /mobile/repository/ReservationRepository,
+  /mobile/repository/WorkstationRepository,
+  /mobile/workstation/Workstations
+}
+
+var selectedTeamId = null;
+
+function onDashboardPage(originId) {
+  selectedTeamId = getUser().teamId;
+  var dashboardListData = [];
+  var todayString = dateToString(now(), "yyyy-MM-dd") + " 0:00";
+  var today = parseStringToDate(todayString, "yyyy-MM-dd HH:mm");
+  var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
+  for(var i = 0; i < 30; i += 1) {
+    var currentDay = today;
+    if(i != 0) {
+      currentDay = dateAdd(today, i, "day");
+    }
+    var dateString = dateToString(currentDay, "yyyy MM dd.");
+    if(i == 0) {
+      dateString = DICTIONARY.today + ", " + dateString;
+    }
+    else if(i == 1) {
+      dateString = DICTIONARY.tomorrow + ", " + dateString;
+    }
+    var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
+    var dayData = {
+      "day": dateString,
+      "availableWorkstations": resolveAvailableWorkstations(totalWorkstationsForTeam - reservationsForCurrentDay)
+    };
+    dashboardListData.add(dayData);
+  }
+  var data = {
+    "DashboardPage": {
+      "DashboardTeamSelectOptions": createTeamOptions(selectedTeamId),
+      "DashboardList": dashboardListData
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("DashboardTeamSelect", "DashboardTeamSelectChanged")
+  ];
+  display(DashboardPage, data, originId, actionEvents);
+}
+
+function resolveAvailableWorkstations(availableWorkstations) {
+  if(availableWorkstations == 0) {
+    return DICTIONARY.noAvailableWorkstations;
+  }
+  return availableWorkstations + " " + DICTIONARY.numberOfAvailableWorkstations;
+}
+
+function createTeamOptions(selectedId) {
+  return getTeams().map(function (teamDao) {
+    return buildSelectOptions(teamDao.id, teamDao.name, selectedId == teamDao.id);
+  });
+}
+
+page DashboardPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: true;
+
+  inputField  DashboardTeamSelect {
+    inputType: selectOne;
+  }
+
+  list DashboardList {
+    template: listVerticalNormal;
+    filterVisible: false;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+    columns: [
+      mainText => day,
+      subText => availableWorkstations
+    ]
+  }
+}
+
+function onDashboardPageLoaded(originId) {}
+
+function onDashboardTeamSelectChanged(originId) {
+  selectedTeamId = $IN.data.value;
+}
+
+function onDashboardListSelectionChanged(originId) {
+
+}

@@ -1,18 +1,3 @@
-function getUsers() {
-  return select()
-    .selectAs("id")
-    .selectAs("name")
-    .selectAs("role")
-    .selectAs("corporate")
-    .selectAs("rmCode")
-    .selectAs("username")
-    .selectAs("email")
-    .selectAs("phone")
-    .selectAs("status")
-    .from("user")
-    .execute();
-}
-
 function getUsersForMhub() {
   return select()
     .selectAs("id")
@@ -24,6 +9,14 @@ function getUsersForMhub() {
     .selectAs("status")
     .from("user")
     .execute();
+}
+
+function getUserById(userId) {
+  var userDaos = select().from("user").where(eq("id", userId)).execute();
+  if (userDaos.isEmpty()) {
+    throw UserNotFoundException;
+  }
+  return userDaos.get(0);
 }
 
 function getUserByEmail(email) {

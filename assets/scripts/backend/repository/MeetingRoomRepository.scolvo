@@ -8,3 +8,15 @@ function getMeetingRoomsForMhub() {
   .from("meetingRoom")
   .execute();
 }
+
+function getMeetingRoomsForMobile() {
+  return select()
+  .selectAs("id")
+  .selectAs("name")
+  .selectAs("capacity")
+  .selectAs("location")
+  .selectAs("mapPictureName")
+  .selectAs("library")
+  .from("meetingRoom")
+  .execute();
+}

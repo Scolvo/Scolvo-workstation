@@ -1,0 +1,24 @@
+function getWorkstationReservationsForTeamByDay(teamId, dayStart) {
+  var dayEnd = dateAdd(dayStart, 20, "hour");
+  return select()
+  .selectAs("reservation.id", "id")
+  .selectAs("reservation.userId", "userId")
+  .selectAs("reservation.workplaceId", "workplaceId")
+  .selectAs("reservation.start", "start")
+  .from("reservation")
+  .join("innerJoin", table("user"), and(custom("reservation.userId = user.id"), eq("user.teamId", teamId)))
+  .where(and(custom("reservation.workplaceId IS NOT NULL"), custom("reservation.start >= " + dayStart), custom("reservation.start <= " + dayEnd.getTime())))
+  .execute();
+}
+
+function getWorkstationReservedForDay(workstationId, dayStart) {
+  var dayEnd = dateAdd(dayStart, 20, "hour");
+  return select()
+  .selectAs("id")
+  .selectAs("userId")
+  .selectAs("workplaceId")
+  .selectAs("start")
+  .from("reservation")
+  .where(and(eq("workplaceId", workstationId), custom("start >= " + dayStart), custom("reservation.start <= " + dayEnd.getTime())))
+  .execute();
+}

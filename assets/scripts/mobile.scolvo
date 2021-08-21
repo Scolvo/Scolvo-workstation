@@ -1,21 +1,11 @@
 import {
   /mobile/SessionUser,
-  /mobile/client/Client,
-  /mobile/DataChange,
-  /mobile/search/AdvancedSearch
-} 
-
-menu defaultChild CorporateClientsGroup {
-  group CorporateClientsGroup defaultChild RegularPage {
-    item RegularPage {
-      roles: ["relationshipManager", "businessCenterManager", "corporateManager", "headCorporateManager"]
-    },
-    item ProspectPage {
-      roles: ["relationshipManager"]
-    }
-  }
+  /mobile/dashboard/Dashboard,
+  /mobile/DataChange
 }
 
-function onAdvancedSearch(originId) {
-  displayAdvancedSearchPage(originId);
+menu defaultChild DashboardPage {
+  item DashboardPage {
+    roles: ["worker"]
+  }
 }

@@ -1,0 +1,12 @@
+function getReservations() {
+  return select()
+  .selectAs("id")
+  .selectAs("userId")
+  .selectAs("workplaceId")
+  .selectAs("meetingRoomId")
+  .selectAs("start")
+  .selectAs("end")
+  .selectAs("numberOfParticipants")
+  .from("reservation")
+  .execute();
+}
