@@ -1,0 +1,65 @@
+var selectedDay = null;
+
+function displayWorkstationsPage(originId, day) {
+  selectedDay = day;
+  selectedTeamId = getUserById(sessionUserId()).teamId;
+  var workstationsData = getWorkstationsForTeam(selectedTeamId).map(function (workstationDao) {
+    return {
+      "id": workstationDao.id,
+      "workstationName": workstationDao.name,
+      "availability": resolveWorkstationAvailabilty(workstationDao.id)
+    };
+  });
+  var data = {
+    "WorkstationsPage": {
+      "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
+      "WorkstationsList": workstationsData
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("WorkstationsTeamSelect", "WorkstationsTeamSelectChanged")
+  ];
+  display(WorkstationsPage, data, originId, actionEvents);
+}
+
+page WorkstationsPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: true;
+
+  inputField  WorkstationsTeamSelect {
+    inputType: selectOne;
+  }
+
+  list WorkstationsList {
+    template: listVerticalNormal;
+    filterVisible: false;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+    columns: [
+      mainText => workstationName,
+      subText => availability
+    ]
+  }
+}
+
+function onWorkstationsPageLoaded(originId) {}
+
+function resolveWorkstationAvailabilty(workstationId) {
+  var workstation = getWorkstationReservedForDay(workstationId, selectedDay.getTime());
+  if(workstation.isEmpty()) {
+    return DICTIONARY.freeWorkstation;
+  }
+  var user = getUserById(sessionUserId());
+  if(user.visible) {
+    return DICTIONARY.workstationReserved + ", " + user.name;
+  }
+  return DICTIONARY.workstationReserved;
+}
+
+function onWorkstationsTeamSelectChanged(originId) {
+  selectedTeamId = $IN.data.value;
+}
+
+function onWorkstationsListSelectionChanged(originId) {}

@@ -21,7 +21,7 @@ function onDataSync(userId, deviceType) {
     return [];
   }
   if (user.role == "worker" && deviceType == "MOBILE") {
-    return dataSyncByWorker(user);
+    return dataSyncByWorker();
   }
   else {
     error("Data sync unknown role: " + user.role);
@@ -38,16 +38,9 @@ function dataSyncByAdministrator() {
   ];
 }
 
-function dataSyncByWorker(user) {
-  var currentUser = {
-    "id": user.id,
-    "teamId": user.teamId,
-    "name": user.name,
-    "email": user.email,
-    "visible": user.visible
-  };
+function dataSyncByWorker() {
   return [
-    createDataSyncElement("user", [currentUser]),
+    createDataSyncElement("user", getUsersForMobile()),
     createDataSyncElement("team", getTeamsForMobile()),
     createDataSyncElement("workplace", getWorkplacesForMobile()),
     createDataSyncElement("meetingRoom", getMeetingRoomsForMobile()),

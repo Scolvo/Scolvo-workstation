@@ -8,7 +8,7 @@ import {
 var selectedTeamId = null;
 
 function onDashboardPage(originId) {
-  selectedTeamId = getUser().teamId;
+  selectedTeamId = getUserById(sessionUserId()).teamId;
   var dashboardListData = [];
   var todayString = dateToString(now(), "yyyy-MM-dd") + " 0:00";
   var today = parseStringToDate(todayString, "yyyy-MM-dd HH:mm");
@@ -27,8 +27,9 @@ function onDashboardPage(originId) {
     }
     var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
     var dayData = {
-      "day": dateString,
-      "availableWorkstations": resolveAvailableWorkstations(totalWorkstationsForTeam - reservationsForCurrentDay)
+      "dayText": dateString,
+      "availableWorkstations": resolveAvailableWorkstations(totalWorkstationsForTeam - reservationsForCurrentDay),
+      "day": currentDay
     };
     dashboardListData.add(dayData);
   }
@@ -73,7 +74,7 @@ page DashboardPage {
     span: 0;
     itemTemplate: listItemMultiLine;
     columns: [
-      mainText => day,
+      mainText => dayText,
       subText => availableWorkstations
     ]
   }
@@ -86,5 +87,5 @@ function onDashboardTeamSelectChanged(originId) {
 }
 
 function onDashboardListSelectionChanged(originId) {
-
+  displayWorkstationsPage(originId, $IN.data.day);
 }
