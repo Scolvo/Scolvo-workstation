@@ -33,7 +33,7 @@ function dataSyncByAdministrator() {
   return [
     createDataSyncElement("team", getTeamsForMhub()),
     createDataSyncElement("user", getUsersForMhub()),
-    createDataSyncElement("workplace", getWorkplacesForMhub()),
+    createDataSyncElement("workplace", getWorkplaces()),
     createDataSyncElement("meetingRoom", getMeetingRoomsForMhub())
   ];
 }
@@ -42,7 +42,7 @@ function dataSyncByWorker() {
   return [
     createDataSyncElement("user", getUsersForMobile()),
     createDataSyncElement("team", getTeamsForMobile()),
-    createDataSyncElement("workplace", getWorkplacesForMobile()),
+    createDataSyncElement("workplace", getWorkplaces()),
     createDataSyncElement("meetingRoom", getMeetingRoomsForMobile()),
     createDataSyncElement("reservation", getReservations()),
   ];

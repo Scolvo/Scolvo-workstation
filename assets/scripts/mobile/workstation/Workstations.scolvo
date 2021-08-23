@@ -2,18 +2,12 @@ var selectedDay = null;
 
 function displayWorkstationsPage(originId, day) {
   selectedDay = day;
-  selectedTeamId = getUserById(sessionUserId()).teamId;
-  var workstationsData = getWorkstationsForTeam(selectedTeamId).map(function (workstationDao) {
-    return {
-      "id": workstationDao.id,
-      "workstationName": workstationDao.name,
-      "availability": resolveWorkstationAvailabilty(workstationDao.id)
-    };
-  });
+  var user = getUserById(sessionUserId());
   var data = {
     "WorkstationsPage": {
-      "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
-      "WorkstationsList": workstationsData
+      "headerText": dateToString(selectedDay, "yyyy MMMM dd.")
+      "WorkstationsTeamSelectOptions": createTeamOptions(user.teamId),
+      "WorkstationsList": createWorkstationsData(user.teamId, day, user)
     }
   };
   var actionEvents = [
@@ -22,11 +16,29 @@ function displayWorkstationsPage(originId, day) {
   display(WorkstationsPage, data, originId, actionEvents);
 }
 
+function createWorkstationsData(selectedTeamId, selectedDay, currentUser) {
+  return getWorkstationsForTeam(selectedTeamId).map(function (workstationDao) {
+    var workstationReservation = getWorkstationReservedForDay(workstationDao.id, selectedDay.getTime());
+    var workstationData = {
+      "id": workstationDao.id,
+      "workstationName": workstationDao.name,
+      "availability": resolveWorkstationAvailabilty(workstationReservation, currentUser)
+    };
+    if(workstationReservation != null && workstationReservation.userId == currentUser.id) {
+      workstationData.put("actions", ["DeleteReservation"]);
+    }
+    else if(workstationReservation == null) {
+      workstationData.put("actions", ["ReserveWorkstation"]);
+    }
+    return workstationData;
+  });
+}
+
 page WorkstationsPage {
   layout: vertical;
   template: general;
   settingsVisible: true;
-  scolvoMenuVisible: true;
+  scolvoMenuVisible: false;
 
   inputField  WorkstationsTeamSelect {
     inputType: selectOne;
@@ -46,12 +58,10 @@ page WorkstationsPage {
 
 function onWorkstationsPageLoaded(originId) {}
 
-function resolveWorkstationAvailabilty(workstationId) {
-  var workstation = getWorkstationReservedForDay(workstationId, selectedDay.getTime());
-  if(workstation.isEmpty()) {
+function resolveWorkstationAvailabilty(workstationReservation, user) {
+  if(workstationReservation == null) {
     return DICTIONARY.freeWorkstation;
   }
-  var user = getUserById(sessionUserId());
   if(user.visible) {
     return DICTIONARY.workstationReserved + ", " + user.name;
   }
@@ -59,7 +69,8 @@ function resolveWorkstationAvailabilty(workstationId) {
 }
 
 function onWorkstationsTeamSelectChanged(originId) {
-  selectedTeamId = $IN.data.value;
+  var user = getUserById(sessionUserId());
+  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData($IN.data.value, selectedDay, user)), "WorkstationsPage");
 }
 
 function onWorkstationsListSelectionChanged(originId) {}
