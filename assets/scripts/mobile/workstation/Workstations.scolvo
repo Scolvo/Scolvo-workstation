@@ -1,13 +1,20 @@
+import {
+  /mobile/workstation/SaveReservation
+}
+
 var selectedDay = null;
+var selectedTeamId = null;
+var reservingUser = null;
 
 function displayWorkstationsPage(originId, day) {
   selectedDay = day;
-  var user = getUserById(sessionUserId());
+  reservingUser = getUserById(sessionUserId());
+  selectedTeamId = reservingUser.teamId;
   var data = {
     "WorkstationsPage": {
       "headerText": dateToString(selectedDay, "yyyy MMMM dd.")
-      "WorkstationsTeamSelectOptions": createTeamOptions(user.teamId),
-      "WorkstationsList": createWorkstationsData(user.teamId, day, user)
+      "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
+      "WorkstationsList": createWorkstationsData()
     }
   };
   var actionEvents = [
@@ -16,15 +23,16 @@ function displayWorkstationsPage(originId, day) {
   display(WorkstationsPage, data, originId, actionEvents);
 }
 
-function createWorkstationsData(selectedTeamId, selectedDay, currentUser) {
+function createWorkstationsData() {
   return getWorkstationsForTeam(selectedTeamId).map(function (workstationDao) {
     var workstationReservation = getWorkstationReservedForDay(workstationDao.id, selectedDay.getTime());
     var workstationData = {
       "id": workstationDao.id,
       "workstationName": workstationDao.name,
-      "availability": resolveWorkstationAvailabilty(workstationReservation, currentUser)
+      "availability": resolveWorkstationAvailabilty(workstationReservation, reservingUser)
     };
-    if(workstationReservation != null && workstationReservation.userId == currentUser.id) {
+    if(workstationReservation != null && workstationReservation.userId == reservingUser.id) {
+      workstationData.put("reservationId", workstationReservation.id);
       workstationData.put("actions", ["DeleteReservation"]);
     }
     else if(workstationReservation == null) {
@@ -58,6 +66,10 @@ page WorkstationsPage {
 
 function onWorkstationsPageLoaded(originId) {}
 
+function onReserveWorkstation(originId) {
+  displaySaveReservationPopup(originId, $IN.data.id);
+}
+
 function resolveWorkstationAvailabilty(workstationReservation, user) {
   if(workstationReservation == null) {
     return DICTIONARY.freeWorkstation;
@@ -69,8 +81,8 @@ function resolveWorkstationAvailabilty(workstationReservation, user) {
 }
 
 function onWorkstationsTeamSelectChanged(originId) {
-  var user = getUserById(sessionUserId());
-  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData($IN.data.value, selectedDay, user)), "WorkstationsPage");
+  selectedTeamId = $IN.data.value;
+  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
 }
 
 function onWorkstationsListSelectionChanged(originId) {}

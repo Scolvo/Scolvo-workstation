@@ -5,3 +5,14 @@ function sessionUserId() {
 function sessionUserName() {
   return getCurrentUser().preferred_username;
 }
+
+function sessionUserIsAvaibleRoles(requireRoles) {
+  var isAvaibleRole = false;
+  var userRoles = getCurrentUser().realm_access.roles;
+  requireRoles.each(function(requireRole) {
+    if (userRoles.contains(requireRole)) {
+      isAvaibleRole = true;
+    }
+  });
+  return isAvaibleRole;
+}

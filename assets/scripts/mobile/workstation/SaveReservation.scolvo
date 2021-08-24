@@ -1,0 +1,65 @@
+var workstationReserveId = null;
+
+function displaySaveReservationPopup(originId, workstationId) {
+  var workstation = getWorkstationById(workstationId);
+  workstationReserveId = workstationId;
+  var actionEvents = [
+    buildTargetValueChangeEvent("DateLabel", dateToString(selectedDay, "yyyy MMMM dd.")),
+    buildSourceClickedEvent("DontSaveReservationButton", "DontSaveReservationButtonClicked"),
+    buildSourceClickedEvent("SaveReservationButton", "SaveReservationButtonClicked"),
+  ];
+  var data = {
+    "SaveReservationPopup": {
+      "headerText": workstation.name
+    }
+  };
+  display(SaveReservationPopup, data, originId, actionEvents);
+}
+
+page SaveReservationPopup {
+  layout: vertical;
+  template: popup;
+
+  label ConfirmationLabel {
+    template: heading4Primary|multi;
+    alignment: left;
+  }
+
+  label DateLabel {
+    template: bodyCopy1CondensedSecondary;
+    alignment: left;
+  }
+
+  container SaveReservationButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button DontSaveReservationButton {
+      template: secondaryMedium;
+    }
+
+    button SaveReservationButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onSaveReservationPopupCancel(originId) {}
+
+function onDontSaveReservationButtonClicked(originId) {
+  finishPage("SaveReservationPopup", originId);
+}
+
+function onSaveReservationButtonClicked(originId) {
+  var reservationDao = {
+    "id": uuid(),
+    "userId": reservingUser.id,
+    "workplaceId": workstationReserveId,
+    "start": selectedDay.getTime(),
+    "changeType": "INSERT"
+  };
+
+  insertExecution("reservation", reservationDao);
+  sendDataChangeRq(originId, "reservation", [reservationDao]);
+  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
+  finishPage("SaveReservationPopup", originId);
+}
