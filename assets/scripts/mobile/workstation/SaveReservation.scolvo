@@ -25,6 +25,10 @@ page SaveReservationPopup {
     alignment: left;
   }
 
+  spacer {
+    span: 8;
+  }
+
   label DateLabel {
     template: bodyCopy1CondensedSecondary;
     alignment: left;
@@ -60,6 +64,9 @@ function onSaveReservationButtonClicked(originId) {
 
   insertExecution("reservation", reservationDao);
   sendDataChangeRq(originId, "reservation", [reservationDao]);
+
   fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
+  fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(reservingUser.teamId)), "DashboardPage");
+
   finishPage("SaveReservationPopup", originId);
 }

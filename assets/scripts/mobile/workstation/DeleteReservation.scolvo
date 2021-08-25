@@ -1,0 +1,68 @@
+var reservationIdToDelete = null;
+
+function displayDeleteReservationPopup(originId, reservationId, workstationId) {
+  reservationIdToDelete = reservationId;
+  var workstation = getWorkstationById(workstationId);
+  var actionEvents = [
+    buildTargetValueChangeEvent("DateLabel", dateToString(selectedDay, "yyyy MMMM dd.")),
+    buildSourceClickedEvent("DontDeleteReservationButton", "DontDeleteReservationButtonClicked"),
+    buildSourceClickedEvent("DeleteReservationButton", "DeleteReservationButtonClicked"),
+  ];
+  var data = {
+    "DeleteReservationPopup": {
+      "headerText": workstation.name
+    }
+  };
+  display(DeleteReservationPopup, data, originId, actionEvents);
+}
+
+page DeleteReservationPopup {
+  layout: vertical;
+  template: popup;
+
+  label ConfirmationLabel {
+    template: heading4Primary|multi;
+    alignment: left;
+  }
+
+  spacer {
+    span: 8;
+  }
+
+  label DateLabel {
+    template: bodyCopy1CondensedSecondary;
+    alignment: left;
+  }
+
+  container DeleteReservationButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button DontDeleteReservationButton {
+      template: secondaryMedium;
+    }
+
+    button DeleteReservationButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onDeleteReservationPopupCancel(originId) {}
+
+function onDontDeleteReservationButtonClicked(originId) {
+  finishPage("DeleteReservationPopup", originId);
+}
+
+function onDeleteReservationButtonClicked(originId) {
+  deleteExecution("reservation", reservationIdToDelete);
+  var reservationDeleteDao = {
+    "id": reservationIdToDelete,
+    "changeType": "DELETE"
+  };
+  sendDataChangeRq(originId, "reservation", [reservationDeleteDao]);
+
+  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
+  fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(reservingUser.teamId)), "DashboardPage");
+
+  finishPage("DeleteReservationPopup", originId);
+}

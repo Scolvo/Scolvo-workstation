@@ -1,5 +1,6 @@
 import {
-  /mobile/workstation/SaveReservation
+  /mobile/workstation/SaveReservation,
+  /mobile/workstation/DeleteReservation
 }
 
 var selectedDay = null;
@@ -68,6 +69,10 @@ function onWorkstationsPageLoaded(originId) {}
 
 function onReserveWorkstation(originId) {
   displaySaveReservationPopup(originId, $IN.data.id);
+}
+
+function onDeleteReservation(originId) {
+  displayDeleteReservationPopup(originId, $IN.data.reservationId, $IN.data.id);
 }
 
 function resolveWorkstationAvailabilty(workstationReservation, user) {
