@@ -1,30 +1,9 @@
-function sessionUserIsRM() {
-  return getCurrentUser().realm_access.roles.contains("relationshipManager");
+function sessionUserId() {
+  return getCurrentUser().userId;
 }
 
-var isSessionUserBCM = null;
-var isSessionUserCM = null;
-var isSessionUserHeadCM = null;
-
-function sessionUserIsBCM() {
-  if(isSessionUserBCM == null) {
-    isSessionUserBCM = getCurrentUser().realm_access.roles.contains("businessCenterManager");
-  }
-  return isSessionUserBCM;
-}
-
-function sessionUserIsCM() {
-  if(isSessionUserCM == null) {
-    isSessionUserCM = getCurrentUser().realm_access.roles.contains("corporateManager");
-  }
-  return isSessionUserCM;
-}
-
-function sessionUserIsHeadCM() {
-  if(isSessionUserHeadCM == null) {
-    isSessionUserHeadCM = getCurrentUser().realm_access.roles.contains("headCorporateManager");
-  }
-  return isSessionUserHeadCM;
+function sessionUserName() {
+  return getCurrentUser().preferred_username;
 }
 
 function sessionUserIsAvaibleRoles(requireRoles) {
@@ -36,25 +15,4 @@ function sessionUserIsAvaibleRoles(requireRoles) {
     }
   });
   return isAvaibleRole;
-}
-
-function sessionUserId() {
-  return getCurrentUser().userId;
-}
-
-function sessionUserName() {
-  return getCurrentUser().preferred_username;
-}
-
-function sendUserActivity() {
-  var userActivityDao = {
-    "id": uuid(),
-    "userId": sessionUserId(),
-    "username": sessionUserName(),
-    "activityType": "APPLICATION_START",
-    "deviceType": "MOBILE",
-    "timestamp": nowInMillis(),
-    "changeType": "INSERT"
-  };
-  sendDataChangeRq(uuid(), "userActivity", [userActivityDao]);
 }

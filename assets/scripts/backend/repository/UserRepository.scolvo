@@ -11,6 +11,17 @@ function getUsersForMhub() {
     .execute();
 }
 
+function getUsersForMobile() {
+  return select()
+    .selectAs("id")
+    .selectAs("name")
+    .selectAs("teamId")
+    .selectAs("email")
+    .selectAs("visible")
+    .from("user")
+    .execute();
+}
+
 function getUserById(userId) {
   var userDaos = select().from("user").where(eq("id", userId)).execute();
   if (userDaos.isEmpty()) {

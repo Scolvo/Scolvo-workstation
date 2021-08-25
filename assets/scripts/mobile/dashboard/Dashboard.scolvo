@@ -5,10 +5,21 @@ import {
   /mobile/workstation/Workstations
 }
 
-var selectedTeamId = null;
-
 function onDashboardPage(originId) {
-  selectedTeamId = getUser().teamId;
+  var selectedTeamId = getUserById(sessionUserId()).teamId;
+  var data = {
+    "DashboardPage": {
+      "DashboardTeamSelectOptions": createTeamOptions(selectedTeamId),
+      "DashboardList": createDashboardListData(selectedTeamId)
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("DashboardTeamSelect", "DashboardTeamSelectChanged")
+  ];
+  display(DashboardPage, data, originId, actionEvents);
+}
+
+function createDashboardListData(selectedTeamId) {
   var dashboardListData = [];
   var todayString = dateToString(now(), "yyyy-MM-dd") + " 0:00";
   var today = parseStringToDate(todayString, "yyyy-MM-dd HH:mm");
@@ -18,7 +29,7 @@ function onDashboardPage(originId) {
     if(i != 0) {
       currentDay = dateAdd(today, i, "day");
     }
-    var dateString = dateToString(currentDay, "yyyy MM dd.");
+    var dateString = dateToString(currentDay, "yyyy MMMM dd.");
     if(i == 0) {
       dateString = DICTIONARY.today + ", " + dateString;
     }
@@ -27,21 +38,13 @@ function onDashboardPage(originId) {
     }
     var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
     var dayData = {
-      "day": dateString,
-      "availableWorkstations": resolveAvailableWorkstations(totalWorkstationsForTeam - reservationsForCurrentDay)
+      "dayText": dateString,
+      "availableWorkstations": resolveAvailableWorkstations(totalWorkstationsForTeam - reservationsForCurrentDay),
+      "day": currentDay
     };
     dashboardListData.add(dayData);
   }
-  var data = {
-    "DashboardPage": {
-      "DashboardTeamSelectOptions": createTeamOptions(selectedTeamId),
-      "DashboardList": dashboardListData
-    }
-  };
-  var actionEvents = [
-    buildSourceSelectionChanged("DashboardTeamSelect", "DashboardTeamSelectChanged")
-  ];
-  display(DashboardPage, data, originId, actionEvents);
+  return dashboardListData;
 }
 
 function resolveAvailableWorkstations(availableWorkstations) {
@@ -73,7 +76,7 @@ page DashboardPage {
     span: 0;
     itemTemplate: listItemMultiLine;
     columns: [
-      mainText => day,
+      mainText => dayText,
       subText => availableWorkstations
     ]
   }
@@ -82,9 +85,9 @@ page DashboardPage {
 function onDashboardPageLoaded(originId) {}
 
 function onDashboardTeamSelectChanged(originId) {
-  selectedTeamId = $IN.data.value;
+  fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData($IN.data.value)), "DashboardPage");
 }
 
 function onDashboardListSelectionChanged(originId) {
-
+  displayWorkstationsPage(originId, $IN.data.day);
 }

@@ -1,0 +1,93 @@
+import {
+  /mobile/workstation/SaveReservation,
+  /mobile/workstation/DeleteReservation
+}
+
+var selectedDay = null;
+var selectedTeamId = null;
+var reservingUser = null;
+
+function displayWorkstationsPage(originId, day) {
+  selectedDay = day;
+  reservingUser = getUserById(sessionUserId());
+  selectedTeamId = reservingUser.teamId;
+  var data = {
+    "WorkstationsPage": {
+      "headerText": dateToString(selectedDay, "yyyy MMMM dd.")
+      "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
+      "WorkstationsList": createWorkstationsData()
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("WorkstationsTeamSelect", "WorkstationsTeamSelectChanged")
+  ];
+  display(WorkstationsPage, data, originId, actionEvents);
+}
+
+function createWorkstationsData() {
+  return getWorkstationsForTeam(selectedTeamId).map(function (workstationDao) {
+    var workstationReservation = getWorkstationReservedForDay(workstationDao.id, selectedDay.getTime());
+    var workstationData = {
+      "id": workstationDao.id,
+      "workstationName": workstationDao.name,
+      "availability": resolveWorkstationAvailabilty(workstationReservation, reservingUser)
+    };
+    if(workstationReservation != null && workstationReservation.userId == reservingUser.id) {
+      workstationData.put("reservationId", workstationReservation.id);
+      workstationData.put("actions", ["DeleteReservation"]);
+    }
+    else if(workstationReservation == null) {
+      workstationData.put("actions", ["ReserveWorkstation"]);
+    }
+    return workstationData;
+  });
+}
+
+page WorkstationsPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: false;
+
+  inputField  WorkstationsTeamSelect {
+    inputType: selectOne;
+  }
+
+  list WorkstationsList {
+    template: listVerticalNormal;
+    filterVisible: false;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+    columns: [
+      mainText => workstationName,
+      subText => availability
+    ]
+  }
+}
+
+function onWorkstationsPageLoaded(originId) {}
+
+function onReserveWorkstation(originId) {
+  displaySaveReservationPopup(originId, $IN.data.id);
+}
+
+function onDeleteReservation(originId) {
+  displayDeleteReservationPopup(originId, $IN.data.reservationId, $IN.data.id);
+}
+
+function resolveWorkstationAvailabilty(workstationReservation, user) {
+  if(workstationReservation == null) {
+    return DICTIONARY.freeWorkstation;
+  }
+  if(user.visible) {
+    return DICTIONARY.workstationReserved + ", " + user.name;
+  }
+  return DICTIONARY.workstationReserved;
+}
+
+function onWorkstationsTeamSelectChanged(originId) {
+  selectedTeamId = $IN.data.value;
+  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
+}
+
+function onWorkstationsListSelectionChanged(originId) {}

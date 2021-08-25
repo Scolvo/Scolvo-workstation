@@ -12,13 +12,18 @@ function getWorkstationReservationsForTeamByDay(teamId, dayStart) {
 }
 
 function getWorkstationReservedForDay(workstationId, dayStart) {
-  var dayEnd = dateAdd(dayStart, 20, "hour");
-  return select()
+  var dayEnd = dateAdd(dayStart, 20, "hour").getTime();
+  var workstation = select()
   .selectAs("id")
   .selectAs("userId")
   .selectAs("workplaceId")
   .selectAs("start")
   .from("reservation")
-  .where(and(eq("workplaceId", workstationId), custom("start >= " + dayStart), custom("reservation.start <= " + dayEnd.getTime())))
+  .where(and(eq("workplaceId", workstationId), custom("start >= " + dayStart), custom("reservation.start <= " + dayEnd)))
   .execute();
+
+  if(workstation.isEmpty()) {
+    return null;
+  }
+  return workstation.get(0);
 }

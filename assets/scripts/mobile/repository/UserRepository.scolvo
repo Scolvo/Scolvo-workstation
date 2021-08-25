@@ -1,5 +1,5 @@
-function getUser() {
-  var userDaos = select().from("user").execute();
+function getUserById(userId) {
+  var userDaos = select().from("user").where(eq("id", userId)).execute();
 
   if(userDaos.isEmpty()) {
     return null;

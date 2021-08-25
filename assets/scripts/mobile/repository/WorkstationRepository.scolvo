@@ -1,3 +1,15 @@
 function getWorkstationsForTeam(teamId) {
   return select().from("workplace").where(eq("teamId", teamId)).execute();
 }
+
+function getWorkstationById(workplaceId) {
+  var workstations = select()
+  .from("workplace")
+  .where(eq("id", workplaceId))
+  .execute();
+
+  if(workstations.isEmpty()) {
+    return null;
+  }
+  return workstations.get(0);
+}

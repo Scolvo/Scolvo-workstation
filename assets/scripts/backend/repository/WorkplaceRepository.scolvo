@@ -1,13 +1,4 @@
-function getWorkplacesForMhub() {
-  return select()
-  .selectAs("id")
-  .selectAs("teamId")
-  .selectAs("name")
-  .from("workplace")
-  .execute();
-}
-
-function getWorkplacesForMobile() {
+function getWorkplaces() {
   return select()
   .selectAs("id")
   .selectAs("teamId")
