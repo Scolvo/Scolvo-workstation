@@ -1,11 +1,11 @@
 import {
-  /mobile/repository/TeamRepository,
+  /mobile/common/TeamsReservation,
   /mobile/repository/ReservationRepository,
   /mobile/repository/WorkstationRepository,
   /mobile/workstation/Workstations
 }
 
-function onDashboardPage(originId) {
+function onDashboard(originId) {
   var selectedTeamId = getUserById(sessionUserId()).teamId;
   var data = {
     "DashboardPage": {
@@ -21,8 +21,7 @@ function onDashboardPage(originId) {
 
 function createDashboardListData(selectedTeamId) {
   var dashboardListData = [];
-  var todayString = dateToString(now(), "yyyy-MM-dd") + " 0:00";
-  var today = parseStringToDate(todayString, "yyyy-MM-dd HH:mm");
+  var today = getTodayForWorkstations();
   var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
   for(var i = 0; i < 30; i += 1) {
     var currentDay = today;
@@ -52,12 +51,6 @@ function resolveAvailableWorkstations(availableWorkstations) {
     return DICTIONARY.noAvailableWorkstations;
   }
   return availableWorkstations + " " + DICTIONARY.numberOfAvailableWorkstations;
-}
-
-function createTeamOptions(selectedId) {
-  return getTeams().map(function (teamDao) {
-    return buildSelectOptions(teamDao.id, teamDao.name, selectedId == teamDao.id);
-  });
 }
 
 page DashboardPage {
