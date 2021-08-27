@@ -1,9 +1,7 @@
 function displayCreateMeetingRoomPage(originId) {
   var data = {
     "CreateMeetingRoomPage": {
-      "CreateMeetingRoomForm": {
-        "isLibraryOptions": createYesNoOptions("no")
-      }
+      "CreateMeetingRoomForm": {}
     }
   };
   display(CreateMeetingRoomPage, data, originId);
@@ -23,8 +21,7 @@ page CreateMeetingRoomPage {
     fields: [
       field Name => name formItemInputNormal,
       field Location => location formItemInputNormal,
-      field Capacity => capacity formItemInputNormal,
-      field IsLibrary => isLibrary formItemSelectNormal
+      field Capacity => capacity formItemInputNormal
     ]
   }
 }
@@ -43,18 +40,11 @@ function onSaveMeetingRoom(originId) {
     return null;
   }
 
-  var isRoomLibrary = false;
-  if(meetingRoomData.IsLibrary == "yes") {
-    isRoomLibrary = true;
-  }
-
   var meetingRoomDao = {
     "id": uuid(),
     "name": meetingRoomData.Name,
     "location": meetingRoomData.Location,
     "capacity": parseNumber(meetingRoomData.Capacity),
-    "library": isRoomLibrary,
-    "mapPictureName": createMeetingRoomMapPictureName(meetingRoomData.Name),
     "changeType": "INSERT"
   };
 
@@ -91,23 +81,10 @@ function validateMeetingRoomCapacity(result, data) {
   }
 }
 
-function isLibraryValidation(result, data) {
-  if (data.IsLibrary == null || data.IsLibrary.isEmpty()) {
-    result.addMessage("ERROR", "IsLibrary", DICTIONARY.userValidationMsg_IsLibrary);
-  } else if (data.IsLibrary != "yes" && data.IsLibrary != "no") {
-    result.addMessage("ERROR", "IsLibrary", DICTIONARY.userValidationMsg_IsLibrary_Invalid);
-  }
-}
-
 function validateMeetingRoomData(meetingRoomData, originId) {
   var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
   validateMeetinRoomName(validationResult, meetingRoomData);
   validateMeetinRoomLocation(validationResult, meetingRoomData);
   validateMeetingRoomCapacity(validationResult, meetingRoomData);
-  isLibraryValidation(validationResult, meetingRoomData);
   return validationResult;
-}
-
-function createMeetingRoomMapPictureName(meetingRoomName) {
-  return ("meetingRoom" + meetingRoomName + "_map");
 }

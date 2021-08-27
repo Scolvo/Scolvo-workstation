@@ -31,10 +31,6 @@ function onBackToTeams(originId) {
   onTeams(originId);
 }
 
-function createTeamMapPictureName(teamName) {
-  return ("team_" + teamName + "_map");
-}
-
 function onSaveTeam(originId) {
   var teamData = $IN.data;
   var teamalidationResult = validateTeamData(teamData, originId);
@@ -47,7 +43,6 @@ function onSaveTeam(originId) {
     "id": uuid(),
     "name": teamData.Name,
     "location": teamData.Location,
-    "mapPictureName": createTeamMapPictureName(teamData.Name),
     "changeType": "INSERT"
   };
 

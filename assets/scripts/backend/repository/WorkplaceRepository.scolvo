@@ -1,9 +1,19 @@
-function getWorkplaces() {
+function getWorkplaces() { 
   return select()
   .selectAs("id")
   .selectAs("teamId")
   .selectAs("name")
   .selectAs("canBeBooked")
   .from("workplace")
+  .execute();
+}
+
+function getWorkplacesForMobile() {
+  return select()
+  .selectAs("id")
+  .selectAs("teamId")
+  .selectAs("name")
+  .from("workplace")
+  .where(eq("canBeBooked", true))
   .execute();
 }
