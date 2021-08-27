@@ -1,11 +1,21 @@
 import {
   /mobile/SessionUser,
   /mobile/dashboard/Dashboard,
+  /mobile/calendar/CalendarView,
   /mobile/DataChange
 }
 
-menu defaultChild DashboardPage {
-  item DashboardPage {
+menu defaultChild Dashboard {
+  item Dashboard {
+    roles: ["worker"]
+  },
+  item CalendarView {
+    roles: ["worker"]
+  },
+  item MeetingRooms {
+    roles: ["worker"]
+  },
+  item MyReservations {
     roles: ["worker"]
   }
 }

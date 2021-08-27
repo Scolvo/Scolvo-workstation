@@ -1,0 +1,92 @@
+import {
+  /mobile/common/TeamsReservation,
+  /mobile/repository/ReservationRepository,
+  /mobile/repository/WorkstationRepository,
+  /mobile/workstation/Workstations
+}
+
+function onCalendarView(originId) {
+  var selectedTeamId = getUserById(sessionUserId()).teamId;
+
+  var data = {
+    "CalendarViewPage": {
+      "CalendarViewTeamSelectOptions": createTeamOptions(selectedTeamId),
+      "ReservationList": createCalendarViewReservationList(selectedTeamId)
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("CalendarViewTeamSelect", "CalendarViewTeamSelectChanged")
+  ];
+
+  display(CalendarViewPage, data, originId, actionEvents);
+}
+
+function createCalendarViewReservationList(selectedTeamId) {
+  var calendarViewReservationsListData = [];
+  var today = getTodayForWorkstations();
+  var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
+  for(var i = 1; i <= 7; i += 1) {
+    var currentDay = dateSubtract(today, i, "day");
+    var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
+    var dayData = {
+      "eventDate": currentDay.getTime(),
+      "eventMarkerColor": resolveMarkerColor(reservationsForCurrentDay, totalWorkstationsForTeam)
+    };
+    calendarViewReservationsListData.add(dayData);
+  }
+  for(var i = 0; i < 30; i += 1) {
+    var currentDay = today;
+    if(i != 0) {
+      currentDay = dateAdd(today, i, "day");
+    }
+    var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
+    var dayData = {
+      "eventDate": currentDay.getTime(),
+      "eventMarkerColor": resolveMarkerColor(reservationsForCurrentDay, totalWorkstationsForTeam)
+    };
+    calendarViewReservationsListData.add(dayData);
+  }
+  return calendarViewReservationsListData;
+}
+
+function resolveMarkerColor(reservations, totalWorkstations) {
+  var availableWorkstations = totalWorkstations - reservations;
+  if(availableWorkstations == 0) {
+    return "alert800";
+  }
+  if(availableWorkstations == totalWorkstations) {
+    return "success800";
+  }
+  return "warning800";
+}
+
+page CalendarViewPage {
+  layout: vertical;
+  template: general;
+  scolvoMenuVisible: true;
+  settingsVisible: true;
+
+  inputField  CalendarViewTeamSelect {
+    inputType: selectOne;
+  }
+
+  list ReservationList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCalendar;
+    span: 0;
+    filterVisible: false;
+    columns: [
+      eventDay => eventDate
+    ]
+  }
+}
+
+function onCalendarViewPageLoaded(originId) {}
+
+function onCalendarViewTeamSelectChanged(originId) {
+  fireEvent(buildRefreshItemEvent("ReservationList", createCalendarViewReservationList($IN.data.value)), "CalendarViewPage");
+}
+
+function onReservationListSelectionChanged(originId) {
+  displayWorkstationsPage(originId, $IN.data.eventDate);
+}
