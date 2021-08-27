@@ -84,5 +84,9 @@ page CalendarViewPage {
 function onCalendarViewPageLoaded(originId) {}
 
 function onCalendarViewTeamSelectChanged(originId) {
+  fireEvent(buildRefreshItemEvent("ReservationList", createCalendarViewReservationList($IN.data.value)), "CalendarViewPage");
+}
 
+function onReservationListSelectionChanged(originId) {
+  displayWorkstationsPage(originId, $IN.data.eventDate);
 }
