@@ -72,9 +72,6 @@
       <column name="mapPictureName" type="TEXT">
         <constraints nullable="false"/>
       </column>
-      <column name="library" type="TEXT">
-        <constraints nullable="true"/>
-      </column>
     </createTable>
 
     <createTable tableName="reservation">

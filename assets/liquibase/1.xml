@@ -221,9 +221,6 @@
       <column name="mapPictureName" type="VARCHAR(80)">
         <constraints nullable="false"/>
       </column>
-      <column name="library" type="VARCHAR(8)">
-        <constraints nullable="true"/>
-      </column>
       <column name="createdAt" type="BIGINT">
         <constraints nullable="true"/>
       </column>
@@ -253,9 +250,6 @@
       </column>
       <column name="mapPictureName" type="VARCHAR(80)">
         <constraints nullable="false"/>
-      </column>
-      <column name="library" type="VARCHAR(8)">
-        <constraints nullable="true"/>
       </column>
       <column name="createdAt" type="BIGINT">
         <constraints nullable="true"/>
