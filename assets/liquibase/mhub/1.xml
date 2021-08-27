@@ -161,7 +161,7 @@
       <column name="location" type="VARCHAR(50)">
         <constraints nullable="false"/>
       </column>
-      <column name="mapPictureName" type="VARCHAR(80)">
+      <column name="mapPicturePath" type="VARCHAR(200)">
         <constraints nullable="true"/>
       </column>
       <column name="createdAt" type="BIGINT">
@@ -188,7 +188,7 @@
       <column name="location" type="VARCHAR(50)">
         <constraints nullable="false"/>
       </column>
-      <column name="mapPictureName" type="VARCHAR(80)">
+      <column name="mapPicturePath" type="VARCHAR(200)">
         <constraints nullable="true"/>
       </column>
       <column name="createdAt" type="BIGINT">
@@ -218,7 +218,7 @@
       <column name="location" type="VARCHAR(50)">
         <constraints nullable="false"/>
       </column>
-      <column name="mapPictureName" type="VARCHAR(80)">
+      <column name="mapPicturePath" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
       <column name="createdAt" type="BIGINT">
@@ -248,7 +248,7 @@
       <column name="location" type="VARCHAR(50)">
         <constraints nullable="false"/>
       </column>
-      <column name="mapPictureName" type="VARCHAR(80)">
+      <column name="mapPicturePath" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
       <column name="createdAt" type="BIGINT">

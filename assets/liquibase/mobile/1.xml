@@ -51,7 +51,7 @@
       <column name="location" type="TEXT">
         <constraints nullable="false"/>
       </column>
-      <column name="mapPictureName" type="TEXT">
+      <column name="mapPicturePath" type="TEXT">
         <constraints nullable="true"/>
       </column>
     </createTable>
@@ -69,7 +69,7 @@
       <column name="location" type="TEXT">
         <constraints nullable="false"/>
       </column>
-      <column name="mapPictureName" type="TEXT">
+      <column name="mapPicturePath" type="TEXT">
         <constraints nullable="false"/>
       </column>
     </createTable>
