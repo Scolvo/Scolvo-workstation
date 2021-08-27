@@ -219,7 +219,7 @@
         <constraints nullable="false"/>
       </column>
       <column name="mapPicturePath" type="VARCHAR(200)">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="createdAt" type="BIGINT">
         <constraints nullable="true"/>
@@ -249,7 +249,7 @@
         <constraints nullable="false"/>
       </column>
       <column name="mapPicturePath" type="VARCHAR(200)">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="createdAt" type="BIGINT">
         <constraints nullable="true"/>

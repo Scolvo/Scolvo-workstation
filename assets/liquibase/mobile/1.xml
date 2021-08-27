@@ -70,7 +70,7 @@
         <constraints nullable="false"/>
       </column>
       <column name="mapPicturePath" type="TEXT">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
     </createTable>
 
