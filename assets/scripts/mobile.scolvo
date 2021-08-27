@@ -1,6 +1,6 @@
 import {
   /mobile/SessionUser,
-  /mobile/dashboard/Dashboard,
+  /mobile/workstation/Dashboard,
   /mobile/calendar/CalendarView,
   /mobile/DataChange
 }
