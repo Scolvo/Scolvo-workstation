@@ -4,7 +4,7 @@ function getMeetingRoomsForMhub() {
   .selectAs("name")
   .selectAs("capacity")
   .selectAs("location")
-  .selectAs("mapPictureName")
+  .selectAs("mapPicturePath")
   .from("meetingRoom")
   .execute();
 }
@@ -15,8 +15,7 @@ function getMeetingRoomsForMobile() {
   .selectAs("name")
   .selectAs("capacity")
   .selectAs("location")
-  .selectAs("mapPictureName")
-  .selectAs("library")
+  .selectAs("mapPicturePath")
   .from("meetingRoom")
   .execute();
 }

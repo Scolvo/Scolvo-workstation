@@ -12,7 +12,7 @@ function getTeamsForMobile() {
   .selectAs("id")
   .selectAs("name")
   .selectAs("location")
-  .selectAs("mapPictureName")
+  .selectAs("mapPicturePath")
   .from("team")
   .execute();
 }
