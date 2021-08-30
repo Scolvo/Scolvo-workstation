@@ -39,7 +39,7 @@ function createDashboardListData(selectedTeamId) {
     var dayData = {
       "dayText": dateString,
       "availableWorkstations": resolveAvailableWorkstations(totalWorkstationsForTeam - reservationsForCurrentDay),
-      "day": currentDay
+      "day": currentDay.getTime()
     };
     dashboardListData.add(dayData);
   }

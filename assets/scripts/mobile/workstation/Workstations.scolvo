@@ -26,7 +26,7 @@ function displayWorkstationsPage(originId, day) {
 
 function createWorkstationsData() {
   return getWorkstationsForTeam(selectedTeamId).map(function (workstationDao) {
-    var workstationReservation = getWorkstationReservedForDay(workstationDao.id, selectedDay.getTime());
+    var workstationReservation = getWorkstationReservedForDay(workstationDao.id, selectedDay);
     var workstationData = {
       "id": workstationDao.id,
       "workstationName": workstationDao.name,
