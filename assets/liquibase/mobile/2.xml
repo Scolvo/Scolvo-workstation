@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="2" author="attila.kesztyus@scolvo.com">
+
+    <createIndex tableName="user" indexName="user_teamId_idx">
+      <column name="teamId"/>
+    </createIndex>
+
+    <createIndex tableName="workplace" indexName="workplace_teamId_idx">
+      <column name="teamId"/>
+    </createIndex>
+    <createIndex tableName="workplace" indexName="workplace_name_idx">
+      <column name="name"/>
+    </createIndex>
+
+    <createIndex tableName="team" indexName="team_name_idx">
+      <column name="name"/>
+    </createIndex>
+    <createIndex tableName="team" indexName="team_location_idx">
+      <column name="location"/>
+    </createIndex>
+
+    <createIndex tableName="meetingRoom" indexName="meetingRoom_name_idx">
+      <column name="name"/>
+    </createIndex>
+    <createIndex tableName="meetingRoom" indexName="meetingRoom_location_idx">
+      <column name="location"/>
+    </createIndex>
+
+    <createIndex tableName="reservation" indexName="reservation_userId_idx">
+      <column name="userId"/>
+    </createIndex>
+    <createIndex tableName="reservation" indexName="reservation_workplaceId_idx">
+      <column name="workplaceId"/>
+    </createIndex>
+    <createIndex tableName="reservation" indexName="reservation_meetingRoomId_idx">
+      <column name="meetingRoomId"/>
+    </createIndex>
+    <createIndex tableName="reservation" indexName="reservation_start_idx">
+      <column name="start"/>
+    </createIndex>
+    <createIndex tableName="reservation" indexName="reservation_end_idx">
+      <column name="end"/>
+    </createIndex>
+
+  </changeSet>
+
+</databaseChangeLog>
