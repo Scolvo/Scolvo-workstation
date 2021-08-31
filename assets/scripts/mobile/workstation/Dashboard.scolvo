@@ -21,7 +21,7 @@ function onDashboard(originId) {
 
 function createDashboardListData(selectedTeamId) {
   var dashboardListData = [];
-  var today = getTodayForWorkstations();
+  var today = getDayStart(now());
   var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
   for(var i = 0; i < 30; i += 1) {
     var currentDay = today;
