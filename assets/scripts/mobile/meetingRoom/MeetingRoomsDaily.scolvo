@@ -1,0 +1,43 @@
+var selectedMeetingRoomDay = null;
+
+function displayMeetingRoomsDailyPage(originId, day) {
+  selectedMeetingRoomDay = day;
+  var data = {
+    "MeetingRoomsDailyPage": {
+      "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd."),
+      "MeetingRoomsDailyList": createMeetingRoomsDailyData()
+    }
+  };
+  display(MeetingRoomsDailyPage, data, originId);
+}
+
+function createMeetingRoomsDailyData() {
+  return getMeetingRooms().map(function (meetingRoomDao) {
+    var meetingRoomData = {
+      "id": meetingRoomDao.id,
+      "meetingRoomName": meetingRoomDao.name,
+      "availability": ""
+    };
+    return meetingRoomData;
+  });
+}
+
+page MeetingRoomsDailyPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: false;
+
+  list MeetingRoomsDailyList {
+    template: listVerticalNormal;
+    filterVisible: false;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+    columns: [
+      mainText => meetingRoomName,
+      subText => availability
+    ]
+  }
+}
+
+function onMeetingRoomsDailyPageLoaded(originId) {}

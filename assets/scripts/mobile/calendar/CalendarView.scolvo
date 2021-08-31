@@ -23,7 +23,7 @@ function onCalendarView(originId) {
 
 function createCalendarViewReservationList(selectedTeamId) {
   var calendarViewReservationsListData = [];
-  var today = getTodayForWorkstations();
+  var today = getDayStart(now());
   var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
   for(var i = 1; i <= 7; i += 1) {
     var currentDay = dateSubtract(today, i, "day");
@@ -88,5 +88,5 @@ function onCalendarViewTeamSelectChanged(originId) {
 }
 
 function onReservationListSelectionChanged(originId) {
-  displayWorkstationsPage(originId, $IN.data.selectedDay);
+  displayWorkstationsPage(originId, $IN.data.eventDate);
 }

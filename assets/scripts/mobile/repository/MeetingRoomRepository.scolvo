@@ -1,0 +1,7 @@
+function getMeetingRooms() {
+  return select().from("meetingRoom").execute();
+}
+
+function getMeetingRoomById(meetingRoomId) {
+  return select().from("meetingRoom").where(eq("id", meetingRoomId)).execute();
+}
