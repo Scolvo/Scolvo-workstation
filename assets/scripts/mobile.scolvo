@@ -2,7 +2,7 @@ import {
   /mobile/SessionUser,
   /mobile/workstation/Dashboard,
   /mobile/calendar/CalendarView,
-  /mobile/meetingRoom/MeetingRoomsDaily,
+  /mobile/meetingRoom/MeetingRoomsDashboard,
   /mobile/DataChange
 }
 

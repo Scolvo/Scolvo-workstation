@@ -1,48 +1,32 @@
-import {
-  /mobile/common/TeamsReservation,
-  /mobile/repository/ReservationRepository,
-  /mobile/repository/MeetingRoomRepository
-}
+var selectedMeetingRoomDay = null;
 
-function onMeetingRooms(originId) {
+function displayMeetingRoomsDailyPage(originId, day) {
+  selectedMeetingRoomDay = day;
   var data = {
     "MeetingRoomsDailyPage": {
-      "MeetingRoomsDailyList": createMeetingRoomsDailyListData()
+      "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd."),
+      "MeetingRoomsDailyList": createMeetingRoomsDailyData()
     }
   };
   display(MeetingRoomsDailyPage, data, originId);
 }
 
-function createMeetingRoomsDailyListData() {
-  var meetingRoomsListData = [];
-  var today = now();
-  for(var i = 0; i < 30; i += 1) {
-    var currentDay = today;
-    if(i != 0) {
-      currentDay = dateAdd(today, i, "day");
-    }
-    var dateString = dateToString(currentDay, "yyyy MMMM dd.");
-    if(i == 0) {
-      dateString = DICTIONARY.today + ", " + dateString;
-    }
-    else if(i == 1) {
-      dateString = DICTIONARY.tomorrow + ", " + dateString;
-    }
-    var dayData = {
-      "dayText": dateString,
-      "availableMeetingRooms": ""
-      "day": currentDay.getTime()
+function createMeetingRoomsDailyData() {
+  return getMeetingRooms().map(function (meetingRoomDao) {
+    var meetingRoomData = {
+      "id": meetingRoomDao.id,
+      "meetingRoomName": meetingRoomDao.name,
+      "availability": ""
     };
-    meetingRoomsListData.add(dayData);
-  }
-  return meetingRoomsListData;
+    return meetingRoomData;
+  });
 }
 
 page MeetingRoomsDailyPage {
   layout: vertical;
   template: general;
   settingsVisible: true;
-  scolvoMenuVisible: true;
+  scolvoMenuVisible: false;
 
   list MeetingRoomsDailyList {
     template: listVerticalNormal;
@@ -50,8 +34,8 @@ page MeetingRoomsDailyPage {
     span: 0;
     itemTemplate: listItemMultiLine;
     columns: [
-      mainText => dayText,
-      subText => availableMeetingRooms
+      mainText => meetingRoomName,
+      subText => availability
     ]
   }
 }
