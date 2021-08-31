@@ -58,7 +58,7 @@ function onSaveReservationButtonClicked(originId) {
     "id": uuid(),
     "userId": reservingUser.id,
     "workplaceId": workstationReserveId,
-    "start": selectedDay.getTime(),
+    "start": selectedDay,
     "changeType": "INSERT"
   };
 

@@ -1,5 +1,4 @@
-function getWorkstationReservationsForTeamByDay(teamId, dayStart) {
-  var dayEnd = dateAdd(dayStart, 20, "hour");
+function getWorkstationReservationsForTeamByDay(teamId, day) {
   return select()
   .selectAs("reservation.id", "id")
   .selectAs("reservation.userId", "userId")
@@ -7,19 +6,18 @@ function getWorkstationReservationsForTeamByDay(teamId, dayStart) {
   .selectAs("reservation.start", "start")
   .from("reservation")
   .join("innerJoin", table("user"), and(custom("reservation.userId = user.id"), eq("user.teamId", teamId)))
-  .where(and(custom("reservation.workplaceId IS NOT NULL"), custom("reservation.start >= " + dayStart), custom("reservation.start <= " + dayEnd.getTime())))
+  .where(and(custom("reservation.workplaceId IS NOT NULL"), custom("reservation.start = " + day)))
   .execute();
 }
 
-function getWorkstationReservedForDay(workstationId, dayStart) {
-  var dayEnd = dateAdd(dayStart, 20, "hour").getTime();
+function getWorkstationReservedForDay(workstationId, day) {
   var workstation = select()
   .selectAs("id")
   .selectAs("userId")
   .selectAs("workplaceId")
   .selectAs("start")
   .from("reservation")
-  .where(and(eq("workplaceId", workstationId), custom("start >= " + dayStart), custom("reservation.start <= " + dayEnd)))
+  .where(and(eq("workplaceId", workstationId), custom("start = " + day)))
   .execute();
 
   if(workstation.isEmpty()) {
