@@ -8,9 +8,14 @@ function createTeamOptions(selectedId) {
   });
 }
 
-function getTodayForWorkstations() {
-  var todayString = dateToString(now(), "yyyy-MM-dd") + " 8:00";
-  return parseStringToDate(todayString, "yyyy-MM-dd HH:mm");
+function getDayStart(day) {
+  var dayStartString = dateToString(day, "yyyy-MM-dd") + " 8:00";
+  return parseStringToDate(dayStartString, "yyyy-MM-dd HH:mm");
+}
+
+function getDayEnd(day) {
+  var dayEndString = dateToString(day, "yyyy-MM-dd") + " 19:00";
+  return parseStringToDate(dayEndString, "yyyy-MM-dd HH:mm");
 }
 
 function prepareReservationForPeriod(teamId, startOfPeriod, endOfPeriod) {

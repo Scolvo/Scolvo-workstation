@@ -31,7 +31,7 @@ function getDateStringForList(day, relativeDayCount) {
 
 function createDashboardListData(selectedTeamId) {
   var dashboardListData = [];
-  var today = getTodayForWorkstations();
+  var today = getDayStart(now());
   var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
   var reservations = prepareReservationForPeriod(selectedTeamId, today.getTime(), dateAdd(today, 29, "day").getTime());
 

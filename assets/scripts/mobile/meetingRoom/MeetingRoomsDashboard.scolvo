@@ -1,0 +1,64 @@
+import {
+  /mobile/common/TeamsReservation,
+  /mobile/repository/ReservationRepository,
+  /mobile/repository/MeetingRoomRepository,
+  /mobile/meetingRoom/MeetingRoomsDaily
+}
+
+function onMeetingRooms(originId) {
+  var data = {
+    "MeetingRoomsDashboardPage": {
+      "MeetingRoomsDashboardList": createMeetingRoomsDashboardListData()
+    }
+  };
+  display(MeetingRoomsDashboardPage, data, originId);
+}
+
+function createMeetingRoomsDashboardListData() {
+  var meetingRoomsListData = [];
+  var today = now();
+  for(var i = 0; i < 30; i += 1) {
+    var currentDay = today;
+    if(i != 0) {
+      currentDay = dateAdd(today, i, "day");
+    }
+    var dateString = dateToString(currentDay, "yyyy MMMM dd.");
+    if(i == 0) {
+      dateString = DICTIONARY.today + ", " + dateString;
+    }
+    else if(i == 1) {
+      dateString = DICTIONARY.tomorrow + ", " + dateString;
+    }
+    var dayData = {
+      "dayText": dateString,
+      "availableMeetingRooms": ""
+      "day": currentDay.getTime()
+    };
+    meetingRoomsListData.add(dayData);
+  }
+  return meetingRoomsListData;
+}
+
+page MeetingRoomsDashboardPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: true;
+
+  list MeetingRoomsDashboardList {
+    template: listVerticalNormal;
+    filterVisible: false;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+    columns: [
+      mainText => dayText,
+      subText => availableMeetingRooms
+    ]
+  }
+}
+
+function onMeetingRoomsDashboardPageLoaded(originId) {}
+
+function onMeetingRoomsDashboardListSelectionChanged(originId) {
+  displayMeetingRoomsDailyPage(originId, $IN.data.day);
+}
