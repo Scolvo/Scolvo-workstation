@@ -19,34 +19,41 @@ function onDashboard(originId) {
   display(DashboardPage, data, originId, actionEvents);
 }
 
+function getDateStringForList(day, relativeDayCount) {
+  var dateString = dateToString(currentDay, "yyyy MMMM dd.");
+  if(relativeDayCount == 0) {
+    dateString = DICTIONARY.today + ", " + dateString;
+  } else if(relativeDayCount == 1) {
+    dateString = DICTIONARY.tomorrow + ", " + dateString;
+  }
+  return dateString;
+}
+
 function createDashboardListData(selectedTeamId) {
   var dashboardListData = [];
   var today = getTodayForWorkstations();
   var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
+  var reservations = prepareReservationForPeriod(selectedTeamId, today.getTime(), dateAdd(today, 29, "day").getTime());
+
+  var currentDay = today;
   for(var i = 0; i < 30; i += 1) {
-    var currentDay = today;
-    if(i != 0) {
-      currentDay = dateAdd(today, i, "day");
+    var reservationString = dateToString(currentDay, "yyyy.MM.dd.");
+    var availableCount = totalWorkstationsForTeam;
+    if (reservations.get(reservationString) != null) {
+      availableCount = totalWorkstationsForTeam - reservations.get(reservationString);
     }
-    var dateString = dateToString(currentDay, "yyyy MMMM dd.");
-    if(i == 0) {
-      dateString = DICTIONARY.today + ", " + dateString;
-    }
-    else if(i == 1) {
-      dateString = DICTIONARY.tomorrow + ", " + dateString;
-    }
-    var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
     var dayData = {
-      "dayText": dateString,
-      "availableWorkstations": resolveAvailableWorkstations(totalWorkstationsForTeam - reservationsForCurrentDay),
+      "dayText": getDateStringForList(currentDay, i),
+      "availableWorkstations": resolveAvailableWorkstationLabel(availableCount),
       "day": currentDay.getTime()
     };
     dashboardListData.add(dayData);
+    currentDay = dateAdd(currentDay, 1, "day");
   }
   return dashboardListData;
 }
 
-function resolveAvailableWorkstations(availableWorkstations) {
+function resolveAvailableWorkstationLabel(availableWorkstations) {
   if(availableWorkstations == 0) {
     return DICTIONARY.noAvailableWorkstations;
   }

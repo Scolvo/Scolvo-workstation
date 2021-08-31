@@ -21,31 +21,36 @@ function onCalendarView(originId) {
   display(CalendarViewPage, data, originId, actionEvents);
 }
 
+function prepareCalendarDayData(day, reservations) {
+  var reservationString = dateToString(day, "yyyy.MM.dd.");
+  var reservationsForCurrentDay = 0;
+  if (reservations.get(reservationString) != null) {
+    reservationsForCurrentDay = reservations.get(reservationString);
+  }
+
+  var dayData = {
+    "eventDate": day.getTime(),
+    "eventMarkerColor": resolveMarkerColor(reservationsForCurrentDay, totalWorkstationsForTeam)
+  };
+  return dayData;
+}
+
 function createCalendarViewReservationList(selectedTeamId) {
   var calendarViewReservationsListData = [];
   var today = getTodayForWorkstations();
   var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
-  for(var i = 1; i <= 7; i += 1) {
+  var reservations = prepareReservationForPeriod(selectedTeamId, dateSubtract(today, 7, "day").getTime(), dateAdd(today, 29, "day").getTime());
+
+  for(var i = 7; i > 0; i -= 1) {
     var currentDay = dateSubtract(today, i, "day");
-    var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
-    var dayData = {
-      "eventDate": currentDay.getTime(),
-      "eventMarkerColor": resolveMarkerColor(reservationsForCurrentDay, totalWorkstationsForTeam)
-    };
-    calendarViewReservationsListData.add(dayData);
+    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations));
   }
-  for(var i = 0; i < 30; i += 1) {
-    var currentDay = today;
-    if(i != 0) {
-      currentDay = dateAdd(today, i, "day");
-    }
-    var reservationsForCurrentDay = getWorkstationReservationsForTeamByDay(selectedTeamId, currentDay.getTime()).size();
-    var dayData = {
-      "eventDate": currentDay.getTime(),
-      "eventMarkerColor": resolveMarkerColor(reservationsForCurrentDay, totalWorkstationsForTeam)
-    };
-    calendarViewReservationsListData.add(dayData);
+  calendarViewReservationsListData.add(prepareCalendarDayData(today, reservations));
+  for(var i = 1; i < 30; i += 1) {
+    var currentDay = dateAdd(today, i, "day");
+    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations));
   }
+
   return calendarViewReservationsListData;
 }
 
