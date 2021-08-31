@@ -1,0 +1,54 @@
+function displayReserveMeetingRoomPage(originId) {
+  var headerString = "Foglalás " + dateToString(selectedMeetingRoomDay, "yyyy MMMM dd.");
+  var data = {
+    "ReserveMeetingRoomPage": {
+      "headerText": headerString,
+      "NumberOfParticipantsSelectOptions": createNumberOfParticipantsOptions()
+    }
+  };
+  var actionEvents = [
+    buildSourceClickedEvent("SaveReservationButton", "SaveMeetingRoomReservationButtonClicked")
+  ];
+
+  display(ReserveMeetingRoomPage, data, originId, actionEvents);
+}
+
+function createNumberOfParticipantsOptions() {
+  var selectedMeetingRoom = getMeetingRoomById(selectedMeetingRoomId);
+  var numberOfParticipantsOptions = [];
+  for(var i = 1; i <= selectedMeetingRoom.capacity; i += 1) {
+    numberOfParticipantsOptions.add(buildSelectOptions(i, decimalFormat(i, "##"), false));
+  }
+  return numberOfParticipantsOptions;
+}
+
+page ReserveMeetingRoomPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: false;
+
+  inputField TimeOfStart {
+    template: inputFieldSimple;
+    inputType: time;
+  }
+
+  inputField TimeOfEnd {
+    template: inputFieldSimple;
+    inputType: time;
+  }
+
+  inputField  NumberOfParticipantsSelect {
+    inputType: selectOne;
+  }
+
+  button SaveMeetingRoomReservationButton {
+    template: primaryMedium;
+  }
+}
+
+function onReserveMeetingRoomPageLoaded(originId) {}
+
+function onSaveMeetingRoomReservationButtonClicked(originId) {
+
+}

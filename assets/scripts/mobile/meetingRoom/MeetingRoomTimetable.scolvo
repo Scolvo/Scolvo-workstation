@@ -1,9 +1,16 @@
-function displayMeetingRoomTimetablePage(originId, selectedMeetingRoomId) {
+import {
+  /mobile/meetingRoom/ReserveMeetingRoom
+}
+
+var selectedMeetingRoomId = null;
+
+function displayMeetingRoomTimetablePage(originId, meetingRoomId) {
+  selectedMeetingRoomId = meetingRoomId;
   var data = {
     "MeetingRoomTimetablePage": {
       "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd."),
-      "MeetingRoomTimetableSelectOptions": createMeetingRoomOptions(selectedMeetingRoomId),
-      "MeetingRoomTimetableList": createMeetingRoomTimetableData(selectedMeetingRoomId)
+      "MeetingRoomTimetableSelectOptions": createMeetingRoomOptions(meetingRoomId),
+      "MeetingRoomTimetableList": createMeetingRoomTimetableData()
     }
   };
   var actionEvents = [
@@ -18,7 +25,7 @@ function createMeetingRoomOptions(selectedId) {
   });
 }
 
-function createMeetingRoomTimetableData(selectedMeetingRoomId) {
+function createMeetingRoomTimetableData() {
   return getMeetingRoomReservationsForDay(selectedMeetingRoomId, getDayStart(now()).getTime(), getDayEnd(now()).getTime()).map(function (reservationDao) {
     return {
       "id": reservationDao.id,
@@ -68,5 +75,10 @@ page MeetingRoomTimetablePage {
 function onMeetingRoomTimetablePageLoaded(originId) {}
 
 function onMeetingRoomTimetableSelectChanged(originId) {
-  fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData($IN.data.value)), "MeetingRoomTimetablePage");
+  selectedMeetingRoomId = $IN.data.value;
+  fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
+}
+
+function onAddReservation(originId) {
+  displayReserveMeetingRoomPage(originId);
 }

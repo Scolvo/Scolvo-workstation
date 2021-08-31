@@ -13,7 +13,7 @@ function displayWorkstationsPage(originId, day) {
   selectedTeamId = reservingUser.teamId;
   var data = {
     "WorkstationsPage": {
-      "headerText": dateToString(selectedDay, "yyyy MMMM dd.")
+      "headerText": dateToString(selectedDay, "yyyy MMMM dd."),
       "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
       "WorkstationsList": createWorkstationsData()
     }
