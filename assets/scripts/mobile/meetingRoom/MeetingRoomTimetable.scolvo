@@ -1,0 +1,72 @@
+function displayMeetingRoomTimetablePage(originId, selectedMeetingRoomId) {
+  var data = {
+    "MeetingRoomTimetablePage": {
+      "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd."),
+      "MeetingRoomTimetableSelectOptions": createMeetingRoomOptions(selectedMeetingRoomId),
+      "MeetingRoomTimetableList": createMeetingRoomTimetableData(selectedMeetingRoomId)
+    }
+  };
+  var actionEvents = [
+    buildSourceSelectionChanged("MeetingRoomTimetableSelect", "MeetingRoomTimetableSelectChanged")
+  ];
+  display(MeetingRoomTimetablePage, data, originId, actionEvents);
+}
+
+function createMeetingRoomOptions(selectedId) {
+  return getMeetingRooms().map(function (meetingRoomDao) {
+    return buildSelectOptions(meetingRoomDao.id, meetingRoomDao.name, selectedId == meetingRoomDao.id);
+  });
+}
+
+function createMeetingRoomTimetableData(selectedMeetingRoomId) {
+  return getMeetingRoomReservationsForDay(selectedMeetingRoomId, getDayStart(now()).getTime(), getDayEnd(now()).getTime()).map(function (reservationDao) {
+    return {
+      "id": reservationDao.id,
+      "reservationInterval": resolveReservationIntervalText(reservationDao),
+      "reservedText": resolveMeetingRoomReservationText(reservationDao.userId)
+    };
+  });
+}
+
+function resolveReservationIntervalText(reservationDao) {
+  return dateToString(reservationDao.start, "HH:mm") + " - " + dateToString(reservationDao.end, "HH:mm");
+}
+
+function resolveMeetingRoomReservationText(userId)  {
+  var user = getUserById(userId);
+  if(user.visible) {
+    return DICTIONARY.reserved + ", " + user.name;
+  }
+  return DICTIONARY.reserved;
+}
+
+page MeetingRoomTimetablePage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: false;
+
+  inputField  MeetingRoomTimetableSelect {
+    inputType: selectOne;
+  }
+
+  list MeetingRoomTimetableList {
+    template: listVerticalNormal;
+    filterVisible: false;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+    actions: [
+      AddReservation
+    ]
+    columns: [
+      mainText => reservationInterval,
+      subText => reservedText
+    ]
+  }
+}
+
+function onMeetingRoomTimetablePageLoaded(originId) {}
+
+function onMeetingRoomTimetableSelectChanged(originId) {
+  fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData($IN.data.value)), "MeetingRoomTimetablePage");
+}

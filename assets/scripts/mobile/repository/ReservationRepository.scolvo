@@ -25,3 +25,10 @@ function getWorkstationReservedForDay(workstationId, day) {
   }
   return workstation.get(0);
 }
+
+function getMeetingRoomReservationsForDay(meetingRoomId, dayStart, dayEnd) {
+  return select()
+  .from("reservation")
+  .where(and(eq("meetingRoomId", meetingRoomId), custom("start >= " + dayStart), custom("end >= " + dayEnd)))
+  .execute();
+}
