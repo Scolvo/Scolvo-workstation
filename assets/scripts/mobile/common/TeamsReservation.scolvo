@@ -17,3 +17,12 @@ function getDayEnd(day) {
   var dayEndString = dateToString(day, "yyyy-MM-dd") + " 19:00";
   return parseStringToDate(dayEndString, "yyyy-MM-dd HH:mm");
 }
+
+function prepareReservationForPeriod(teamId, startOfPeriod, endOfPeriod) {
+  var reservationsByPeriod = getWorkstationReservationsForTeamByPeriod(teamId, startOfPeriod, endOfPeriod);
+  var reservations = {};
+  reservationsByPeriod.each(function(reservationDao) {
+    reservations.put(reservationDao.reservationStr, reservationDao.count);
+  });
+  return reservations;
+}

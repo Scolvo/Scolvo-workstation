@@ -25,3 +25,15 @@ function getWorkstationReservedForDay(workstationId, day) {
   }
   return workstation.get(0);
 }
+
+function getWorkstationReservationsForTeamByPeriod(teamId, startPeriod, endPeriod) {
+  return select()
+  .selectAs("count(*)", "count")
+  .selectAs("start", "reservationDate")
+  .selectAs("strftime('%Y.%m.%d.', datetime(start / 1000, 'unixepoch') )", "reservationStr")
+  .from("reservation")
+  .join("innerJoin", table("workplace"), and(custom("workplace.id = reservation.workplaceId"), eq("workplace.teamId", teamId)))
+  .where(and(custom("start >=" + startPeriod), custom("start <= " + endPeriod)))
+  .groupBy(["start"])
+  .execute();
+}
