@@ -46,3 +46,14 @@ function getReservationById(reservationId) {
   }
   return reservations.get(0);
 }
+
+function getMeetingRoomReservationsByPeriod(meetingRoomId, startPeriod, endPeriod) {
+  return select()
+  .selectAs("SUM((end - start)/1800000)", "count")
+  .selectAs("strftime('%s', date( datetime(start / 1000, 'unixepoch'), 'start of day', 'localtime')) * 1000", "reservationDate")
+  .selectAs("strftime('%Y.%m.%d.', datetime(start / 1000, 'unixepoch'))", "reservationStr")
+  .from("reservation")
+  .where(and(eq("meetingRoomId", meetingRoomId), and(custom("start >=" + startPeriod), custom("start <= " + endPeriod))))
+  .groupBy(["reservationStr"])
+  .execute();
+}
