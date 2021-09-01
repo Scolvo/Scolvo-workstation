@@ -33,6 +33,30 @@ function getMeetingRoomReservationsForDay(meetingRoomId, dayStart, dayEnd) {
   .execute();
 }
 
+/*
+function getMeetingRoomReservedForPeriod(meetingRoomId, startTime, endTime) {
+  return select()
+  .from("reservation")
+  .where(and(eq("meetingRoomId", meetingRoomId), or(and(custom("start >= " + startTime), custom("end <= " + endTime)), //between start and end
+  and(custom("start < " + startTime), custom("end > " + startTime), custom("end <= " + endTime)), //before start and between start and end
+  and(custom("start >= " + startTime), custom("start <= " + endTime), custom("end > " + endTime)), //starting between start and end and ending after end
+  and(custom("start < " + startTime), custom("end > " + endTime)), //started before start and ending after end
+  )))
+  execute();
+}
+*/
+
+function getMeetingRoomsReservedForPeriod(meetingRoomId, startTime, endTime) {
+  return select()
+  .from("reservation")
+  .where(and(
+    eq("meetingRoomId", meetingRoomId),
+    or(and(custom(startTime + " <= start"), custom("start < " + endTime)), //record start is between startPeriod and endPeriod
+       and(custom(startTime + " < end"), custom("end <= " + endTime)),     // record end is between startPeriod and endPeriod
+       and(custom("start < " + startTime), custom(endTime + " < end")) )))  // contained
+  .execute();
+}
+
 function getWorkstationReservationsForTeamByPeriod(teamId, startPeriod, endPeriod) {
   return select()
   .selectAs("count(*)", "count")
