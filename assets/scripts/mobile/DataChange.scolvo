@@ -39,11 +39,17 @@ function onDataChangeDg(originId) {
   changeset.each(function(changeDao) {
     var changeType = changeDao.changeType;
     if (changeType == "INSERT") {
-      insertExecution(typeDefinition, changeDao);
+      insertChangeDao(typeDefinition, changeDao);
     } else if (changeType == "UPDATE") {
       updateExecution(typeDefinition, changeDao.id, changeDao);
     } else if (changeType == "DELETE") {
       deleteExecution(typeDefinition, changeDao.id);
     }
   });
+}
+
+function insertChangeDao(typeDefinition, changeDao) {
+  if(typeDefinition == "reservation" && getReservationById(changeDao.id) == null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
 }

@@ -38,6 +38,15 @@ function getWorkstationReservationsForTeamByPeriod(teamId, startPeriod, endPerio
   .execute();
 }
 
+function getReservationById(reservationId) {
+  var reservations = select().from("reservation").where(eq("id", reservationId)).execute();
+
+  if(reservations.isEmpty()) {
+    return null;
+  }
+  return reservations.get(0);
+}
+
 function getMeetingRoomReservationsByPeriod(meetingRoomId, startPeriod, endPeriod) {
   return select()
   .selectAs("SUM((end - start)/1800000)", "count")
@@ -48,4 +57,3 @@ function getMeetingRoomReservationsByPeriod(meetingRoomId, startPeriod, endPerio
   .groupBy(["reservationStr"])
   .execute();
 }
-
