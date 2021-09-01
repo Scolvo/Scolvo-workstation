@@ -13,7 +13,7 @@ function displayWorkstationsPage(originId, day) {
   selectedTeamId = reservingUser.teamId;
   var data = {
     "WorkstationsPage": {
-      "headerText": dateToString(selectedDay, "yyyy MMMM dd.")
+      "headerText": dateToString(selectedDay, "yyyy MMMM dd."),
       "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
       "WorkstationsList": createWorkstationsData()
     }
@@ -77,12 +77,12 @@ function onDeleteReservation(originId) {
 
 function resolveWorkstationAvailabilty(workstationReservation, user) {
   if(workstationReservation == null) {
-    return DICTIONARY.freeWorkstation;
+    return DICTIONARY.free;
   }
   if(user.visible) {
-    return DICTIONARY.workstationReserved + ", " + user.name;
+    return DICTIONARY.reserved + ", " + user.name;
   }
-  return DICTIONARY.workstationReserved;
+  return DICTIONARY.reserved;
 }
 
 function onWorkstationsTeamSelectChanged(originId) {
