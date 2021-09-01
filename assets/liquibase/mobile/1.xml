@@ -87,10 +87,10 @@
       <column name="meetingRoomId" type="TEXT">
         <constraints nullable="true"/>
       </column>
-      <column name="start" type="REAL">
+      <column name="start" type="BIGINT">
         <constraints nullable="false"/>
       </column>
-      <column name="end" type="REAL">
+      <column name="end" type="BIGINT">
         <constraints nullable="true"/>
       </column>
       <column name="numberOfParticipants" type="INT">

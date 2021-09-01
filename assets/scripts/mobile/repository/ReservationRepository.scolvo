@@ -29,6 +29,27 @@ function getWorkstationReservedForDay(workstationId, day) {
 function getMeetingRoomReservationsForDay(meetingRoomId, dayStart, dayEnd) {
   return select()
   .from("reservation")
-  .where(and(eq("meetingRoomId", meetingRoomId), custom("start >= " + dayStart), custom("end >= " + dayEnd)))
+  .where(and(eq("meetingRoomId", meetingRoomId), custom("start >= " + dayStart), custom("end <= " + dayEnd)))
   .execute();
+}
+
+function getWorkstationReservationsForTeamByPeriod(teamId, startPeriod, endPeriod) {
+  return select()
+  .selectAs("count(*)", "count")
+  .selectAs("start", "reservationDate")
+  .selectAs("strftime('%Y.%m.%d.', datetime(start / 1000, 'unixepoch') )", "reservationStr")
+  .from("reservation")
+  .join("innerJoin", table("workplace"), and(custom("workplace.id = reservation.workplaceId"), eq("workplace.teamId", teamId)))
+  .where(and(custom("start >=" + startPeriod), custom("start <= " + endPeriod)))
+  .groupBy(["start"])
+  .execute();
+}
+
+function getReservationById(reservationId) {
+  var reservations = select().from("reservation").where(eq("id", reservationId)).execute();
+
+  if(reservations.isEmpty()) {
+    return null;
+  }
+  return reservations.get(0);
 }
