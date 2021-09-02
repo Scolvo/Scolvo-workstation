@@ -28,23 +28,13 @@ function createMeetingRoomsDashboardListData() {
     }
     var dayData = {
       "dayText": getDateStringForList(currentDay, i),
-      "availableMeetingRooms": resolveAvailableWMeetingRoomLabel(availableCount, totalAvailableReservationUnits),
+      "availableMeetingRooms": resolveAvailableMeetingRoomLabel(availableCount, totalAvailableReservationUnits),
       "day": currentDay.getTime()
     };
     meetingRoomsListData.add(dayData);
     currentDay = dateAdd(currentDay, 1, "day");
   }
   return meetingRoomsListData;
-}
-
-function resolveAvailableWMeetingRoomLabel(availableCount, totalAvailableReservationUnits) {
-  if(availableCount == 0) {
-    return DICTIONARY.noAvailableReservations_msg;
-  }
-  else if (availableCount == totalAvailableReservationUnits) {
-    return DICTIONARY.allAvailableReservations_msg;
-  }
-  return DICTIONARY.someAvailableReservations_msg;
 }
 
 fragment MeetingRoomsDashboardFragment {

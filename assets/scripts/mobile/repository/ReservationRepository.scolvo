@@ -69,10 +69,10 @@ function getMeetingRoomsReservationsByDay(dayStart, dayEnd) {
   return select()
   .selectAs("SUM((end - start)/1800000)", "count")
   .selectAs("strftime('%s', date( datetime(start / 1000, 'unixepoch'), 'start of day', 'localtime')) * 1000", "reservationDate")
-  .selectAs("meetingRoomId")
+  .selectAs("reservation.meetingRoomId", "meetingRoomId")
   .from("reservation")
-  .where(and(custom("meetingRoomId IS NOT NULL"), and(custom("start >=" + dayStart), custom("start <= " + dayEnd))))
-  .groupBy(["reservationStr"])
+  .where(and(custom("reservation.meetingRoomId IS NOT NULL"), and(custom("start >=" + dayStart), custom("start <= " + dayEnd))))
+  .groupBy(["meetingRoomId"])
   .execute();
 }
 

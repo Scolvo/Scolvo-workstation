@@ -28,6 +28,16 @@ function getDateStringForList(day, relativeDayCount) {
   return dateString;
 }
 
+function resolveAvailableMeetingRoomLabel(availableCount, totalAvailableReservationUnits) {
+  if(availableCount == 0) {
+    return DICTIONARY.noAvailableReservations_msg;
+  }
+  else if (availableCount == totalAvailableReservationUnits) {
+    return DICTIONARY.allAvailableReservations_msg;
+  }
+  return DICTIONARY.someAvailableReservations_msg;
+}
+
 function prepareCalendarDayData(day, reservations, totalAvailable) {
   var reservationString = dateToString(day, "yyyy.MM.dd.");
   var reservationsForCurrentDay = 0;
@@ -67,6 +77,15 @@ function prepareMeetingRoomReservationForPeriod(startOfPeriod, endOfPeriod) {
   var reservations = {};
   reservationsByPeriod.each(function(reservationDao) {
     reservations.put(reservationDao.reservationStr, reservationDao.count);
+  });
+  return reservations;
+}
+
+function prepareMeetingRoomReservationForDay(startOfPeriod, endOfPeriod) {
+  var reservationsByPeriod = getMeetingRoomsReservationsByDay(startOfPeriod, endOfPeriod);
+  var reservations = {};
+  reservationsByPeriod.each(function(reservationDao) {
+    reservations.put(reservationDao.meetingRoomId, reservationDao.count);
   });
   return reservations;
 }

@@ -16,11 +16,16 @@ function displayMeetingRoomsDailyPage(originId, day) {
 }
 
 function createMeetingRoomsDailyData() {
+  var reservations = prepareMeetingRoomReservationForDay(getDayStart(selectedMeetingRoomDay).getTime(), getDayEnd(selectedMeetingRoomDay).getTime());
   return getMeetingRooms().map(function (meetingRoomDao) {
+    var availableCount = 22;
+    if (reservations.get(meetingRoomDao.id) != null) {
+      availableCount = 22 - reservations.get(meetingRoomDao.id);
+    }
     var meetingRoomData = {
       "id": meetingRoomDao.id,
       "meetingRoomName": meetingRoomDao.name,
-      "availability": ""
+      "availability": resolveAvailableMeetingRoomLabel(availableCount, 22)
     };
     return meetingRoomData;
   });
