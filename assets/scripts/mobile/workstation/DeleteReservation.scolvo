@@ -50,6 +50,7 @@ page DeleteReservationPopup {
 function onDeleteReservationPopupCancel(originId) {}
 
 function onDontDeleteReservationButtonClicked(originId) {
+  fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservationDelete_unsuccessfulMsg), originId);
   finishPage("DeleteReservationPopup", originId);
 }
 
@@ -63,6 +64,7 @@ function onDeleteReservationButtonClicked(originId) {
 
   fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
   fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(reservingUser.teamId)), "DashboardPage");
+  fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservationDelete_successMsg), originId);
 
   finishPage("DeleteReservationPopup", originId);
 }

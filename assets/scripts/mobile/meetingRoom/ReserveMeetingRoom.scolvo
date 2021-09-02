@@ -97,7 +97,10 @@ function onSaveMeetingRoomReservationButtonClicked(originId) {
   sendDataChangeRq(originId, "reservation", [reservationDao]);
 
   fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
+  fireEvent(buildRefreshItemEvent("MeetingRoomsDailyList", createMeetingRoomsDailyData()), "MeetingRoomsDailyPage");
+  fireEvent(buildRefreshItemEvent("MeetingRoomsDashboardList", createMeetingRoomsDashboardListData()), "MeetingRoomsDashboardPage");
   fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservation_successMsg), originId);
+
   finishPage("ReserveMeetingRoomPage", originId);
 }
 

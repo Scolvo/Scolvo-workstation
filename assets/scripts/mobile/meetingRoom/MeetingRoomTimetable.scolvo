@@ -1,5 +1,6 @@
 import {
-  /mobile/meetingRoom/ReserveMeetingRoom
+  /mobile/meetingRoom/ReserveMeetingRoom,
+  /mobile/meetingRoom/DeleteMeetingRoomReservation
 }
 
 var selectedMeetingRoomId = null;
@@ -27,11 +28,16 @@ function createMeetingRoomOptions(selectedId) {
 
 function createMeetingRoomTimetableData() {
   return getMeetingRoomReservationsForDay(selectedMeetingRoomId, getDayStart(selectedMeetingRoomDay).getTime(), getDayEnd(selectedMeetingRoomDay).getTime()).map(function (reservationDao) {
-    return {
+    var reservationData = {
       "id": reservationDao.id,
       "reservationInterval": resolveReservationIntervalText(reservationDao),
       "reservedText": resolveMeetingRoomReservationText(reservationDao.userId)
     };
+    if(reservationDao.userId == sessionUserId()) {
+      reservationData.put("reservationId", reservationDao.id);
+      reservationData.put("actions", ["DeleteMeetingRoomReservation"]);
+    }
+    return reservationData;
   });
 }
 
@@ -74,9 +80,15 @@ page MeetingRoomTimetablePage {
 
 function onMeetingRoomTimetablePageLoaded(originId) {}
 
+function ononMeetingRoomTimetableListSelectionChanged(originId) {}
+
 function onMeetingRoomTimetableSelectChanged(originId) {
   selectedMeetingRoomId = $IN.data.value;
   fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
+}
+
+function onDeleteMeetingRoomReservation(originId) {
+  displayDeleteMeetingRoomReservationPopup(originId, $IN.data.reservationId, $IN.data.reservationInterval);
 }
 
 function onAddReservation(originId) {
