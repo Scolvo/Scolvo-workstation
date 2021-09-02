@@ -1,0 +1,70 @@
+import {
+  /mobile/common/TeamsReservation,
+  /mobile/repository/ReservationRepository,
+  /mobile/repository/MeetingRoomRepository,
+  /mobile/meetingRoom/MeetingRoomsDaily
+}
+
+function displayMeetingRoomsDashboardFragment(originId) {
+  var data = {
+    "MeetingRoomsDashboardFragment": {
+      "MeetingRoomsDashboardList": createMeetingRoomsDashboardListData()
+    }
+  };
+
+  displayFragment("MeetingRoomsDashboardFragmentContainer", MeetingRoomsDashboardFragment, data, originId);
+}
+
+function createMeetingRoomsDashboardListData() {
+  var meetingRoomsListData = [];
+  var currentDay = now();
+  var reservations = prepareMeetingRoomReservationForPeriod(getDayStart(now()).getTime(), getDayEnd(dateAdd(now(), 29, "day")).getTime());
+  var totalAvailableReservationUnits = getMeetingRooms().size() * 22;
+  for(var i = 0; i < 30; i += 1) {
+    var reservationString = dateToString(currentDay, "yyyy.MM.dd.");
+    var availableCount = totalAvailableReservationUnits;
+    if (reservations.get(reservationString) != null) {
+      availableCount = totalAvailableReservationUnits - reservations.get(reservationString);
+    }
+    var dayData = {
+      "dayText": getDateStringForList(currentDay, i),
+      "availableMeetingRooms": resolveAvailableWMeetingRoomLabel(availableCount, totalAvailableReservationUnits),
+      "day": currentDay.getTime()
+    };
+    meetingRoomsListData.add(dayData);
+    currentDay = dateAdd(currentDay, 1, "day");
+  }
+  return meetingRoomsListData;
+}
+
+function resolveAvailableWMeetingRoomLabel(availableCount, totalAvailableReservationUnits) {
+  if(availableCount == 0) {
+    return DICTIONARY.noAvailableReservations_msg;
+  }
+  else if (availableCount == totalAvailableReservationUnits) {
+    return DICTIONARY.allAvailableReservations_msg;
+  }
+  return DICTIONARY.someAvailableReservations_msg;
+}
+
+fragment MeetingRoomsDashboardFragment {
+  layout: vertical;
+  template: general;
+
+  list MeetingRoomsDashboardList {
+    template: listVerticalNormal;
+    filterVisible: false;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+    columns: [
+      mainText => dayText,
+      subText => availableMeetingRooms
+    ]
+  }
+}
+
+function onMeetingRoomsDashboardFragmentLoaded(originId) {}
+
+function onMeetingRoomsDashboardListSelectionChanged(originId) {
+  displayMeetingRoomsDailyPage(originId, $IN.data.day);
+}

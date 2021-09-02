@@ -1,0 +1,27 @@
+import {
+  /mobile/meetingRoom/MeetingRoomDashboardFragment,
+  /mobile/calendar/MeetingRoomCalendarView
+}
+
+function onMeetingRooms(originId) {
+  display(MeetingRoomsDashboardPage, {}, originId);
+}
+
+page MeetingRoomsDashboardPage {
+  layout: vertical;
+  template: general;
+  scolvoMenuVisible: true;
+  settingsVisible: false;
+  actions: [
+    MeetingRoomsCalendarView
+  ]
+  fragmentContainer MeetingRoomsDashboardFragmentContainer {}
+}
+
+function onMeetingRoomsDashboardPageLoaded(originId) {
+  displayMeetingRoomsDashboardFragment(originId);
+}
+
+function onMeetingRoomsCalendarView(originId) {
+  displayMeetingRoomCalendarViewFragment(originId);
+}

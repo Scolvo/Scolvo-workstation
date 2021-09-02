@@ -1,0 +1,57 @@
+import {
+  /mobile/common/TeamsReservation,
+  /mobile/repository/ReservationRepository,
+  /mobile/repository/WorkstationRepository,
+  /mobile/workstation/Workstations
+}
+
+function displayMeetingRoomCalendarViewFragment(originId) {
+  var data = {
+    "MeetingRoomCalendarViewFragment": {
+      "MeetingRoomCalendarViewList": createMeetingRoomCalendarViewReservationList()
+    }
+  };
+
+  displayFragment("MeetingRoomsDashboardFragmentContainer", MeetingRoomCalendarViewFragment, data, originId);
+}
+
+function createMeetingRoomCalendarViewReservationList() {
+  var calendarViewReservationsListData = [];
+  var today = getDayStart(now());
+  var totalAvailableReservationUnits = getMeetingRooms().size() * 22;
+  var reservations = prepareMeetingRoomReservationForPeriod(dateSubtract(today, 7, "day").getTime(), getDayEnd(dateAdd(now(), 29, "day")).getTime());
+
+  for(var i = 7; i > 0; i -= 1) {
+    var currentDay = dateSubtract(today, i, "day");
+    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations, totalAvailableReservationUnits));
+  }
+  calendarViewReservationsListData.add(prepareCalendarDayData(today, reservations, totalAvailableReservationUnits));
+  for(var i = 1; i < 30; i += 1) {
+    var currentDay = dateAdd(today, i, "day");
+    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations, totalAvailableReservationUnits));
+  }
+
+  return calendarViewReservationsListData;
+}
+
+fragment MeetingRoomCalendarViewFragment {
+  layout: vertical;
+  template: general;
+
+  list MeetingRoomCalendarViewList {
+    template: listVerticalNormal;
+    itemTemplate: listItemCalendar;
+    span: 0;
+    filterVisible: false;
+    columns: [
+      eventDay => eventDate
+    ]
+  }
+}
+
+function onMeetingRoomCalendarViewFragmentLoaded(originId) {}
+
+
+function onMeetingRoomCalendarViewListSelectionChanged(originId) {
+  displayWorkstationsPage(originId, $IN.data.eventDate);
+}

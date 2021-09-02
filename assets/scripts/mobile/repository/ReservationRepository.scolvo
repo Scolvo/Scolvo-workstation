@@ -33,19 +33,6 @@ function getMeetingRoomReservationsForDay(meetingRoomId, dayStart, dayEnd) {
   .execute();
 }
 
-/*
-function getMeetingRoomReservedForPeriod(meetingRoomId, startTime, endTime) {
-  return select()
-  .from("reservation")
-  .where(and(eq("meetingRoomId", meetingRoomId), or(and(custom("start >= " + startTime), custom("end <= " + endTime)), //between start and end
-  and(custom("start < " + startTime), custom("end > " + startTime), custom("end <= " + endTime)), //before start and between start and end
-  and(custom("start >= " + startTime), custom("start <= " + endTime), custom("end > " + endTime)), //starting between start and end and ending after end
-  and(custom("start < " + startTime), custom("end > " + endTime)), //started before start and ending after end
-  )))
-  execute();
-}
-*/
-
 function getMeetingRoomsReservedForPeriod(meetingRoomId, startTime, endTime) {
   return select()
   .from("reservation")
@@ -78,13 +65,24 @@ function getReservationById(reservationId) {
   return reservations.get(0);
 }
 
-function getMeetingRoomReservationsByPeriod(meetingRoomId, startPeriod, endPeriod) {
+function getMeetingRoomsReservationsByDay(dayStart, dayEnd) {
+  return select()
+  .selectAs("SUM((end - start)/1800000)", "count")
+  .selectAs("strftime('%s', date( datetime(start / 1000, 'unixepoch'), 'start of day', 'localtime')) * 1000", "reservationDate")
+  .selectAs("meetingRoomId")
+  .from("reservation")
+  .where(and(custom("meetingRoomId IS NOT NULL"), and(custom("start >=" + dayStart), custom("start <= " + dayEnd))))
+  .groupBy(["reservationStr"])
+  .execute();
+}
+
+function getMeetingRoomsReservationsByPeriod(startPeriod, endPeriod) {
   return select()
   .selectAs("SUM((end - start)/1800000)", "count")
   .selectAs("strftime('%s', date( datetime(start / 1000, 'unixepoch'), 'start of day', 'localtime')) * 1000", "reservationDate")
   .selectAs("strftime('%Y.%m.%d.', datetime(start / 1000, 'unixepoch'))", "reservationStr")
   .from("reservation")
-  .where(and(eq("meetingRoomId", meetingRoomId), and(custom("start >=" + startPeriod), custom("start <= " + endPeriod))))
+  .where(and(custom("meetingRoomId IS NOT NULL"), and(custom("start >=" + startPeriod), custom("start <= " + endPeriod))))
   .groupBy(["reservationStr"])
   .execute();
 }

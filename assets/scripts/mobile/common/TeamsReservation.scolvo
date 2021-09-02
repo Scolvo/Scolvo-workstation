@@ -18,8 +18,52 @@ function getDayEnd(day) {
   return parseStringToDate(dayEndString, "yyyy-MM-dd HH:mm");
 }
 
-function prepareReservationForPeriod(teamId, startOfPeriod, endOfPeriod) {
+function getDateStringForList(day, relativeDayCount) {
+  var dateString = dateToString(currentDay, "yyyy MMMM dd.");
+  if(relativeDayCount == 0) {
+    dateString = DICTIONARY.today + ", " + dateString;
+  } else if(relativeDayCount == 1) {
+    dateString = DICTIONARY.tomorrow + ", " + dateString;
+  }
+  return dateString;
+}
+
+function prepareCalendarDayData(day, reservations, totalAvailable) {
+  var reservationString = dateToString(day, "yyyy.MM.dd.");
+  var reservationsForCurrentDay = 0;
+  if (reservations.get(reservationString) != null) {
+    reservationsForCurrentDay = reservations.get(reservationString);
+  }
+
+  var dayData = {
+    "eventDate": day.getTime(),
+    "eventMarkerColor": resolveCalendarMarkerColor(reservationsForCurrentDay, totalAvailable)
+  };
+  return dayData;
+}
+
+function resolveCalendarMarkerColor(reservations, totalAvailable) {
+  var available = totalAvailable - reservations;
+  if(available == 0) {
+    return "alert800";
+  }
+  if(available == totalAvailable) {
+    return "success800";
+  }
+  return "warning800";
+}
+
+function prepareWorkstationReservationForPeriod(teamId, startOfPeriod, endOfPeriod) {
   var reservationsByPeriod = getWorkstationReservationsForTeamByPeriod(teamId, startOfPeriod, endOfPeriod);
+  var reservations = {};
+  reservationsByPeriod.each(function(reservationDao) {
+    reservations.put(reservationDao.reservationStr, reservationDao.count);
+  });
+  return reservations;
+}
+
+function prepareMeetingRoomReservationForPeriod(startOfPeriod, endOfPeriod) {
+  var reservationsByPeriod = getMeetingRoomsReservationsByPeriod(startOfPeriod, endOfPeriod);
   var reservations = {};
   reservationsByPeriod.each(function(reservationDao) {
     reservations.put(reservationDao.reservationStr, reservationDao.count);

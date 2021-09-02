@@ -21,48 +21,23 @@ function onCalendarView(originId) {
   display(CalendarViewPage, data, originId, actionEvents);
 }
 
-function prepareCalendarDayData(day, reservations) {
-  var reservationString = dateToString(day, "yyyy.MM.dd.");
-  var reservationsForCurrentDay = 0;
-  if (reservations.get(reservationString) != null) {
-    reservationsForCurrentDay = reservations.get(reservationString);
-  }
-
-  var dayData = {
-    "eventDate": day.getTime(),
-    "eventMarkerColor": resolveMarkerColor(reservationsForCurrentDay, totalWorkstationsForTeam)
-  };
-  return dayData;
-}
-
 function createCalendarViewReservationList(selectedTeamId) {
   var calendarViewReservationsListData = [];
   var today = getDayStart(now());
   var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
-  var reservations = prepareReservationForPeriod(selectedTeamId, dateSubtract(today, 7, "day").getTime(), dateAdd(today, 29, "day").getTime());
+  var reservations = prepareWorkstationReservationForPeriod(selectedTeamId, dateSubtract(today, 7, "day").getTime(), dateAdd(today, 29, "day").getTime());
 
   for(var i = 7; i > 0; i -= 1) {
     var currentDay = dateSubtract(today, i, "day");
-    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations));
+    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations, totalWorkstationsForTeam));
   }
-  calendarViewReservationsListData.add(prepareCalendarDayData(today, reservations));
+  calendarViewReservationsListData.add(prepareCalendarDayData(today, reservations, totalWorkstationsForTeam));
   for(var i = 1; i < 30; i += 1) {
     var currentDay = dateAdd(today, i, "day");
-    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations));
+    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations, totalWorkstationsForTeam));
   }
 
   return calendarViewReservationsListData;
-}
-
-function resolveMarkerColor(reservations, totalWorkstations) {
-  var availableWorkstations = totalWorkstations - reservations;
-  if(availableWorkstations == 0) {
-    return "alert800";
-  }
-  if(availableWorkstations == totalWorkstations) {
-    return "success800";
-  }
-  return "warning800";
 }
 
 page CalendarViewPage {
