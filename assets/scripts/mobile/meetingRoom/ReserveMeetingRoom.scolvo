@@ -90,7 +90,8 @@ function onSaveMeetingRoomReservationButtonClicked(originId) {
     "meetingRoomId": selectedMeetingRoomId,
     "start": reservationStart,
     "end": reservationEnd,
-    "numberOfParticipants": numberOfParticipants
+    "numberOfParticipants": numberOfParticipants,
+    "changeType": "INSERT"
   };
 
   insertExecution("reservation", reservationDao);

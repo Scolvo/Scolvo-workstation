@@ -1,5 +1,6 @@
 import {
   /mobile/SessionUser,
+  /mobile/Builders,
   /mobile/workstation/Dashboard,
   /mobile/calendar/CalendarView,
   /mobile/meetingRoom/MeetingRoomDashboardPage,

@@ -2,7 +2,8 @@ import {
   /mobile/common/TeamsReservation,
   /mobile/repository/ReservationRepository,
   /mobile/repository/WorkstationRepository,
-  /mobile/workstation/Workstations
+  /mobile/workstation/Workstations,
+  /mobile/repository/UserRepository
 }
 
 function onDashboard(originId) {

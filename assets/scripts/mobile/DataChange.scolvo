@@ -1,9 +1,7 @@
 import {
   /common/TypeDefinitionExtension,
   /common/Roles,
-  /mobile/repository/CompanyRepository,
-  /mobile/client/RegularClients,
-  /mobile/client/ProspectClients
+  /mobile/repository/ReservationRepository
 }
 
 function sendDataChangeRq(originId_, typeDefinition_, changeset_) {
