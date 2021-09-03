@@ -81,8 +81,8 @@ function onSaveMeetingRoomReservationButtonClicked(originId) {
   var reservationStart = createReservationTimeForSelectedDay(startingTime);
   var reservationEnd = createReservationTimeForSelectedDay(endingTime);
   if(!getMeetingRoomsReservedForPeriod(selectedMeetingRoomId, reservationStart, reservationEnd).isEmpty()) {
-    return null;
     fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservation_periodAlreadyReservedMsg), originId);
+    return null;
   }
   var reservationDao = {
     "id": uuid(),
