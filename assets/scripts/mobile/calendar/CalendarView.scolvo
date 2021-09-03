@@ -44,7 +44,6 @@ page CalendarViewPage {
   layout: vertical;
   template: general;
   scolvoMenuVisible: true;
-  settingsVisible: true;
 
   inputField  CalendarViewTeamSelect {
     inputType: selectOne;
