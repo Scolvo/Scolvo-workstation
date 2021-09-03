@@ -1,5 +1,9 @@
 function getWorkstationsForTeam(teamId) {
-  return select().from("workplace").where(eq("teamId", teamId)).execute();
+  return select()
+  .from("workplace")
+  .where(eq("teamId", teamId))
+  .orderBy("name", "asc")
+  .execute();
 }
 
 function getWorkstationById(workplaceId) {

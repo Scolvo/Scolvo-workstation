@@ -53,5 +53,5 @@ function onMeetingRoomCalendarViewFragmentLoaded(originId) {}
 
 
 function onMeetingRoomCalendarViewListSelectionChanged(originId) {
-  displayWorkstationsPage(originId, $IN.data.eventDate);
+  displayMeetingRoomsDailyPage(originId, $IN.data.selectedDay);
 }

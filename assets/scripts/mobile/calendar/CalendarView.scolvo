@@ -68,5 +68,5 @@ function onCalendarViewTeamSelectChanged(originId) {
 }
 
 function onReservationListSelectionChanged(originId) {
-  displayWorkstationsPage(originId, $IN.data.eventDate);
+  displayWorkstationsPage(originId, $IN.data.selectedDay);
 }
