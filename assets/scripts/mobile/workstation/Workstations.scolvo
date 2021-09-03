@@ -25,18 +25,18 @@ function displayWorkstationsPage(originId, day) {
 }
 
 function createWorkstationsData() {
+  var reservations = prepareWorkstationReservationForDay(selectedTeamId, selectedDay);
   return getWorkstationsForTeam(selectedTeamId).map(function (workstationDao) {
-    var workstationReservation = getWorkstationReservedForDay(workstationDao.id, selectedDay);
     var workstationData = {
       "id": workstationDao.id,
       "workstationName": workstationDao.name,
-      "availability": resolveWorkstationAvailabilty(workstationReservation, reservingUser)
+      "availability": resolveWorkstationAvailabilty(workstationDao.id, reservations, reservingUser)
     };
-    if(workstationReservation != null && workstationReservation.userId == reservingUser.id) {
-      workstationData.put("reservationId", workstationReservation.id);
+    if(reservations.get(workstationDao.id) != null && reservations.get(workstationDao.id).get("userId") == reservingUser.id) {
+      workstationData.put("reservationId", reservations.get(workstationDao.id).get("id"));
       workstationData.put("actions", ["DeleteReservation"]);
     }
-    else if(workstationReservation == null) {
+    else if(reservations.get(workstationDao.id) == null) {
       workstationData.put("actions", ["ReserveWorkstation"]);
     }
     return workstationData;
@@ -75,8 +75,8 @@ function onDeleteReservation(originId) {
   displayDeleteReservationPopup(originId, $IN.data.reservationId, $IN.data.id);
 }
 
-function resolveWorkstationAvailabilty(workstationReservation, user) {
-  if(workstationReservation == null) {
+function resolveWorkstationAvailabilty(workstationId, reservations, user) {
+  if(reservations.get(workstationId) == null) {
     return DICTIONARY.free;
   }
   if(user.visible) {

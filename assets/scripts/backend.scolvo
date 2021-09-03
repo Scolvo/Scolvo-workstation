@@ -49,3 +49,5 @@ function onuser_update(originId) {
 function onteam_insert(originId) {}
 
 function onteam_update(originId) {}
+
+function onreservation_insert(originId) {}

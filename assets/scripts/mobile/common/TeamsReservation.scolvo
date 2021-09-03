@@ -72,6 +72,19 @@ function prepareWorkstationReservationForPeriod(teamId, startOfPeriod, endOfPeri
   return reservations;
 }
 
+function prepareWorkstationReservationForDay(teamId, day) {
+  var reservationsByDay = getWorkstationReservationsForDayByTeam(teamId, day);
+  var reservations = {};
+  reservationsByDay.each(function(reservationDao) {
+    var innerData = {
+      "id": reservationDao.id,
+      "userId": reservationDao.userId
+    };
+    reservations.put(reservationDao.workplaceId, innerData);
+  });
+  return reservations;
+}
+
 function prepareMeetingRoomReservationForPeriod(startOfPeriod, endOfPeriod) {
   var reservationsByPeriod = getMeetingRoomsReservationsByPeriod(startOfPeriod, endOfPeriod);
   var reservations = {};

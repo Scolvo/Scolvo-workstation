@@ -1,47 +1,13 @@
-function getWorkstationReservationsForTeamByDay(teamId, day) {
-  return select()
-  .selectAs("reservation.id", "id")
-  .selectAs("reservation.userId", "userId")
-  .selectAs("reservation.workplaceId", "workplaceId")
-  .selectAs("reservation.start", "start")
+function getReservationById(reservationId) {
+  var reservations = select()
   .from("reservation")
-  .join("innerJoin", table("user"), and(custom("reservation.userId = user.id"), eq("user.teamId", teamId)))
-  .where(and(custom("reservation.workplaceId IS NOT NULL"), custom("reservation.start = " + day)))
-  .execute();
-}
-
-function getWorkstationReservedForDay(workstationId, day) {
-  var workstation = select()
-  .selectAs("id")
-  .selectAs("userId")
-  .selectAs("workplaceId")
-  .selectAs("start")
-  .from("reservation")
-  .where(and(eq("workplaceId", workstationId), custom("start = " + day)))
+  .where(eq("id", reservationId))
   .execute();
 
-  if(workstation.isEmpty()) {
+  if(reservations.isEmpty()) {
     return null;
   }
-  return workstation.get(0);
-}
-
-function getMeetingRoomReservationsForDay(meetingRoomId, dayStart, dayEnd) {
-  return select()
-  .from("reservation")
-  .where(and(eq("meetingRoomId", meetingRoomId), custom("start >= " + dayStart), custom("end <= " + dayEnd)))
-  .execute();
-}
-
-function getMeetingRoomsReservedForPeriod(meetingRoomId, startTime, endTime) {
-  return select()
-  .from("reservation")
-  .where(and(
-    eq("meetingRoomId", meetingRoomId),
-    or(and(custom(startTime + " <= start"), custom("start < " + endTime)), //record start is between startPeriod and endPeriod
-       and(custom(startTime + " < end"), custom("end <= " + endTime)),     // record end is between startPeriod and endPeriod
-       and(custom("start < " + startTime), custom(endTime + " < end")) )))  // contained
-  .execute();
+  return reservations.get(0);
 }
 
 function getWorkstationReservationsForTeamByPeriod(teamId, startPeriod, endPeriod) {
@@ -56,13 +22,35 @@ function getWorkstationReservationsForTeamByPeriod(teamId, startPeriod, endPerio
   .execute();
 }
 
-function getReservationById(reservationId) {
-  var reservations = select().from("reservation").where(eq("id", reservationId)).execute();
+function getWorkstationReservationsForDayByTeam(teamId, day) {
+  return select()
+  .selectAs("reservation.id", "id")
+  .selectAs("reservation.workplaceId", "workplaceId")
+  .selectAs("reservation.userId", "userId")
+  .from("reservation")
+  .join("innerJoin", table("workplace"), and(custom("workplace.id = reservation.workplaceId"), eq("workplace.teamId", teamId)))
+  .where(and(custom("reservation.workplaceId IS NOT NULL"), custom("start = " + day)))
+  .groupBy(["workplaceId"])
+  .execute();
+}
 
-  if(reservations.isEmpty()) {
-    return null;
-  }
-  return reservations.get(0);
+function getMeetingRoomReservationsForDay(meetingRoomId, dayStart, dayEnd) {
+  return select()
+  .from("reservation")
+  .where(and(eq("meetingRoomId", meetingRoomId), custom("start >= " + dayStart), custom("end <= " + dayEnd)))
+  .orderBy("start", "asc")
+  .execute();
+}
+
+function getMeetingRoomsReservedForPeriod(meetingRoomId, startTime, endTime) {
+  return select()
+  .from("reservation")
+  .where(and(
+    eq("meetingRoomId", meetingRoomId),
+    or(and(custom(startTime + " <= start"), custom("start < " + endTime)), //record start is between startPeriod and endPeriod
+       and(custom(startTime + " < end"), custom("end <= " + endTime)),     // record end is between startPeriod and endPeriod
+       and(custom("start < " + startTime), custom(endTime + " < end")) )))  // contained
+  .execute();
 }
 
 function getMeetingRoomsReservationsByDay(dayStart, dayEnd) {
