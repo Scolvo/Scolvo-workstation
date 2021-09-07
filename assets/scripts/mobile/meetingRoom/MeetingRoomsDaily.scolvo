@@ -34,8 +34,6 @@ function createMeetingRoomsDailyData() {
 page MeetingRoomsDailyPage {
   layout: vertical;
   template: general;
-  settingsVisible: true;
-  scolvoMenuVisible: false;
 
   list MeetingRoomsDailyList {
     template: listVerticalNormal;

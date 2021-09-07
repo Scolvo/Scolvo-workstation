@@ -38,6 +38,10 @@ function resolveAvailableMeetingRoomLabel(availableCount, totalAvailableReservat
   return DICTIONARY.someAvailableReservations_msg;
 }
 
+function resolveReservationIntervalText(reservationStart, reservationEnd) {
+  return dateToString(reservationStart, "HH:mm") + " - " + dateToString(reservationEnd, "HH:mm");
+}
+
 function prepareCalendarDayData(day, reservations, totalAvailable) {
   var reservationString = dateToString(day, "yyyy.MM.dd.");
   var reservationsForCurrentDay = 0;
@@ -101,4 +105,12 @@ function prepareMeetingRoomReservationForDay(startOfPeriod, endOfPeriod) {
     reservations.put(reservationDao.meetingRoomId, reservationDao.count);
   });
   return reservations;
+}
+
+function prepareData(dataArray) {
+  var preparedData = {};
+  dataArray.each(function (dataDao) {
+    preparedData.put(dataDao.id, dataDao);
+  });
+  return preparedData;
 }

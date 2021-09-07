@@ -32,8 +32,6 @@ function createNumberOfParticipantsOptions() {
 page ReserveMeetingRoomPage {
   layout: vertical;
   template: general;
-  settingsVisible: true;
-  scolvoMenuVisible: false;
 
   inputField TimeOfStart {
     template: inputFieldSimple;

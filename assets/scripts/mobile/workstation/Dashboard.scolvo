@@ -1,5 +1,4 @@
 import {
-  /mobile/common/TeamsReservation,
   /mobile/repository/ReservationRepository,
   /mobile/repository/WorkstationRepository,
   /mobile/workstation/Workstations,

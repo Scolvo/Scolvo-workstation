@@ -1,0 +1,85 @@
+import {
+  /mobile/repository/MeetingRoomRepository,
+  /mobile/repository/ReservationRepository,
+  /mobile/repository/WorkstationRepository,
+  /mobile/workstation/DeleteReservation,
+  /mobile/meetingRoom/DeleteMeetingRoomReservation
+}
+
+function onMyReservations(originId) {
+  var data = {
+    "UserSpecificReservationsPage": {
+      "UserSpecificReservationsList": createUserSpecificReservationsData()
+    }
+  };
+  display(UserSpecificReservationsPage, data, originId);
+}
+
+function createUserSpecificReservationsData() {
+  var workstations = prepareData(getWorkstations());
+  var meetingRooms = prepareData(getMeetingRooms());
+  var teams = prepareData(getTeams());
+  return getReservationsByUser(sessionUserId(), getDayStart(now()).getTime()).map(function (reservationDao) {
+    return {
+      "id": reservationDao.id,
+      "reservationDate": resolveReservationDate(reservationDao.start),
+      "reservationText": resolveReservationText(reservationDao, workstations, meetingRooms, teams),
+      "actions": ["DeleteUserSpecificReservation"]
+    };
+  });
+}
+
+function resolveReservationDate(date) {
+  var dateString = dateToString(date, "yyyy MMMM dd.");
+  if(dateSame(date, now(), "day")) {
+    return DICTIONARY.today + ", " + dateString;
+  }
+  else if(dateSame(date, dateAdd(now(), 1, "day"), "day")) {
+    return DICTIONARY.tomorrow + ", " + dateString;
+  }
+  return dateString;
+}
+
+function resolveReservationText(reservationDao, workstations, meetingRooms, teams) {
+  var reservationText = "";
+  if(reservationDao.workplaceId != null) {
+    var workstation = workstations.get(reservationDao.workplaceId);
+    return workstation.name + " | " + teams.get(workstation.teamId).name;
+  }
+  else if(reservationDao.meetingRoomId != null) {
+    return meetingRooms.get(reservationDao.meetingRoomId).name + " | " + resolveReservationIntervalText(reservationDao.start, reservationDao.end);
+  }
+  return reservationText;
+}
+
+page UserSpecificReservationsPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: true;
+  scolvoMenuVisible: true;
+
+  list UserSpecificReservationsList {
+    template: listVerticalNormal;
+    span: 0;
+    itemTemplate: listItemCard;
+    columns: [
+      mainText => reservationDate,
+      text => reservationText
+    ]
+  }
+}
+
+function onUserSpecificReservationsPageLoaded(originId) {}
+
+function onDeleteUserSpecificReservation(originId) {
+  var reservation = getReservationById($IN.data.id);
+  if(reservation.workplaceId != null) {
+    displayDeleteReservationPopup(originId, reservation.id, reservation.workplaceId, reservation.start, true);
+  }
+  else if(reservation.meetingRoomId != null) {
+    displayDeleteMeetingRoomReservationPopup(originId, reservation.id, resolveReservationIntervalText(reservation.start, reservation.end), reservation.start, true);
+  }
+  else {
+    throw UnknownReservationTypeException;
+  }
+}
