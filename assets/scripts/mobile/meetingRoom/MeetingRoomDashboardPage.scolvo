@@ -2,7 +2,6 @@ import {
   /mobile/meetingRoom/MeetingRoomDashboardFragment,
   /mobile/calendar/MeetingRoomCalendarView,
   /mobile/meetingRoom/MeetingRoomsDaily,
-  /mobile/common/TeamsReservation,
   /mobile/repository/ReservationRepository,
   /mobile/repository/MeetingRoomRepository
 }

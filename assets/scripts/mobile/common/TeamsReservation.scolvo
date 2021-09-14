@@ -2,6 +2,19 @@ import {
   /mobile/repository/TeamRepository
 }
 
+var loggedInUser = null;
+
+function getLoggedInUser() {
+  if(loggedInUser == null) {
+    loggedInUser = getUserById(sessionUserId());
+  }
+  return loggedInUser;
+}
+
+function setLoggedInUserVisible(visibility) {
+  loggedInUser.put("visible", visibility);
+}
+
 function createTeamOptions(selectedId) {
   return getTeams().map(function (teamDao) {
     return buildSelectOptions(teamDao.id, teamDao.name, selectedId == teamDao.id);
@@ -36,6 +49,10 @@ function resolveAvailableMeetingRoomLabel(availableCount, totalAvailableReservat
     return DICTIONARY.allAvailableReservations_msg;
   }
   return DICTIONARY.someAvailableReservations_msg;
+}
+
+function resolveReservationIntervalText(reservationStart, reservationEnd) {
+  return dateToString(reservationStart, "HH:mm") + " - " + dateToString(reservationEnd, "HH:mm");
 }
 
 function prepareCalendarDayData(day, reservations, totalAvailable) {
@@ -101,4 +118,12 @@ function prepareMeetingRoomReservationForDay(startOfPeriod, endOfPeriod) {
     reservations.put(reservationDao.meetingRoomId, reservationDao.count);
   });
   return reservations;
+}
+
+function prepareData(dataArray) {
+  var preparedData = {};
+  dataArray.each(function (dataDao) {
+    preparedData.put(dataDao.id, dataDao);
+  });
+  return preparedData;
 }

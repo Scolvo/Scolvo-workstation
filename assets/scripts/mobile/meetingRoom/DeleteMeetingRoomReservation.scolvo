@@ -1,9 +1,11 @@
 var meetingRoomReservationIdToDelete = null;
+var isMeetingRoomDeleteFromMyReservations = false;
 
-function displayDeleteMeetingRoomReservationPopup(originId, reservationId, reservationIntervalText) {
+function displayDeleteMeetingRoomReservationPopup(originId, reservationId, reservationIntervalText, selectedReservationDay, isDeleteFromMyReservations) {
   meetingRoomReservationIdToDelete = reservationId;
+  isMeetingRoomDeleteFromMyReservations = isDeleteFromMyReservations;
   var actionEvents = [
-    buildTargetValueChangeEvent("DateLabel", dateToString(selectedMeetingRoomDay, "yyyy MMMM dd.") + " " + reservationIntervalText),
+    buildTargetValueChangeEvent("DateLabel", dateToString(selectedReservationDay, "yyyy MMMM dd.") + " " + reservationIntervalText),
     buildSourceClickedEvent("DontDeleteMeetingRoomReservationButton", "DontDeleteMeetingRoomReservationButtonClicked"),
     buildSourceClickedEvent("DeleteMeetingRoomReservationButton", "DeleteMeetingRoomReservationButtonClicked"),
   ];
@@ -61,9 +63,15 @@ function onDeleteMeetingRoomReservationButtonClicked(originId) {
   };
   sendDataChangeRq(originId, "reservation", [reservationDeleteDao]);
 
-  fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
-  fireEvent(buildRefreshItemEvent("MeetingRoomsDailyList", createMeetingRoomsDailyData()), "MeetingRoomsDailyPage");
-  fireEvent(buildRefreshItemEvent("MeetingRoomsDashboardList", createMeetingRoomsDashboardListData()), "MeetingRoomsDashboardPage");
+  if(isMeetingRoomDeleteFromMyReservations) {
+    fireEvent(buildRemoveItemEvent("UserSpecificReservationsList", meetingRoomReservationIdToDelete), "UserSpecificReservationsPage");
+  }
+  else {
+    fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
+    fireEvent(buildRefreshItemEvent("MeetingRoomsDailyList", createMeetingRoomsDailyData()), "MeetingRoomsDailyPage");
+    fireEvent(buildRefreshItemEvent("MeetingRoomsDashboardList", createMeetingRoomsDashboardListData()), "MeetingRoomsDashboardPage");
+  }
+
   fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservationDelete_successMsg), originId);
 
   finishPage("DeleteMeetingRoomReservationPopup", originId);

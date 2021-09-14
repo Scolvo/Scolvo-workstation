@@ -74,3 +74,11 @@ function getMeetingRoomsReservationsByPeriod(startPeriod, endPeriod) {
   .groupBy(["reservationStr"])
   .execute();
 }
+
+function getReservationsByUser(userId, startTime) {
+  return select()
+  .from("reservation")
+  .where(and(eq("userId", userId), custom("start >= " + startTime)))
+  .orderBy("start", "asc")
+  .execute();
+}
