@@ -9,10 +9,14 @@ import {
 function onMyReservations(originId) {
   var data = {
     "UserSpecificReservationsPage": {
+      "UserVisibleCheckBoxChecked": getLoggedInUser().visible,
       "UserSpecificReservationsList": createUserSpecificReservationsData()
     }
   };
-  display(UserSpecificReservationsPage, data, originId);
+  var actionEvents = [
+    buildSourceValueChangedEvent("UserVisibleCheckBox", "UserVisibleCheckBoxValueChanged")
+  ];
+  display(UserSpecificReservationsPage, data, originId, actionEvents);
 }
 
 function createUserSpecificReservationsData() {
@@ -58,6 +62,10 @@ page UserSpecificReservationsPage {
   settingsVisible: true;
   scolvoMenuVisible: true;
 
+  button UserVisibleCheckBox {
+    template: checkbox;
+  }
+
   list UserSpecificReservationsList {
     template: listVerticalNormal;
     span: 0;
@@ -70,6 +78,16 @@ page UserSpecificReservationsPage {
 }
 
 function onUserSpecificReservationsPageLoaded(originId) {}
+
+function onUserVisibleCheckBoxValueChanged(originId) {
+  var visible = $IN.data.state;
+  var userDao = getLoggedInUser();
+  userDao.put("visible", visible);
+  userDao.put("changeType", "UPDATE");
+  updateExecution("user", userDao.id, userDao);
+  sendDataChangeRq(originId, "user", [userDao]);
+  setLoggedInUserVisible(visible);
+}
 
 function onDeleteUserSpecificReservation(originId) {
   var reservation = getReservationById($IN.data.id);

@@ -2,6 +2,19 @@ import {
   /mobile/repository/TeamRepository
 }
 
+var loggedInUser = null;
+
+function getLoggedInUser() {
+  if(loggedInUser == null) {
+    loggedInUser = getUserById(sessionUserId());
+  }
+  return loggedInUser;
+}
+
+function setLoggedInUserVisible(visibility) {
+  loggedInUser.put("visible", visibility);
+}
+
 function createTeamOptions(selectedId) {
   return getTeams().map(function (teamDao) {
     return buildSelectOptions(teamDao.id, teamDao.name, selectedId == teamDao.id);
