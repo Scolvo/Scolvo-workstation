@@ -5,13 +5,13 @@ function displayDeleteMeetingRoomReservationPopup(originId, reservationId, reser
   meetingRoomReservationIdToDelete = reservationId;
   isMeetingRoomDeleteFromMyReservations = isDeleteFromMyReservations;
   var actionEvents = [
-    buildTargetValueChangeEvent("DateLabel", dateToString(selectedReservationDay, "yyyy MMMM dd.") + " " + reservationIntervalText),
+    buildTargetValueChangeEvent("DateLabel", dateToString(selectedReservationDay, "yyyy MMMM dd.")),
     buildSourceClickedEvent("DontDeleteMeetingRoomReservationButton", "DontDeleteMeetingRoomReservationButtonClicked"),
     buildSourceClickedEvent("DeleteMeetingRoomReservationButton", "DeleteMeetingRoomReservationButtonClicked"),
   ];
   var data = {
     "DeleteMeetingRoomReservationPopup": {
-      "headerText": ""
+      "headerText": reservationIntervalText
     }
   };
   display(DeleteMeetingRoomReservationPopup, data, originId, actionEvents);

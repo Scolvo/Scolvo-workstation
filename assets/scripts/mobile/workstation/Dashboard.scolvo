@@ -7,8 +7,13 @@ import {
 
 function onDashboard(originId) {
   var selectedTeamId = getUserById(sessionUserId()).teamId;
+  var team = getTeamById(selectedTeamId);
   var data = {
     "DashboardPage": {
+      "DashboardTeamSelect": {
+        "helper_label": team.location,
+        "helper_icon": "\ue913"
+      },
       "DashboardTeamSelectOptions": createTeamOptions(selectedTeamId),
       "DashboardList": createDashboardListData(selectedTeamId)
     }

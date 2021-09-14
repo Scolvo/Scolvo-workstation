@@ -7,10 +7,15 @@ var selectedMeetingRoomId = null;
 
 function displayMeetingRoomTimetablePage(originId, meetingRoomId) {
   selectedMeetingRoomId = meetingRoomId;
+  var meetingRoom = getMeetingRoomById(meetingRoomId);
   var data = {
     "MeetingRoomTimetablePage": {
       "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd."),
       "MeetingRoomTimetableSelectOptions": createMeetingRoomOptions(meetingRoomId),
+      "MeetingRoomTimetableSelect": {
+        "helper_label": meetingRoom.location,
+        "helper_icon": "\ue913"
+      }
       "MeetingRoomTimetableList": createMeetingRoomTimetableData()
     }
   };

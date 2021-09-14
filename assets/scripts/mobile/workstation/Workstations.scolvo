@@ -11,9 +11,14 @@ function displayWorkstationsPage(originId, day) {
   selectedDay = day;
   reservingUser = getUserById(sessionUserId());
   selectedTeamId = reservingUser.teamId;
+  var team = getTeamById(selectedTeamId);
   var data = {
     "WorkstationsPage": {
       "headerText": dateToString(selectedDay, "yyyy MMMM dd."),
+      "WorkstationsTeamSelect": {
+        "helper_label": team.location,
+        "helper_icon": "\ue913"
+      },
       "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
       "WorkstationsList": createWorkstationsData()
     }
