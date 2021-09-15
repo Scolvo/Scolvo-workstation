@@ -22,6 +22,8 @@ function displayWorkplacesPage(originId) {
 page WorkplacesPage {
   layout: vertical;
   template: general;
+  scolvoMenuVisible: true;
+  settingsVisible: true;
 
   list WorkplacesList {
     template: normal;

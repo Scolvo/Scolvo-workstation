@@ -46,7 +46,6 @@ menu defaultChild Users {
   item PasswordChange {
     roles: ["administrator", "worker"]
   },
-  item Logout,
   defaultPages: {
     "administrator": "Users",
     "worker": "PasswordChange",

@@ -11,8 +11,7 @@ function onDashboard(originId) {
   var data = {
     "DashboardPage": {
       "DashboardTeamSelect": {
-        "helper_label": team.location,
-        "helper_icon": "\ue913"
+        "helper_label": team.location
       },
       "DashboardTeamSelectOptions": createTeamOptions(selectedTeamId),
       "DashboardList": createDashboardListData(selectedTeamId)
@@ -81,6 +80,7 @@ function onDashboardPageLoaded(originId) {}
 
 function onDashboardTeamSelectChanged(originId) {
   fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData($IN.data.value)), "DashboardPage");
+  fireEvent(buildTargetValueChangeEvent("DashboardTeamSelect", {"helper_label": "New label" }), originId);
 }
 
 function onDashboardListSelectionChanged(originId) {

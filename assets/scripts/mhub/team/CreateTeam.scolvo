@@ -1,5 +1,6 @@
-var createdTeamId;
 var uploadedMapPath;
+var teamName;
+var teamLocation;
 
 function displayCreateTeamPage(originId) {
   var data = {
@@ -32,7 +33,7 @@ page CreateTeamPage {
 function onCreateTeamPageLoaded(originId) {}
 
 function onBackToTeams(originId) {
-  onTeams(originId);
+  finishPage("CreateTeamPage" ,originId);
 }
 
 function onSaveTeam(originId) {
@@ -43,32 +44,42 @@ function onSaveTeam(originId) {
     return null;
   }
 
-  createdTeamId = uuid();
-  var teamDao = {
-    "id": createdTeamId,
-    "name": teamData.Name,
-    "location": teamData.Location,
-    "changeType": "INSERT"
-  };
 
   if(teamData.UploadMap != null) {
-    uploadedMapPath = createTeamMapRelativePath(teamDao.name);
-    documentPut(originId, teamData.UploadMap, uploadedMapPath, "TeamMapUploadSuccess", "TeamMapUploadFailure");
+    uploadedMapPath = createTeamMapRelativePath(teamData.Name);
+    teamName = teamData.Name;
+    teamLocation = teamData.Location;
+    documentPut(originId, uploadedMapPath, teamData.UploadMap.absolutePath, "TeamMapUploadSuccess", "TeamMapUploadFailure");
   }
+  else {
+    var teamDao = {
+      "id": uuid(),
+      "name": teamData.Name,
+      "location": teamData.Location,
+      "changeType": "INSERT"
+    };
 
+    saveTeamDao(teamDao);
+  }
+}
+
+function saveTeamDao(teamDao) {
   insertExecution("team", teamDao);
   sendDataChangeRq(originId, "team", [teamDao]);
   onTeams(originId);
 }
 
-function onTeamMapUploadSuccess() {
+function onTeamMapUploadSuccess(originId) {
   var teamDao = {
-    "id": createdTeamId,
+    "id": uuid(),
+    "name": teamName,
+    "location": teamLocation,
     "mapPicturePath": uploadedMapPath,
-    "changeType": "UPDATE"
+    "changeType": "INSERT"
   };
-  updateExecution("team", teamDao.id, teamDao);
-  sendDataChangeRq(originId, "team", [teamDao]);
+  saveTeamDao(teamDao);
+
+
   publishNotification({
     "userId": getCurrentUser().userId,
     "level": "default",
@@ -78,7 +89,7 @@ function onTeamMapUploadSuccess() {
   }, originId);
 }
 
-function onTeamMapUploadFailure() {
+function onTeamMapUploadFailure(originId) {
   publishNotification({
     "userId": getCurrentUser().userId,
     "level": "error",
