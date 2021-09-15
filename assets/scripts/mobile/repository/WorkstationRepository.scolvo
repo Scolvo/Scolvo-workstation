@@ -17,3 +17,9 @@ function getWorkstationById(workplaceId) {
   }
   return workstations.get(0);
 }
+
+function getWorkstations() {
+  return select()
+  .from("workplace")
+  .execute();
+}

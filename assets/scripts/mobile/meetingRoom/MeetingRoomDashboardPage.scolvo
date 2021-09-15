@@ -2,7 +2,6 @@ import {
   /mobile/meetingRoom/MeetingRoomDashboardFragment,
   /mobile/calendar/MeetingRoomCalendarView,
   /mobile/meetingRoom/MeetingRoomsDaily,
-  /mobile/common/TeamsReservation,
   /mobile/repository/ReservationRepository,
   /mobile/repository/MeetingRoomRepository
 }
@@ -27,4 +26,10 @@ function onMeetingRoomsDashboardPageLoaded(originId) {
 
 function onMeetingRoomsCalendarView(originId) {
   displayMeetingRoomCalendarViewFragment(originId);
+  fireEvent(buildTargetPageActionsChange(["MeetingRoomsListView"]), originId);
+}
+
+function onMeetingRoomsListView(originId) {
+  displayMeetingRoomsDashboardFragment(originId);
+  fireEvent(buildTargetPageActionsChange(["MeetingRoomsCalendarView"]), originId);
 }

@@ -1,9 +1,11 @@
 import {
   /mobile/SessionUser,
   /mobile/Builders,
+  /mobile/common/TeamsReservation,
   /mobile/workstation/Dashboard,
   /mobile/calendar/CalendarView,
   /mobile/meetingRoom/MeetingRoomDashboardPage,
+  /mobile/userReservations/UserSpecificReservations,
   /mobile/DataChange
 }
 

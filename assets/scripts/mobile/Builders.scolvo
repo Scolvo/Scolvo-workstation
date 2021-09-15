@@ -82,3 +82,7 @@ function buildShortToastNotificationEvent(message) {
   };
   return buildTargetEvent("Notification", "notify", notificationData);
 }
+
+function buildTargetPageActionsChange(pageActions) {
+  return buildTargetEvent("PageActions", "onValueChange", pageActions);
+}

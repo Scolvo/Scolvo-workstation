@@ -11,9 +11,14 @@ function displayWorkstationsPage(originId, day) {
   selectedDay = day;
   reservingUser = getUserById(sessionUserId());
   selectedTeamId = reservingUser.teamId;
+  var team = getTeamById(selectedTeamId);
   var data = {
     "WorkstationsPage": {
       "headerText": dateToString(selectedDay, "yyyy MMMM dd."),
+      "WorkstationsTeamSelect": {
+        "helper_label": team.location,
+        "helper_icon": "\ue913"
+      },
       "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
       "WorkstationsList": createWorkstationsData()
     }
@@ -46,8 +51,6 @@ function createWorkstationsData() {
 page WorkstationsPage {
   layout: vertical;
   template: general;
-  settingsVisible: true;
-  scolvoMenuVisible: false;
 
   inputField  WorkstationsTeamSelect {
     inputType: selectOne;
@@ -72,7 +75,7 @@ function onReserveWorkstation(originId) {
 }
 
 function onDeleteReservation(originId) {
-  displayDeleteReservationPopup(originId, $IN.data.reservationId, $IN.data.id);
+  displayDeleteReservationPopup(originId, $IN.data.reservationId, $IN.data.id, selectedDay, false);
 }
 
 function resolveWorkstationAvailabilty(workstationId, reservations, user) {

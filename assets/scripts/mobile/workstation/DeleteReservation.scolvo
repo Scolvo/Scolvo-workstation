@@ -1,10 +1,12 @@
 var reservationIdToDelete = null;
+var isWorkstationsDeleteFromMyReservations = false;
 
-function displayDeleteReservationPopup(originId, reservationId, workstationId) {
+function displayDeleteReservationPopup(originId, reservationId, workstationId, selectedReservationDay, isDeleteFromMyReservations) {
   reservationIdToDelete = reservationId;
+  isWorkstationsDeleteFromMyReservations = isDeleteFromMyReservations;
   var workstation = getWorkstationById(workstationId);
   var actionEvents = [
-    buildTargetValueChangeEvent("DateLabel", dateToString(selectedDay, "yyyy MMMM dd.")),
+    buildTargetValueChangeEvent("DateLabel", dateToString(selectedReservationDay, "yyyy MMMM dd.")),
     buildSourceClickedEvent("DontDeleteReservationButton", "DontDeleteReservationButtonClicked"),
     buildSourceClickedEvent("DeleteReservationButton", "DeleteReservationButtonClicked"),
   ];
@@ -62,8 +64,14 @@ function onDeleteReservationButtonClicked(originId) {
   };
   sendDataChangeRq(originId, "reservation", [reservationDeleteDao]);
 
-  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
-  fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(reservingUser.teamId)), "DashboardPage");
+  if(isWorkstationsDeleteFromMyReservations) {
+    fireEvent(buildRemoveItemEvent("UserSpecificReservationsList", reservationIdToDelete), "UserSpecificReservationsPage");
+  }
+  else {
+    fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
+    fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(reservingUser.teamId)), "DashboardPage");
+  }
+
   fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservationDelete_successMsg), originId);
 
   finishPage("DeleteReservationPopup", originId);
