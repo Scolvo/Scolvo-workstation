@@ -28,6 +28,18 @@ function getMeetingRoomsData() {
   return meetingRooms;
 }
 
+function addTeamToTeamsData(teamDao) {
+  teams.put(teamDao.id, teamDao);
+}
+
+function addWorkstationToWorkstationsData(workstationDao) {
+  workstations.put(workstationDao.id, workstationDao);
+}
+
+function addMeetingRoomToMeetingRoomsData(meetingRoomDao) {
+  meetingRooms.put(meetingRoomDao.id, meetingRoomDao);
+}
+
 function getLoggedInUser() {
   if(loggedInUser == null) {
     loggedInUser = getUserById(sessionUserId());

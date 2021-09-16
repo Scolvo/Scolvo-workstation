@@ -15,7 +15,19 @@ function sendDataChangeRq(originId_, typeDefinition_, changeset_) {
 var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
   "reservation": {
     "roles": [WORKER]
-  }
+  },
+  "user": {
+    "roles": [WORKER]
+  },
+  "team": {
+    "roles": [WORKER]
+  },
+  "workplace": {
+    "roles": [WORKER]
+  },
+  "meetingRoom": {
+    "roles": [WORKER]
+  },
 };
 
 function onDataChangeDg(originId) {
@@ -49,5 +61,20 @@ function onDataChangeDg(originId) {
 function insertChangeDao(typeDefinition, changeDao) {
   if(typeDefinition == "reservation" && getReservationById(changeDao.id) == null) {
     insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "user" && getUserById(changeDao.id) == null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+  }
+  else if(typeDefinition == "team" && getTeamById(changeDao.id) == null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+    addTeamToTeamsData(changeDao);
+  }
+  else if(typeDefinition == "workplace" && getWorkstationById(changeDao.id) == null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+    addWorkstationToWorkstationsData(changeDao);
+  }
+  else if(typeDefinition == "meetingRoom" && getMeetingRoomById(changeDao.id) == null) {
+    insertOrReplaceExecution(typeDefinition, changeDao);
+    addMeetingRoomToMeetingRoomsData(changeDao);
   }
 }
