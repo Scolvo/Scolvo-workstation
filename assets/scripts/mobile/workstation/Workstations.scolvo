@@ -9,16 +9,19 @@ var reservingUser = null;
 
 function displayWorkstationsPage(originId, day) {
   selectedDay = day;
-  reservingUser = getUserById(sessionUserId());
+  reservingUser = getLoggedInUser();
   selectedTeamId = reservingUser.teamId;
-  var team = getTeamById(selectedTeamId);
+  var team = getTeamsData().get(selectedTeamId);
+  var selectData = {
+    "helper_label": team.location
+  };
+  if(team.mapPicturePath != null) {
+    selectData.put("helper_icon", "\ue913");
+  }
   var data = {
     "WorkstationsPage": {
       "headerText": dateToString(selectedDay, "yyyy MMMM dd."),
-      "WorkstationsTeamSelect": {
-        "helper_label": team.location,
-        "helper_icon": "\ue913"
-      },
+      "WorkstationsTeamSelect": selectData,
       "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
       "WorkstationsList": createWorkstationsData()
     }
@@ -90,6 +93,17 @@ function resolveWorkstationAvailabilty(workstationId, reservations, user) {
 
 function onWorkstationsTeamSelectChanged(originId) {
   selectedTeamId = $IN.data.value;
+  var team = getTeamsData().get(selectedTeamId);
+  var selectComponentData = {
+    "helper_label": team.location
+  };
+  if(team.mapPicturePath != null) {
+    selectComponentData.put("helper_icon", "\ue913");
+  }
+  else {
+    selectComponentData.put("helper_icon", "");
+  }
+  fireEvent(buildTargetValueChangeEvent("WorkstationsTeamSelect", selectComponentData), originId);
   fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
 }
 
