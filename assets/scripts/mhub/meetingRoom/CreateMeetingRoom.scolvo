@@ -2,6 +2,7 @@ var uploadedMeetingRoomMapPath;
 var meetingRoomName;
 var meetingRoomLocation;
 var meetingRoomCapacity;
+var createdMeetingRoomId;
 
 function displayCreateMeetingRoomPage(originId) {
   var data = {
@@ -45,7 +46,7 @@ function onSaveMeetingRoom(originId) {
     publish(userValidationResult);
     return null;
   }
-
+  createdMeetingRoomId = uuid();
   if(meetingRoomData.UploadMap != null) {
     uploadedMeetingRoomMapPath = createMeetingRoomMapRelativePath(meetingRoomData.Name);
     meetingRoomName = meetingRoomData.Name;
@@ -55,7 +56,7 @@ function onSaveMeetingRoom(originId) {
   }
   else {
     var meetingRoomDao = {
-      "id": uuid(),
+      "id": createdMeetingRoomId,
       "name": meetingRoomData.Name,
       "location": meetingRoomData.Location,
       "capacity": parseNumber(meetingRoomData.Capacity),
@@ -72,19 +73,19 @@ function saveMeetingRoomDao(meetingRoomDao) {
 }
 
 function createMeetingRoomMapRelativePath(meetingRoomName) {
-  return "meeting_room_maps/" + meetingRoomName + "/" + meetingRoomName + "_map.png";
+  return "meeting_room_maps/" + meetingRoomName + "/" + createdMeetingRoomId + ".png";
 }
 
 function onMeetingRoomMapUploadSuccess(originId) {
   var meetingRoomDao = {
-    "id": uuid(),
+    "id": createdMeetingRoomId,
     "name": meetingRoomName,
     "location": meetingRoomLocation,
     "capacity": meetingRoomCapacity,
     "mapPicturePath": uploadedMeetingRoomMapPath,
     "changeType": "INSERT"
   };
-  saveMeetingRoomDao(teamDao);
+  saveMeetingRoomDao(meetingRoomDao);
 
 
   publishNotification({

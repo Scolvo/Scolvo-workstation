@@ -1,6 +1,7 @@
 var uploadedTeamMapPath;
 var teamName;
 var teamLocation;
+var createdTeamId;
 
 function displayCreateTeamPage(originId) {
   var data = {
@@ -43,8 +44,7 @@ function onSaveTeam(originId) {
     publish(teamalidationResult);
     return null;
   }
-
-
+  createdTeamId = uuid();
   if(teamData.UploadMap != null) {
     uploadedTeamMapPath = createTeamMapRelativePath(teamData.Name);
     teamName = teamData.Name;
@@ -53,7 +53,7 @@ function onSaveTeam(originId) {
   }
   else {
     var teamDao = {
-      "id": uuid(),
+      "id": createdTeamId,
       "name": teamData.Name,
       "location": teamData.Location,
       "changeType": "INSERT"
@@ -71,7 +71,7 @@ function saveTeamDao(teamDao) {
 
 function onTeamMapUploadSuccess(originId) {
   var teamDao = {
-    "id": uuid(),
+    "id": createdTeamId,
     "name": teamName,
     "location": teamLocation,
     "mapPicturePath": uploadedTeamMapPath,
@@ -100,7 +100,7 @@ function onTeamMapUploadFailure(originId) {
 }
 
 function createTeamMapRelativePath(teamName) {
-  return "team_maps/" + teamName + "/" + teamName + "_map.png";
+  return "team_maps/" + teamName + "/" + createdTeamId + ".png";
 }
 
 function validateTeamName(result, data) {
