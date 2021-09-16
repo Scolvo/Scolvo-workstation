@@ -1,0 +1,51 @@
+function displayMapPopup(originId, titleText, mapPath) {
+  debug(documentGetUrl(mapPath));
+  var data = {
+    "MapDisplayPopup": {
+      "MapImage": {
+        "img": documentGetUrl(mapPath)
+      }
+    }
+  };
+
+  var actionEvents = [
+    buildTargetValueChangeEvent("MapLabel", titleText),
+    buildSourceClickedEvent("CloseMapDisplayButton", "CloseMapDisplayButtonClicked")
+  ];
+
+  display(MapDisplayPopup, data, originId, actionEvents);
+}
+
+page MapDisplayPopup {
+  layout: vertical;
+  template: popup;
+
+  spacer {
+    span: 8;
+  }
+
+  label MapLabel {
+    template: heading5Tertiary;
+    alignment: left;
+  }
+
+  spacer {
+    span: 8;
+  }
+
+  image MapImage {
+    span: 0;
+  }
+
+  button CloseMapDisplayButton {
+    template: primaryMedium;
+  }
+}
+
+function onMapDisplayPopupLoaded(originId) {}
+
+function ononMapDisplayPopupCancel(originId) {}
+
+function onCloseMapDisplayButtonClicked(originId) {
+  finishPage("MapDisplayPopup", originId);
+}

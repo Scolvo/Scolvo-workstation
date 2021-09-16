@@ -2,12 +2,15 @@ import {
   /mobile/repository/ReservationRepository,
   /mobile/repository/WorkstationRepository,
   /mobile/workstation/Workstations,
-  /mobile/repository/UserRepository
+  /mobile/repository/UserRepository,
+  /mobile/common/MapDisplay
 }
 
+var selectedDashboardTeamId;
+
 function onDashboard(originId) {
-  var selectedTeamId = getUserById(sessionUserId()).teamId;
-  var team = getTeamsData().get(selectedTeamId);
+  selectedDashboardTeamId = getUserById(sessionUserId()).teamId;
+  var team = getTeamsData().get(selectedDashboardTeamId);
   var selectData = {
     "helper_label": team.location
   };
@@ -17,8 +20,8 @@ function onDashboard(originId) {
   var data = {
     "DashboardPage": {
       "DashboardTeamSelect": selectData,
-      "DashboardTeamSelectOptions": createTeamOptions(selectedTeamId),
-      "DashboardList": createDashboardListData(selectedTeamId)
+      "DashboardTeamSelectOptions": createTeamOptions(selectedDashboardTeamId),
+      "DashboardList": createDashboardListData(selectedDashboardTeamId)
     }
   };
   var actionEvents = [
@@ -82,8 +85,14 @@ page DashboardPage {
 
 function onDashboardPageLoaded(originId) {}
 
+function onDashboardTeamSelectHelperAction(originId) {
+  var team = getTeamsData().get(selectedDashboardTeamId);
+  displayMapPopup(originId, team.name, team.mapPicturePath);
+}
+
 function onDashboardTeamSelectChanged(originId) {
-  var team = getTeamsData().get($IN.data.value);
+  selectedDashboardTeamId = $IN.data.value;
+  var team = getTeamsData().get(selectedDashboardTeamId);
   var selectComponentData = {
     "helper_label": team.location
   };
@@ -94,7 +103,7 @@ function onDashboardTeamSelectChanged(originId) {
     selectComponentData.put("helper_icon", "");
   }
   fireEvent(buildTargetValueChangeEvent("DashboardTeamSelect", selectComponentData), originId);
-  fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData($IN.data.value)), "DashboardPage");
+  fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(selectedDashboardTeamId)), "DashboardPage");
 }
 
 function onDashboardListSelectionChanged(originId) {
