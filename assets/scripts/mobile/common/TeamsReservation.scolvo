@@ -3,6 +3,30 @@ import {
 }
 
 var loggedInUser = null;
+var teams = null;
+var workstations = null;
+var meetingRooms = null;
+
+function getTeamsData() {
+  if(teams == null) {
+    teams = prepareData(getTeams());
+  }
+  return teams;
+}
+
+function getWorkstationsData() {
+  if(workstations == null) {
+    workstations = prepareData(getWorkstations());
+  }
+  return workstations;
+}
+
+function getMeetingRoomsData() {
+  if(meetingRooms == null) {
+    meetingRooms = prepareData(getMeetingRooms());
+  }
+  return meetingRooms;
+}
 
 function getLoggedInUser() {
   if(loggedInUser == null) {

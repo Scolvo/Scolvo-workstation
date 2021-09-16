@@ -1,5 +1,8 @@
 function getTeams() {
-  return select().from("team").execute();
+  return select()
+  .from("team")
+  .orderBy("name", "asc")
+  .execute();
 }
 
 function getTeamById(teamId) {

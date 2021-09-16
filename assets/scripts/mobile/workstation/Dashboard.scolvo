@@ -7,12 +7,16 @@ import {
 
 function onDashboard(originId) {
   var selectedTeamId = getUserById(sessionUserId()).teamId;
-  var team = getTeamById(selectedTeamId);
+  var team = getTeamsData().get(selectedTeamId);
+  var selectData = {
+    "helper_label": team.location
+  };
+  if(team.mapPicturePath != null) {
+    selectData.put("helper_icon", "\ue913");
+  }
   var data = {
     "DashboardPage": {
-      "DashboardTeamSelect": {
-        "helper_label": team.location
-      },
+      "DashboardTeamSelect": selectData,
       "DashboardTeamSelectOptions": createTeamOptions(selectedTeamId),
       "DashboardList": createDashboardListData(selectedTeamId)
     }
@@ -79,8 +83,18 @@ page DashboardPage {
 function onDashboardPageLoaded(originId) {}
 
 function onDashboardTeamSelectChanged(originId) {
+  var team = getTeamsData().get($IN.data.value);
+  var selectComponentData = {
+    "helper_label": team.location
+  };
+  if(team.mapPicturePath != null) {
+    selectComponentData.put("helper_icon", "\ue913");
+  }
+  else {
+    selectComponentData.put("helper_icon", "");
+  }
+  fireEvent(buildTargetValueChangeEvent("DashboardTeamSelect", selectComponentData), originId);
   fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData($IN.data.value)), "DashboardPage");
-  fireEvent(buildTargetValueChangeEvent("DashboardTeamSelect", {"helper_label": "New label" }), originId);
 }
 
 function onDashboardListSelectionChanged(originId) {

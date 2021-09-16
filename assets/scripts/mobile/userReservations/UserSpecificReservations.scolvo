@@ -20,14 +20,11 @@ function onMyReservations(originId) {
 }
 
 function createUserSpecificReservationsData() {
-  var workstations = prepareData(getWorkstations());
-  var meetingRooms = prepareData(getMeetingRooms());
-  var teams = prepareData(getTeams());
   return getReservationsByUser(sessionUserId(), getDayStart(now()).getTime()).map(function (reservationDao) {
     return {
       "id": reservationDao.id,
       "reservationDate": resolveReservationDate(reservationDao.start),
-      "reservationText": resolveReservationText(reservationDao, workstations, meetingRooms, teams),
+      "reservationText": resolveReservationText(reservationDao, getWorkstationsData(), getMeetingRoomsData(), getTeamsData()),
       "actions": ["DeleteUserSpecificReservation"]
     };
   });
