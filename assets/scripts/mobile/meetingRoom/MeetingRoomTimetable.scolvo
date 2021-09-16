@@ -7,15 +7,18 @@ var selectedMeetingRoomId = null;
 
 function displayMeetingRoomTimetablePage(originId, meetingRoomId) {
   selectedMeetingRoomId = meetingRoomId;
-  var meetingRoom = getMeetingRoomById(meetingRoomId);
+  var meetingRoom = getMeetingRoomsData().get(meetingRoomId);
+  var selectData = {
+    "helper_label": meetingRoom.location
+  };
+  if(meetingRoom.mapPicturePath != null) {
+    selectData.put("helper_icon", "\ue913");
+  }
   var data = {
     "MeetingRoomTimetablePage": {
       "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd."),
       "MeetingRoomTimetableSelectOptions": createMeetingRoomOptions(meetingRoomId),
-      "MeetingRoomTimetableSelect": {
-        "helper_label": meetingRoom.location,
-        "helper_icon": "\ue913"
-      }
+      "MeetingRoomTimetableSelect": selectData,
       "MeetingRoomTimetableList": createMeetingRoomTimetableData()
     }
   };
@@ -83,6 +86,17 @@ function ononMeetingRoomTimetableListSelectionChanged(originId) {}
 
 function onMeetingRoomTimetableSelectChanged(originId) {
   selectedMeetingRoomId = $IN.data.value;
+  var meetingRoom = getMeetingRoomsData().get(selectedMeetingRoomId);
+  var selectData = {
+    "helper_label": meetingRoom.location
+  };
+  if(meetingRoom.mapPicturePath != null) {
+    selectData.put("helper_icon", "\ue913");
+  }
+  else {
+    selectData.put("helper_icon", "");
+  }
+  fireEvent(buildTargetValueChangeEvent("MeetingRoomTimetableSelect", selectData), originId);
   fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
 }
 
