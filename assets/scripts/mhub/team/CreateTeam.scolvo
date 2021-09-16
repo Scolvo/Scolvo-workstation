@@ -1,3 +1,7 @@
+var uploadedTeamMapPath;
+var teamName;
+var teamLocation;
+
 function displayCreateTeamPage(originId) {
   var data = {
     "CreateTeamPage": {
@@ -20,7 +24,8 @@ page CreateTeamPage {
     ]
     fields: [
       field Name => name formItemInputNormal,
-      field Location => location formItemInputNormal
+      field Location => location formItemInputNormal,
+      field UploadMap => uploadMap formItemUploadSingle
     ]
   }
 }
@@ -28,7 +33,7 @@ page CreateTeamPage {
 function onCreateTeamPageLoaded(originId) {}
 
 function onBackToTeams(originId) {
-  onTeams(originId);
+  finishPage("CreateTeamPage" ,originId);
 }
 
 function onSaveTeam(originId) {
@@ -39,16 +44,63 @@ function onSaveTeam(originId) {
     return null;
   }
 
-  var teamDao = {
-    "id": uuid(),
-    "name": teamData.Name,
-    "location": teamData.Location,
-    "changeType": "INSERT"
-  };
 
+  if(teamData.UploadMap != null) {
+    uploadedTeamMapPath = createTeamMapRelativePath(teamData.Name);
+    teamName = teamData.Name;
+    teamLocation = teamData.Location;
+    documentPut(originId, uploadedTeamMapPath, teamData.UploadMap.absolutePath, "TeamMapUploadSuccess", "TeamMapUploadFailure");
+  }
+  else {
+    var teamDao = {
+      "id": uuid(),
+      "name": teamData.Name,
+      "location": teamData.Location,
+      "changeType": "INSERT"
+    };
+
+    saveTeamDao(teamDao);
+  }
+}
+
+function saveTeamDao(teamDao) {
   insertExecution("team", teamDao);
   sendDataChangeRq(originId, "team", [teamDao]);
   onTeams(originId);
+}
+
+function onTeamMapUploadSuccess(originId) {
+  var teamDao = {
+    "id": uuid(),
+    "name": teamName,
+    "location": teamLocation,
+    "mapPicturePath": uploadedTeamMapPath,
+    "changeType": "INSERT"
+  };
+  saveTeamDao(teamDao);
+
+
+  publishNotification({
+    "userId": getCurrentUser().userId,
+    "level": "default",
+    "type": "text",
+    "duration": "long",
+    "message": DICTIONARY.uploadSuccess_msg
+  }, originId);
+}
+
+function onTeamMapUploadFailure(originId) {
+  publishNotification({
+    "userId": getCurrentUser().userId,
+    "level": "error",
+    "type": "text",
+    "duration": "long",
+    "message": DICTIONARY.uploadFail_msg
+  }, originId);
+}
+
+function createTeamMapRelativePath(teamName) {
+  return "team_maps/" + teamName + "/" + teamName + "_map.png";
 }
 
 function validateTeamName(result, data) {

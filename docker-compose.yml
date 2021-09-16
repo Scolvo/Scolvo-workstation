@@ -142,19 +142,21 @@ services:
     admin:
         restart: always
         container_name: admin
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:1.28.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:1.37.11-SCFR-2592-webapp-integration-710
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
         - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
         - AUTH_URL=${AUTH_URL:-auth}
+        - CLOUD_REPOSITORY_TYPE=AWS_S3
         - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
         - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-        - BUCKET_NAME=${BUCKET_NAME}
-        - REGION_NAME=${REGION_NAME}
+        - AWS_BUCKET_NAME=${BUCKET_NAME}
+        - AWS_REGION_NAME=${REGION_NAME}
         - ENV=${ENV}
         - SPRING_PROFILES_ACTIVE=${ADMIN_SPRING_PROFILES_ACTIVE:-}
         - LIQUIBASE_CHANGELOG_FILE=file:/app/liquibase/changeLog.xml
+        - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
         volumes:
         - ./assets/liquibase/mhub:/app/liquibase
         - ./assets/config/mhub/auth.jks:/app/auth.jks
@@ -169,26 +171,29 @@ services:
     webapp:
         restart: always
         container_name: webapp
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:1.28.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:1.37.11-SCFR-2592-webapp-integration-710
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
         - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
         - AUTH_URL=${AUTH_URL:-auth}
+        - CLOUD_REPOSITORY_TYPE=AWS_S3
         - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
         - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-        - BUCKET_NAME=${BUCKET_NAME}
-        - REGION_NAME=${REGION_NAME}
+        - AWS_BUCKET_NAME=${BUCKET_NAME}
+        - AWS_REGION_NAME=${REGION_NAME}
         - ENV=${ENV}
-        - SPRING_PROFILES_ACTIVE=${ADMIN_SPRING_PROFILES_ACTIVE:-}
+        - SPRING_PROFILES_ACTIVE=${WEBAPP_SPRING_PROFILES_ACTIVE:-}
         - LIQUIBASE_CHANGELOG_FILE=file:/app/liquibase/changeLog.xml
+        - DEVICE_TYPE=WEBAPP
+        - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
         volumes:
-        - ./assets/liquibase/mhub:/app/liquibase
+        - ./assets/liquibase/mobile:/app/liquibase
         - ./assets/config/webapp/auth.jks:/app/auth.jks
         - ./assets/config/webapp/application.properties:/app/application.properties
         ports:
-        - '29992:9991'
-        - '${MHUB_SPRING_PORT:-28082}:8081'
+        - '39991:9991'
+        - '${WEBAPP_SPRING_PORT:-38081}:8081'
         logging:
           options:
             max-size: "50m"

@@ -112,7 +112,7 @@ function modifyUser(userDao, isEmailAddressAvailable) {
 }
 
 function onBackToUsersList(originId) {
-  onUsers(originId);
+  finishPage("ModifyUserPage", originId);
 }
 
 function validateModifyUserData(userData, originId) {

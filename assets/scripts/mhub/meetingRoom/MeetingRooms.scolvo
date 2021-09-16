@@ -15,6 +15,8 @@ function displayMeetingRoomsPage(originId) {
 page MeetingRoomsPage {
   layout: vertical;
   template: general;
+  scolvoMenuVisible: true;
+  settingsVisible: true;
 
   list MeetingRoomsList {
     template: normal;

@@ -20,6 +20,8 @@ function displayUsersPage(originId) {
 page UsersPage {
   layout: vertical;
   template: general;
+  scolvoMenuVisible: true;
+  settingsVisible: true;
 
   list UsersList {
     template: normal;

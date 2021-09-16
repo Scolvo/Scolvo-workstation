@@ -16,6 +16,8 @@ function displayTeamsPage(originId) {
 page TeamsPage {
   layout: vertical;
   template: general;
+  scolvoMenuVisible: true;
+  settingsVisible: true;
 
   list TeamsList {
     template: normal;
