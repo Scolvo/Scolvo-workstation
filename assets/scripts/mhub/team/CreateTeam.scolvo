@@ -1,4 +1,4 @@
-var uploadedMapPath;
+var uploadedTeamMapPath;
 var teamName;
 var teamLocation;
 
@@ -46,10 +46,10 @@ function onSaveTeam(originId) {
 
 
   if(teamData.UploadMap != null) {
-    uploadedMapPath = createTeamMapRelativePath(teamData.Name);
+    uploadedTeamMapPath = createTeamMapRelativePath(teamData.Name);
     teamName = teamData.Name;
     teamLocation = teamData.Location;
-    documentPut(originId, uploadedMapPath, teamData.UploadMap.absolutePath, "TeamMapUploadSuccess", "TeamMapUploadFailure");
+    documentPut(originId, uploadedTeamMapPath, teamData.UploadMap.absolutePath, "TeamMapUploadSuccess", "TeamMapUploadFailure");
   }
   else {
     var teamDao = {
@@ -74,7 +74,7 @@ function onTeamMapUploadSuccess(originId) {
     "id": uuid(),
     "name": teamName,
     "location": teamLocation,
-    "mapPicturePath": uploadedMapPath,
+    "mapPicturePath": uploadedTeamMapPath,
     "changeType": "INSERT"
   };
   saveTeamDao(teamDao);
