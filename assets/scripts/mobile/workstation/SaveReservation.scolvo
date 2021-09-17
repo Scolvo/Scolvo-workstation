@@ -67,6 +67,7 @@ function onSaveReservationButtonClicked(originId) {
 
   fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
   fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(reservingUser.teamId)), "DashboardPage");
+  fireEvent(buildRefreshItemEvent("ReservationList", createCalendarViewReservationList(selectedTeamId)), "CalendarViewPage");
   fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservation_successMsg), originId);
 
   finishPage("SaveReservationPopup", originId);
