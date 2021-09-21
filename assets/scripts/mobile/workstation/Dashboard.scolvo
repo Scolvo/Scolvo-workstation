@@ -46,7 +46,8 @@ function createDashboardListData(selectedTeamId) {
     var dayData = {
       "dayText": getDateStringForList(currentDay, i),
       "availableWorkstations": resolveAvailableWorkstationLabel(availableCount),
-      "day": currentDay.getTime()
+      "day": currentDay.getTime(),
+      "availabilityPicture": resolveWorkstationDashboardAvailibilityPicture(totalWorkstationsForTeam, availableCount)
     };
     dashboardListData.add(dayData);
     currentDay = dateAdd(currentDay, 1, "day");
@@ -59,6 +60,18 @@ function resolveAvailableWorkstationLabel(availableWorkstations) {
     return DICTIONARY.noAvailableWorkstations;
   }
   return availableWorkstations + " " + DICTIONARY.numberOfAvailableWorkstations;
+}
+
+function resolveWorkstationDashboardAvailibilityPicture(totalWorkstations, availableWorkstations) {
+  if(availableWorkstations == totalWorkstations) {
+    return "ICON_office-desk_success";
+  }
+  else if(availableWorkstations == 0) {
+    return "ICON_office-desk_alert";
+  }
+  else if(availableWorkstations > 0 && availableWorkstations < totalWorkstations) {
+    return "ICON_office-desk_warning";
+  }
 }
 
 page DashboardPage {
@@ -78,7 +91,8 @@ page DashboardPage {
     itemTemplate: listItemMultiLine;
     columns: [
       mainText => dayText,
-      subText => availableWorkstations
+      subText => availableWorkstations,
+      prefixImage => availabilityPicture
     ]
   }
 }
