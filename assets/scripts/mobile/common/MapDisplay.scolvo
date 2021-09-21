@@ -2,6 +2,7 @@ function displayMapPopup(originId, titleText, mapPath) {
   debug(documentGetUrl(mapPath));
   var data = {
     "MapDisplayPopup": {
+      "headerText": titleText,
       "MapImage": {
         "img": documentGetUrl(mapPath)
       }
@@ -9,7 +10,6 @@ function displayMapPopup(originId, titleText, mapPath) {
   };
 
   var actionEvents = [
-    buildTargetValueChangeEvent("MapLabel", titleText),
     buildSourceClickedEvent("CloseMapDisplayButton", "CloseMapDisplayButtonClicked")
   ];
 
@@ -19,19 +19,6 @@ function displayMapPopup(originId, titleText, mapPath) {
 page MapDisplayPopup {
   layout: vertical;
   template: popup;
-
-  spacer {
-    span: 8;
-  }
-
-  label MapLabel {
-    template: heading5Tertiary;
-    alignment: left;
-  }
-
-  spacer {
-    span: 8;
-  }
 
   image MapImage {
     span: 0;
@@ -44,7 +31,7 @@ page MapDisplayPopup {
 
 function onMapDisplayPopupLoaded(originId) {}
 
-function ononMapDisplayPopupCancel(originId) {}
+function onMapDisplayPopupCancel(originId) {}
 
 function onCloseMapDisplayButtonClicked(originId) {
   finishPage("MapDisplayPopup", originId);
