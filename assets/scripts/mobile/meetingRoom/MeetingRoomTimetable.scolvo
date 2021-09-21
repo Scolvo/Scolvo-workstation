@@ -82,6 +82,11 @@ page MeetingRoomTimetablePage {
 
 function onMeetingRoomTimetablePageLoaded(originId) {}
 
+function onMeetingRoomTimetableSelectHelperAction(originId) {
+  var meetingRoom = getMeetingRoomsData().get(selectedMeetingRoomId);
+  displayMapPopup(originId, meetingRoom.name, meetingRoom.mapPicturePath);
+}
+
 function ononMeetingRoomTimetableListSelectionChanged(originId) {}
 
 function onMeetingRoomTimetableSelectChanged(originId) {
