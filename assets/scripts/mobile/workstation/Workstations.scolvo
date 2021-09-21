@@ -38,7 +38,8 @@ function createWorkstationsData() {
     var workstationData = {
       "id": workstationDao.id,
       "workstationName": workstationDao.name,
-      "availability": resolveWorkstationAvailabilty(workstationDao.id, reservations, reservingUser)
+      "availability": resolveWorkstationAvailabilty(workstationDao.id, reservations, reservingUser),
+      "availabilityPicture": resolveWorkstationAvailabiltyPicture(workstationDao.id, reservations)
     };
     if(reservations.get(workstationDao.id) != null && reservations.get(workstationDao.id).get("userId") == reservingUser.id) {
       workstationData.put("reservationId", reservations.get(workstationDao.id).get("id"));
@@ -49,6 +50,13 @@ function createWorkstationsData() {
     }
     return workstationData;
   });
+}
+
+function resolveWorkstationAvailabiltyPicture(workstationId, reservations) {
+  if(reservations.get(workstationId) != null) {
+    return "ICON_office-desk_alert";
+  }
+  return "ICON_office-desk_success";
 }
 
 page WorkstationsPage {
@@ -66,7 +74,8 @@ page WorkstationsPage {
     itemTemplate: listItemMultiLine;
     columns: [
       mainText => workstationName,
-      subText => availability
+      subText => availability,
+      prefixImage => availabilityPicture
     ]
   }
 }
