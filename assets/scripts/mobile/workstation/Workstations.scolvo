@@ -73,6 +73,11 @@ page WorkstationsPage {
 
 function onWorkstationsPageLoaded(originId) {}
 
+function onWorkstationsTeamSelectHelperAction(originId) {
+  var team = getTeamsData().get(selectedTeamId);
+  displayMapPopup(originId, team.name, team.mapPicturePath);
+}
+
 function onReserveWorkstation(originId) {
   displaySaveReservationPopup(originId, $IN.data.id);
 }
