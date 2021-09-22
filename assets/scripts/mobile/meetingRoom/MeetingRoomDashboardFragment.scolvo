@@ -22,7 +22,8 @@ function createMeetingRoomsDashboardListData() {
     var dayData = {
       "dayText": getDateStringForList(currentDay, i),
       "availableMeetingRooms": resolveAvailableMeetingRoomLabel(availableCount, totalAvailableReservationUnits),
-      "day": currentDay.getTime()
+      "day": currentDay.getTime(),
+      "availabilityPicture": resolveMeetingRoomsAvailabilityPicture(totalAvailableReservationUnits, availableCount)
     };
     meetingRoomsListData.add(dayData);
     currentDay = dateAdd(currentDay, 1, "day");
@@ -41,7 +42,8 @@ fragment MeetingRoomsDashboardFragment {
     itemTemplate: listItemMultiLine;
     columns: [
       mainText => dayText,
-      subText => availableMeetingRooms
+      subText => availableMeetingRooms,
+      prefixImage => availabilityPicture
     ]
   }
 }

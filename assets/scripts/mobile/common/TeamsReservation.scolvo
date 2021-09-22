@@ -87,6 +87,18 @@ function resolveAvailableMeetingRoomLabel(availableCount, totalAvailableReservat
   return DICTIONARY.someAvailableReservations_msg;
 }
 
+function resolveMeetingRoomsAvailabilityPicture(totalMeetingRooms, availableMeetingRooms) {
+  if(availableMeetingRooms == totalMeetingRooms) {
+    return "ICON_sofa_success";
+  }
+  else if(availableMeetingRooms == 0) {
+    return "ICON_sofa_alert";
+  }
+  else if(availableMeetingRooms > 0 && availableMeetingRooms < totalMeetingRooms) {
+    return "ICON_sofa_warning";
+  }
+}
+
 function resolveReservationIntervalText(reservationStart, reservationEnd) {
   return dateToString(reservationStart, "HH:mm") + " - " + dateToString(reservationEnd, "HH:mm");
 }
