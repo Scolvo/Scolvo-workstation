@@ -25,7 +25,8 @@ function createMeetingRoomsDailyData() {
     var meetingRoomData = {
       "id": meetingRoomDao.id,
       "meetingRoomName": meetingRoomDao.name,
-      "availability": resolveAvailableMeetingRoomLabel(availableCount, 22)
+      "availability": resolveAvailableMeetingRoomLabel(availableCount, 22),
+      "availabilityPicture": resolveMeetingRoomsAvailabilityPicture(22, availableCount)
     };
     return meetingRoomData;
   });
@@ -42,7 +43,8 @@ page MeetingRoomsDailyPage {
     itemTemplate: listItemMultiLine;
     columns: [
       mainText => meetingRoomName,
-      subText => availability
+      subText => availability,
+      prefixImage => availabilityPicture
     ]
   }
 }
