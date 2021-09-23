@@ -4,10 +4,9 @@ import {
 }
 
 function displayTeamsPage(originId) {
-  var teamsData = getTeams();
   var data = {
     "TeamsPage": {
-      "TeamsList": teamsData
+      "TeamsList": getTeams()
     }
   };
   display(TeamsPage, data, originId);

@@ -4,19 +4,22 @@ import {
 }
 
 function displayWorkplacesPage(originId) {
-  var workplacesData = getWorkplaces().map(function (workplaceDao) {
+  var data = {
+    "WorkplacesPage": {
+      "WorkplacesList": createWorkplacesListData()
+    }
+  };
+  display(WorkplacesPage, data, originId);
+}
+
+function createWorkplacesListData() {
+  return getWorkplaces().map(function (workplaceDao) {
     return {
       "id": workplaceDao.id,
       "name": workplaceDao.name,
       "team": resolveTeam(workplaceDao.teamId)
     };
   });
-  var data = {
-    "WorkplacesPage": {
-      "WorkplacesList": workplacesData
-    }
-  };
-  display(WorkplacesPage, data, originId);
 }
 
 page WorkplacesPage {

@@ -21,7 +21,6 @@ page CreateMeetingRoomPage {
     template: normal;
     span: 24;
     actions: [
-      BackToMeetingRooms,
       SaveMeetingRoom
     ]
     fields: [
@@ -34,10 +33,6 @@ page CreateMeetingRoomPage {
 }
 
 function onCreateMeetingRoomPageLoaded(originId) {}
-
-function onBackToMeetingRooms(originId) {
-  onMeetingRooms(originId);
-}
 
 function onSaveMeetingRoom(originId) {
   var meetingRoomData = $IN.data;
@@ -69,7 +64,8 @@ function onSaveMeetingRoom(originId) {
 function saveMeetingRoomDao(meetingRoomDao) {
   insertExecution("meetingRoom", meetingRoomDao);
   sendDataChangeRq(originId, "meetingRoom", [meetingRoomDao]);
-  onMeetingRooms(originId);
+  fireEvent(buildRefreshItemEvent("MeetingRoomsList", getMeetingRooms()), "MeetingRoomsPage");
+  finishPage("CreateMeetingRoomPage" ,originId);
 }
 
 function createMeetingRoomMapRelativePath(meetingRoomName) {

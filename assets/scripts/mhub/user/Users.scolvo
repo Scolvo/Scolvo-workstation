@@ -5,16 +5,18 @@ import {
 }
 
 function displayUsersPage(originId) {
-  var usersData = getUsers().map(function (userDao) {
-    return buildUserListRowFromDao(userDao);
-  });
-
   var data = {
     "UsersPage": {
-      "UsersList": usersData
+      "UsersList": createUserListData()
     }
   };
   display(UsersPage, data, originId);
+}
+
+function createUserListData() {
+  return getUsers().map(function (userDao) {
+    return buildUserListRowFromDao(userDao);
+  });
 }
 
 page UsersPage {
@@ -39,8 +41,6 @@ page UsersPage {
     ]
   }
 }
-
-
 
 function getUserRowById(id) {
   var userDaos = select()

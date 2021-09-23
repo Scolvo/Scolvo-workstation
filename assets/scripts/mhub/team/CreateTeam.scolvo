@@ -20,7 +20,6 @@ page CreateTeamPage {
     template: normal;
     span: 24;
     actions: [
-      BackToTeams,
       SaveTeam
     ]
     fields: [
@@ -32,10 +31,6 @@ page CreateTeamPage {
 }
 
 function onCreateTeamPageLoaded(originId) {}
-
-function onBackToTeams(originId) {
-  finishPage("CreateTeamPage" ,originId);
-}
 
 function onSaveTeam(originId) {
   var teamData = $IN.data;
@@ -66,7 +61,8 @@ function onSaveTeam(originId) {
 function saveTeamDao(teamDao) {
   insertExecution("team", teamDao);
   sendDataChangeRq(originId, "team", [teamDao]);
-  onTeams(originId);
+  fireEvent(buildRefreshItemEvent("TeamsList", getTeams()), "TeamsPage");
+  finishPage("CreateTeamPage" ,originId);
 }
 
 function onTeamMapUploadSuccess(originId) {

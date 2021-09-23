@@ -33,7 +33,6 @@ page ModifyUserPage {
     template: normal;
     span: 24;
     actions: [
-      BackToUsersList,
       SaveModifyUser
     ]
     fields: [
@@ -107,12 +106,9 @@ function modifyUser(userDao, isEmailAddressAvailable) {
     }
     sendDataChangeRq(originId, "user", [userDao]);
 
-    onUsers(originId);
+    fireEvent(buildRefreshItemEvent("UsersList", createUserListData()), "UsersPage");
+    finishPage("ModifyUserPage", originId);
   }
-}
-
-function onBackToUsersList(originId) {
-  finishPage("ModifyUserPage", originId);
 }
 
 function validateModifyUserData(userData, originId) {

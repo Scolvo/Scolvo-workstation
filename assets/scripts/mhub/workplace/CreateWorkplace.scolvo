@@ -18,7 +18,6 @@ page CreateWorkplacePage {
     template: normal;
     span: 24;
     actions: [
-      BackToWorkplaces,
       SaveWorkplace
     ]
     fields: [
@@ -30,10 +29,6 @@ page CreateWorkplacePage {
 }
 
 function onCreateWorkplacePageLoaded(originId) {}
-
-function onBackToWorkplaces(originId) {
-  onWorkstations(originId);
-}
 
 function onSaveWorkplace(originId) {
   var workplaceData = $IN.data;
@@ -58,7 +53,8 @@ function onSaveWorkplace(originId) {
 
   insertExecution("workplace", workplaceDao);
   sendDataChangeRq(originId, "workplace", [workplaceDao]);
-  onWorkstations(originId);
+  fireEvent(buildRefreshItemEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
+  finishPage("CreateWorkplacePage" ,originId);
 }
 
 function validateWorkplaceData(workplaceData, originId) {

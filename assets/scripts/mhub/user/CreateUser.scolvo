@@ -32,7 +32,6 @@ page CreateUserPage {
     template: normal;
     span: 24;
     actions: [
-      BackToUsers,
       SaveUser
     ]
     fields: [
@@ -48,10 +47,6 @@ page CreateUserPage {
 }
 
 function onCreateUserPageLoaded(originId) {}
-
-function onBackToUsers(originId) {
-  finishPage("CreateUserPage", originId);
-}
 
 var createdUserPassword;
 
@@ -97,7 +92,8 @@ function saveUser(userDao, isEmailAddressAvailable) {
     userDao.put("password", createdUserPassword);
     sendDataChangeRq(originId, "user", [userDao]);
 
-    onUsers(originId);
+    fireEvent(buildRefreshItemEvent("UsersList", createUserListData()), "UsersPage");
+    finishPage("CreateUserPage", originId);
   }
 }
 
