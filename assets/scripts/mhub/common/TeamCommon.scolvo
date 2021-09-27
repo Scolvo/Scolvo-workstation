@@ -28,3 +28,49 @@ function createYesNoOptions(selected) {
     buildSelectOptions("no", DICTIONARY.text_No, selected == "no")
   ];
 }
+
+function createTeamMapRelativePath(teamId, fileName) {
+  return "team_maps/" + teamId + "/" + fileName;
+}
+
+function validateTeamName(result, data) {
+  if (data.Name == null || data.Name.isEmpty()) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamName);
+  } else if (data.Name.length() > 50) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamNameTooLong);
+  }
+}
+
+function validateTeamLocation(result, data) {
+  if (data.Location == null || data.Location.isEmpty()) {
+    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocation);
+  } else if (data.Location.length() > 50) {
+    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocationTooLong);
+  }
+}
+
+function validateTeamMapFileType(result, data) {
+  if(data.UploadMap.mimeType != "image/png" && data.UploadMap.mimeType != "image/jpg" && data.UploadMap.mimeType != "image/jpeg") {
+    result.addMessage("ERROR", "UploadMap", DICTIONARY.userValidationMsg_TeamMapInvalidType);
+  }
+}
+
+function validateTeamData(teamData, originId) {
+  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+  validateTeamName(validationResult, teamData);
+  validateTeamLocation(validationResult, teamData);
+  if(teamData.UploadMap != null) {
+    validateTeamMapFileType(validationResult, teamData);
+  }
+  return validationResult;
+}
+
+function onTeamMapUploadFailure(originId) {
+  publishNotification({
+    "userId": getCurrentUser().userId,
+    "level": "error",
+    "type": "text",
+    "duration": "long",
+    "message": DICTIONARY.uploadFail_msg
+  }, originId);
+}

@@ -1,0 +1,90 @@
+var modifiedTeam = null;
+var modifiedTeamName;
+var modifiedTeamLocation;
+var uploadedUpdatedTeamMapPath;
+
+function displayModifyTeamPage(originId, selectedTeamId) {
+  modifiedTeam = getTeamById(selectedTeamId);
+  var data = {
+    "ModifyTeamPage": {
+      "ModifyTeamForm": {
+        "name": modifiedTeam.name,
+        "location": modifiedTeam.location
+      }
+    }
+  };
+  display(ModifyTeamPage, data, originId);
+}
+
+page ModifyTeamPage {
+  layout: vertical;
+  template: general;
+
+  form ModifyTeamForm {
+    template: normal;
+    span: 24;
+    actions: [
+      SaveModifiedTeam
+    ]
+    fields: [
+      field Name => name formItemInputNormal,
+      field Location => location formItemInputNormal,
+      field UploadMap => uploadMap formItemUploadSingle
+    ]
+  }
+}
+
+function onModifyTeamPageLoaded(originId) {}
+
+function onSaveModifiedTeam(originId) {
+  var teamData = $IN.data;
+  var teamalidationResult = validateTeamData(teamData, originId);
+  if (teamalidationResult.messages.size() != 0) {
+    publish(teamalidationResult);
+    return null;
+  }
+
+  if(teamData.UploadMap != null) {
+    uploadedUpdatedTeamMapPath = createTeamMapRelativePath(modifiedTeam.id, teamData.UploadMap.fileName);
+    modifiedTeamName = teamData.Name;
+    modifiedTeamLocation = teamData.Location;
+    documentPut(originId, uploadedUpdatedTeamMapPath, teamData.UploadMap.absolutePath, "TeamUpdateMapUploadSuccess", "TeamMapUploadFailure");
+  }
+  else {
+    var teamDao = {
+      "id": modifiedTeam.id,
+      "name": teamData.Name,
+      "location": teamData.Location,
+      "changeType": "UPDATE"
+    };
+
+    updateTeamDao(teamDao);
+  }
+}
+
+function updateTeamDao(teamDao) {
+  updateExecution("team", teamDao.id, teamDao);
+  sendDataChangeRq(originId, "team", [teamDao]);
+  fireEvent(buildRefreshItemEvent("TeamsList", createTeamsListData()), "TeamsPage");
+  finishPage("ModifyTeamPage" ,originId);
+}
+
+function onTeamUpdateMapUploadSuccess(originId) {
+  var teamDao = {
+    "id": modifiedTeam.id,
+    "name": modifiedTeamName,
+    "location": modifiedTeamLocation,
+    "mapPicturePath": uploadedUpdatedTeamMapPath,
+    "changeType": "UPDATE"
+  };
+  updateTeamDao(teamDao);
+
+
+  publishNotification({
+    "userId": getCurrentUser().userId,
+    "level": "default",
+    "type": "text",
+    "duration": "long",
+    "message": DICTIONARY.uploadSuccess_msg
+  }, originId);
+}

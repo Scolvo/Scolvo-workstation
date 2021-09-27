@@ -1,15 +1,27 @@
 import {
   /mhub/team/CreateTeam,
+  /mhub/team/ModifyTeam,
   /mhub/repository/TeamRepository
 }
 
 function displayTeamsPage(originId) {
   var data = {
     "TeamsPage": {
-      "TeamsList": getTeams()
+      "TeamsList": createTeamsListData()
     }
   };
   display(TeamsPage, data, originId);
+}
+
+function createTeamsListData() {
+  return getTeams().map(function (teamDao) {
+    return {
+      "id": teamDao.id,
+      "name": teamDao.name,
+      "location": teamDao.location,
+      "actions": ["ModifyTeam"]
+    };
+  });
 }
 
 page TeamsPage {
@@ -34,6 +46,10 @@ page TeamsPage {
 }
 
 function onTeamsPageLoaded(originId) {}
+
+function onModifyTeam(originId) {
+  displayModifyTeamPage(originId, $IN.recordId);
+}
 
 function onCreateTeam(originId) {
   displayCreateTeamPage(originId);

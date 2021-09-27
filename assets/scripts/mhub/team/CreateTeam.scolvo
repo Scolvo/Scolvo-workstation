@@ -41,7 +41,7 @@ function onSaveTeam(originId) {
   }
   createdTeamId = uuid();
   if(teamData.UploadMap != null) {
-    uploadedTeamMapPath = createTeamMapRelativePath(teamData.Name);
+    uploadedTeamMapPath = createTeamMapRelativePath(createdTeamId, teamData.UploadMap.fileName);
     teamName = teamData.Name;
     teamLocation = teamData.Location;
     documentPut(originId, uploadedTeamMapPath, teamData.UploadMap.absolutePath, "TeamMapUploadSuccess", "TeamMapUploadFailure");
@@ -61,7 +61,7 @@ function onSaveTeam(originId) {
 function saveTeamDao(teamDao) {
   insertExecution("team", teamDao);
   sendDataChangeRq(originId, "team", [teamDao]);
-  fireEvent(buildRefreshItemEvent("TeamsList", getTeams()), "TeamsPage");
+  fireEvent(buildRefreshItemEvent("TeamsList", createTeamsListData()), "TeamsPage");
   finishPage("CreateTeamPage" ,originId);
 }
 
@@ -83,41 +83,4 @@ function onTeamMapUploadSuccess(originId) {
     "duration": "long",
     "message": DICTIONARY.uploadSuccess_msg
   }, originId);
-}
-
-function onTeamMapUploadFailure(originId) {
-  publishNotification({
-    "userId": getCurrentUser().userId,
-    "level": "error",
-    "type": "text",
-    "duration": "long",
-    "message": DICTIONARY.uploadFail_msg
-  }, originId);
-}
-
-function createTeamMapRelativePath(teamName) {
-  return "team_maps/" + teamName + "/" + createdTeamId + ".png";
-}
-
-function validateTeamName(result, data) {
-  if (data.Name == null || data.Name.isEmpty()) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamName);
-  } else if (data.Name.length() > 50) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamNameTooLong);
-  }
-}
-
-function validateTeamLocation(result, data) {
-  if (data.Location == null || data.Location.isEmpty()) {
-    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocation);
-  } else if (data.Location.length() > 50) {
-    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocationTooLong);
-  }
-}
-
-function validateTeamData(teamData, originId) {
-  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
-  validateTeamName(validationResult, teamData);
-  validateTeamLocation(validationResult, teamData);
-  return validationResult;
 }
