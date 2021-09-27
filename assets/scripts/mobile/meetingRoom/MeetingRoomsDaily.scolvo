@@ -24,7 +24,7 @@ function createMeetingRoomsDailyData() {
     }
     var meetingRoomData = {
       "id": meetingRoomDao.id,
-      "meetingRoomName": meetingRoomDao.name,
+      "meetingRoomName": meetingRoomDao.name + " (" + decimalFormat(meetingRoomDao.capacity, "##") + ")",
       "availability": resolveAvailableMeetingRoomLabel(availableCount, 22),
       "availabilityPicture": resolveMeetingRoomsAvailabilityPicture(22, availableCount)
     };
