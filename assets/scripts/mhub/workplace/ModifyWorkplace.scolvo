@@ -1,24 +1,33 @@
-function displayCreateWorkplacePage(originId) {
+var modifiedWorkplaceId;
+
+function displayModifyWorkplacePage(originId, selectedId) {
+  modifiedWorkplaceId = selectedId;
+  var workplace = getWorkplaceById(selectedId);
+  var canBeBookedValue = "yes";
+  if(!workplace.canBeBooked) {
+    canBeBookedValue = "no";
+  }
   var data = {
-    "CreateWorkplacePage": {
-      "CreateWorkplaceForm": {
-        "teamOptions": getTeamOptions(null),
-        "canBeBookedOptions": createYesNoOptions("yes")
+    "ModifyWorkplacePage": {
+      "ModifyWorkplaceForm": {
+        "name": workplace.name,
+        "teamOptions": getTeamOptions(workplace.teamId),
+        "canBeBookedOptions": createYesNoOptions(canBeBookedValue)
       }
     }
   };
-  display(CreateWorkplacePage, data, originId);
+  display(ModifyWorkplacePage, data, originId);
 }
 
-page CreateWorkplacePage {
+page ModifyWorkplacePage {
   layout: vertical;
   template: general;
 
-  form CreateWorkplaceForm {
+  form ModifyWorkplaceForm {
     template: normal;
     span: 24;
     actions: [
-      SaveWorkplace
+      SaveModifiedWorkplace
     ]
     fields: [
       field Name => name formItemInputNormal,
@@ -28,9 +37,9 @@ page CreateWorkplacePage {
   }
 }
 
-function onCreateWorkplacePageLoaded(originId) {}
+function onModifyWorkplacePageLoaded(originId) {}
 
-function onSaveWorkplace(originId) {
+function onSaveModifiedWorkplace(originId) {
   var workplaceData = $IN.data;
   var userValidationResult = validateWorkplaceData(workplaceData, originId);
   if (userValidationResult.messages.size() != 0) {
@@ -44,15 +53,15 @@ function onSaveWorkplace(originId) {
   }
 
   var workplaceDao = {
-    "id": uuid(),
+    "id": modifiedWorkplaceId,
     "name": workplaceData.Name,
     "teamId": workplaceData.Team,
     "canBeBooked": bookingEnabled,
-    "changeType": "INSERT"
+    "changeType": "UPDATE"
   };
 
-  insertExecution("workplace", workplaceDao);
+  updateExecution("workplace", workplaceDao.id, workplaceDao);
   sendDataChangeRq(originId, "workplace", [workplaceDao]);
   fireEvent(buildRefreshItemEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
-  finishPage("CreateWorkplacePage" ,originId);
+  finishPage("ModifyWorkplacePage" ,originId);
 }

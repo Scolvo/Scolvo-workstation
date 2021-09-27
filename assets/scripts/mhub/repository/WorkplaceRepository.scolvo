@@ -1,3 +1,16 @@
 function getWorkplaces() {
   return select().from("workplace").execute();
 }
+
+function getWorkplaceById(workplaceId) {
+  var workplaces = select()
+  .from("workplace")
+  .where(eq("id", workplaceId))
+  .execute();
+
+  if(workplaces.isEmpty()) {
+    return null;
+  }
+
+  return workplaces.get(0);
+}

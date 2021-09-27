@@ -1,0 +1,23 @@
+function validateWorkplaceData(workplaceData, originId) {
+  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+  validateWorkplaceName(validationResult, workplaceData);
+  validateTeam(validationResult, workplaceData);
+  validateCanBeBooked(validationResult, workplaceData);
+  return validationResult;
+}
+
+function validateWorkplaceName(result, data) {
+  if (data.Name == null || data.Name.isEmpty()) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_WorkstationName);
+  } else if (data.Name.length() > 50) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_WorkstationNameTooLong);
+  }
+}
+
+function validateCanBeBooked(result, data) {
+  if (data.CanBeBooked == null || data.CanBeBooked.isEmpty()) {
+    result.addMessage("ERROR", "CanBeBooked", DICTIONARY.userValidationMsg_CanBeBooked);
+  } else if (data.CanBeBooked != "yes" && data.CanBeBooked != "no") {
+    result.addMessage("ERROR", "CanBeBooked", DICTIONARY.userValidationMsg_CanBeBooked_Invalid);
+  }
+}

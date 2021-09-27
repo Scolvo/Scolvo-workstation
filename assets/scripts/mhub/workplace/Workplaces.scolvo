@@ -1,6 +1,8 @@
 import {
   /mhub/workplace/CreateWorkplace,
-  /mhub/repository/WorkplaceRepository
+  /mhub/workplace/ModifyWorkplace,
+  /mhub/repository/WorkplaceRepository,
+  /mhub/common/WorkplaceCommon
 }
 
 function displayWorkplacesPage(originId) {
@@ -17,7 +19,9 @@ function createWorkplacesListData() {
     return {
       "id": workplaceDao.id,
       "name": workplaceDao.name,
-      "team": resolveTeam(workplaceDao.teamId)
+      "team": resolveTeam(workplaceDao.teamId),
+      "canBeBooked": workplaceDao.canBeBooked,
+      "actions": ["ModifyWorkplace"]
     };
   });
 }
@@ -38,12 +42,17 @@ page WorkplacesPage {
     ]
     columns: [
       name,
-      team
+      team,
+      canBeBooked
     ]
   }
 }
 
 function onWorkplacesPageLoaded(originId) {}
+
+function onModifyWorkplace(originId) {
+  displayModifyWorkplacePage(originId, $IN.recordId);
+}
 
 function onCreateWorkplace(originId) {
   displayCreateWorkplacePage(originId);
