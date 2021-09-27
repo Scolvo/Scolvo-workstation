@@ -1,12 +1,13 @@
 import {
   /mhub/meetingRoom/CreateMeetingRoom,
+  /mhub/meetingRoom/ModifyMeetingRoom,
   /mhub/repository/MeetingRoomRepository
 }
 
 function displayMeetingRoomsPage(originId) {
   var data = {
     "MeetingRoomsPage": {
-      "MeetingRoomsList": getMeetingRooms()
+      "MeetingRoomsList": createMeetingRoomsListData()
     }
   };
   display(MeetingRoomsPage, data, originId);
@@ -34,8 +35,24 @@ page MeetingRoomsPage {
   }
 }
 
+function createMeetingRoomsListData() {
+  return getMeetingRooms().map(function (meetingRoomDao) {
+    return {
+      "id": meetingRoomDao.id,
+      "name": meetingRoomDao.name,
+      "location": meetingRoomDao.location,
+      "capacity": meetingRoomDao.capacity,
+      "actions": ["ModifyMeetingRoom"]
+    };
+  });
+}
+
 function onMeetingRoomsPageLoaded(originId) {}
 
 function onCreateMeetingRoom(originId) {
   displayCreateMeetingRoomPage(originId);
+}
+
+function onModifyMeetingRoom(originId) {
+  displayModifyMeetingRoomPage(originId, $IN.recordId);
 }

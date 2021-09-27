@@ -1,0 +1,58 @@
+function onMeetingRoomMapUploadFailure(originId) {
+  publishNotification({
+    "userId": getCurrentUser().userId,
+    "level": "error",
+    "type": "text",
+    "duration": "long",
+    "message": DICTIONARY.uploadFail_msg
+  }, originId);
+}
+
+function validateMeetinRoomName(result, data) {
+  if (data.Name == null || data.Name.isEmpty()) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_MeetingRoomName);
+  } else if (data.Name.length() > 50) {
+    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_MeetingRoomNameTooLong);
+  }
+}
+
+function validateMeetinRoomLocation(result, data) {
+  if (data.Location == null || data.Location.isEmpty()) {
+    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_MeetingRoomLocation);
+  } else if (data.Location.length() > 50) {
+    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_MeetingRoomLocationTooLong);
+  }
+}
+
+function validateMeetingRoomCapacity(result, data) {
+  if (data.Capacity == null || data.Capacity.isEmpty()) {
+    result.addMessage("ERROR", "Capacity", DICTIONARY.userValidationMsg_MeetingRoomCapacity);
+  }
+  else if(!isNumber(data.getOrDefault("Capacity", ""))) {
+    result.addMessage("ERROR", "Capacity", DICTIONARY.userValidationMsg_MeetingRoomCapacityNonNumber);
+  }
+  else if(isNumber(data.getOrDefault("Capacity", "")) && parseNumber(data.Capacity) > 999) {
+    result.addMessage("ERROR", "Capacity", DICTIONARY.userValidationMsg_MeetingRoomCapacityTooBig);
+  }
+}
+
+function validateMeetingRoomMapFileType(result, data) {
+  if(data.UploadMap.mimeType != "image/png" && data.UploadMap.mimeType != "image/jpg" && data.UploadMap.mimeType != "image/jpeg") {
+    result.addMessage("ERROR", "UploadMap", DICTIONARY.userValidationMsg_InvalidMeetingRoomMapType);
+  }
+}
+
+function validateMeetingRoomData(meetingRoomData, originId) {
+  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
+  validateMeetinRoomName(validationResult, meetingRoomData);
+  validateMeetinRoomLocation(validationResult, meetingRoomData);
+  validateMeetingRoomCapacity(validationResult, meetingRoomData);
+  if(meetingRoomData.UploadMap != null) {
+    validateMeetingRoomMapFileType(validationResult, meetingRoomData);
+  }
+  return validationResult;
+}
+
+function createMeetingRoomMapRelativePath(meetingRoomId, fileName) {
+  return "meeting_room_maps/" + meetingRoomId + "/" + fileName;
+}

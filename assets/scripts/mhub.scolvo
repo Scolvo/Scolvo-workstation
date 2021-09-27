@@ -5,7 +5,8 @@ import {
   /mhub/workplace/Workplaces,
   /mhub/meetingRoom/MeetingRooms,
   /mhub/DataChange,
-  /mhub/common/TeamCommon
+  /mhub/common/TeamCommon,
+  /mhub/common/MeetingRoomCommon
 }
 
 //========================== UsersPage

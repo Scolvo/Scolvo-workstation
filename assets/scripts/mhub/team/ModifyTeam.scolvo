@@ -1,10 +1,11 @@
-var modifiedTeam = null;
+var modifiedTeamId = null;
 var modifiedTeamName;
 var modifiedTeamLocation;
 var uploadedUpdatedTeamMapPath;
 
 function displayModifyTeamPage(originId, selectedTeamId) {
-  modifiedTeam = getTeamById(selectedTeamId);
+  modifiedTeamId = selectedTeamId;
+  var modifiedTeam = getTeamById(selectedTeamId);
   var data = {
     "ModifyTeamPage": {
       "ModifyTeamForm": {
@@ -45,14 +46,14 @@ function onSaveModifiedTeam(originId) {
   }
 
   if(teamData.UploadMap != null) {
-    uploadedUpdatedTeamMapPath = createTeamMapRelativePath(modifiedTeam.id, teamData.UploadMap.fileName);
+    uploadedUpdatedTeamMapPath = createTeamMapRelativePath(modifiedTeamId, teamData.UploadMap.fileName);
     modifiedTeamName = teamData.Name;
     modifiedTeamLocation = teamData.Location;
     documentPut(originId, uploadedUpdatedTeamMapPath, teamData.UploadMap.absolutePath, "TeamUpdateMapUploadSuccess", "TeamMapUploadFailure");
   }
   else {
     var teamDao = {
-      "id": modifiedTeam.id,
+      "id": modifiedTeamId,
       "name": teamData.Name,
       "location": teamData.Location,
       "changeType": "UPDATE"
@@ -71,7 +72,7 @@ function updateTeamDao(teamDao) {
 
 function onTeamUpdateMapUploadSuccess(originId) {
   var teamDao = {
-    "id": modifiedTeam.id,
+    "id": modifiedTeamId,
     "name": modifiedTeamName,
     "location": modifiedTeamLocation,
     "mapPicturePath": uploadedUpdatedTeamMapPath,

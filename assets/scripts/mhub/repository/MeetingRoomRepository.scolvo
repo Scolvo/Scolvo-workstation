@@ -1,3 +1,16 @@
 function getMeetingRooms() {
   return select().from("meetingRoom").execute();
 }
+
+function getMeetingRoomById(meetingRoomId) {
+  var meetingRooms = select()
+  .from("meetingRoom")
+  .where(eq("id", meetingRoomId))
+  .execute();
+
+  if(meetingRooms.isEmpty()) {
+    return null;
+  }
+
+  return meetingRooms.get(0);
+}
