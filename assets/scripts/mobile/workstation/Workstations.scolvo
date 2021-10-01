@@ -54,9 +54,9 @@ function createWorkstationsData() {
 
 function resolveWorkstationAvailabiltyPicture(workstationId, reservations) {
   if(reservations.get(workstationId) != null) {
-    return "ICON_office-desk_alert";
+    return "icon_office_desk_alert";
   }
-  return "ICON_office-desk_success";
+  return "icon_office_desk_success";
 }
 
 page WorkstationsPage {

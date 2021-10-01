@@ -64,13 +64,13 @@ function resolveAvailableWorkstationLabel(availableWorkstations) {
 
 function resolveWorkstationDashboardAvailibilityPicture(totalWorkstations, availableWorkstations) {
   if(availableWorkstations == totalWorkstations) {
-    return "ICON_office-desk_success";
+    return "icon_office_desk_success";
   }
   else if(availableWorkstations == 0) {
-    return "ICON_office-desk_alert";
+    return "icon_office_desk_alert";
   }
   else if(availableWorkstations > 0 && availableWorkstations < totalWorkstations) {
-    return "ICON_office-desk_warning";
+    return "icon_office_desk_warning";
   }
 }
 

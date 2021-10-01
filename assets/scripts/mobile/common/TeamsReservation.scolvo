@@ -89,13 +89,13 @@ function resolveAvailableMeetingRoomLabel(availableCount, totalAvailableReservat
 
 function resolveMeetingRoomsAvailabilityPicture(totalMeetingRooms, availableMeetingRooms) {
   if(availableMeetingRooms == totalMeetingRooms) {
-    return "ICON_sofa_success";
+    return "icon_sofa_success";
   }
   else if(availableMeetingRooms == 0) {
-    return "ICON_sofa_alert";
+    return "icon_sofa_alert";
   }
   else if(availableMeetingRooms > 0 && availableMeetingRooms < totalMeetingRooms) {
-    return "ICON_sofa_warning";
+    return "icon_sofa_warning";
   }
 }
 
