@@ -1,6 +1,6 @@
 import {
   /common/TypeDefinitionExtension,
-  /backed/LifecycleManagement,
+  /backend/LifecycleManagement,
   /backend/Jobs,
   /backend/DataSync,
   /backend/Requests,
