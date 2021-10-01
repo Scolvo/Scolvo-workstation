@@ -1,53 +1,8 @@
 import {
   /common/TypeDefinitionExtension,
+  /backed/LifecycleManagement,
   /backend/Jobs,
   /backend/DataSync,
   /backend/Requests,
   /backend/Broadcast
 }
-
-function onuser_insert(originId) {
-  var userDao = $IN.data.map;
-  var userConfig = {
-     "id": userDao.id,
-     "enabled": true,
-     "name": userDao.name,
-     "email": userDao.email,
-     "password": userDao.password,
-     "username": userDao.username,
-     "realmRoles": ["authenticated", userDao.role]
-  };
-  createKeycloakUser(userConfig);
-}
-
-function onuser_update(originId) {
-  var userDao = $IN.data.map;
-  var userConfig = {
-    "id": userDao.id
-  };
-  if (userDao.containsKey("name")) {
-    userConfig.put("name", userDao.name);
-  }
-  if (userDao.containsKey("email")) {
-    userConfig.put("email", userDao.email);
-  }
-  if (userDao.containsKey("username")) {
-    userConfig.put("username", userDao.username);
-  }
-  if (userDao.containsKey("role")) {
-    userConfig.put("realmroles", ["authenticated", userDao.role]);
-  }
-  if (userDao.containsKey("password")) {
-    userConfig.put("password", userDao.password);
-  }
-  if (userDao.containsKey("status")) {
-    userConfig.put("enabled", userDao.get("status") == "active");
-  }
-  updateKeycloakUser(userConfig);
-}
-
-function onteam_insert(originId) {}
-
-function onteam_update(originId) {}
-
-function onreservation_insert(originId) {}
