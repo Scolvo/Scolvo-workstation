@@ -32,7 +32,7 @@ page TeamsPage {
 
   list TeamsList {
     template: normal;
-    itemTemplate: defaultItem;
+    itemTemplate: grid;
     span: 24;
     filterVisible: true;
     actions: [

@@ -20,7 +20,7 @@ function onDataSync(userId, deviceType) {
   if (user.role == "worker" && deviceType == "MHUB") {
     return [];
   }
-  if (user.role == "worker" && deviceType == "MOBILE") {
+  if (user.role == "worker" && deviceType != "MHUB") {
     return dataSyncByWorker();
   }
   else {
