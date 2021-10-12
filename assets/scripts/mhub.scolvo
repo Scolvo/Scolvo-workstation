@@ -48,6 +48,7 @@ menu defaultChild Users {
     roles: ["administrator", "worker"]
   },
   defaultPages: {
+    "superAdministrator": "Users",
     "administrator": "Users",
     "worker": "PasswordChange",
   }
