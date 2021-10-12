@@ -58,13 +58,13 @@ function onTeamUpdating(originId) {}
 
 function onTeamUpdated(originId) {}
 
-function onWorkstationInserting(originId) {}
+function onWorkplaceInserting(originId) {}
 
-function onWorkstationInserted(originId) {}
+function onWorkplaceInserted(originId) {}
 
-function onWorkstationUpdating(originId) {}
+function onWorkplaceUpdating(originId) {}
 
-function onWorkstationUpdated(originId) {}
+function onWorkplaceUpdated(originId) {}
 
 function onMeetingRoomInserting(originId) {}
 
