@@ -34,7 +34,7 @@ page WorkplacesPage {
 
   list WorkplacesList {
     template: normal;
-    itemTemplate: defaultItem;
+    itemTemplate: grid;
     span: 24;
     filterVisible: true;
     actions: [

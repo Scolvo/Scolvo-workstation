@@ -27,7 +27,7 @@ page UsersPage {
 
   list UsersList {
     template: normal;
-    itemTemplate: defaultItem;
+    itemTemplate: grid;
     span: 24;
     filterVisible: true;
     actions: [
