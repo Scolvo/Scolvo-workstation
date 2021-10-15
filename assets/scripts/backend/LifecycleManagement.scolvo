@@ -81,3 +81,7 @@ function onReservationInserted(originId) {}
 function onReservationUpdating(originId) {}
 
 function onReservationUpdated(originId) {}
+
+function onReservationDeleting(originId) {}
+
+function onReservationDeleted(originId) {}
