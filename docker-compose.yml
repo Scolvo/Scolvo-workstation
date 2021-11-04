@@ -144,7 +144,7 @@ services:
     admin:
         restart: always
         container_name: admin
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:3.3.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:3.5.1_hotfix_3_5_1-748
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
@@ -173,7 +173,7 @@ services:
     webapp:
         restart: always
         container_name: webapp
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:3.3.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:3.5.1_hotfix_3_5_1-748
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
