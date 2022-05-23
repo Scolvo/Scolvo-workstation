@@ -33,3 +33,7 @@ function onMeetingRoomsListView(originId) {
   displayMeetingRoomsDashboardFragment(originId);
   fireEvent(buildTargetPageActionsChange(["MeetingRoomsCalendarView"]), originId);
 }
+
+function buildTargetPageActionsChange(pageActions) {
+  return createTargetEvent("PageActions", "onValueChange", pageActions);
+}

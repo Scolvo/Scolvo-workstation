@@ -59,9 +59,9 @@ function onSaveTeam(originId) {
 }
 
 function saveTeamDao(teamDao) {
-  insertExecution("team", teamDao);
-  sendDataChangeRq(originId, "team", [teamDao]);
-  fireEvent(buildRefreshItemEvent("TeamsList", createTeamsListData()), "TeamsPage");
+  insertTypeDefinition("team", teamDao);
+  sendDataChange("team", [teamDao]);
+  fireEvent(createRefreshItemTargetEvent("TeamsList", createTeamsListData()), "TeamsPage");
   finishPage("CreateTeamPage" ,originId);
 }
 

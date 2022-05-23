@@ -4,9 +4,9 @@ function displaySaveReservationPopup(originId, workstationId) {
   var workstation = getWorkstationById(workstationId);
   workstationReserveId = workstationId;
   var actionEvents = [
-    buildTargetValueChangeEvent("DateLabel", dateToString(selectedDay, "yyyy MMMM dd.")),
-    buildSourceClickedEvent("DontSaveReservationButton", "DontSaveReservationButtonClicked"),
-    buildSourceClickedEvent("SaveReservationButton", "SaveReservationButtonClicked"),
+    createValueChangeTargetEvent("DateLabel", dateToString(selectedDay, "yyyy MMMM dd.")),
+    createClickSourceEvent("DontSaveReservationButton", "DontSaveReservationButtonClicked"),
+    createClickSourceEvent("SaveReservationButton", "SaveReservationButtonClicked"),
   ];
   var data = {
     "SaveReservationPopup": {
@@ -62,13 +62,13 @@ function onSaveReservationButtonClicked(originId) {
     "changeType": "INSERT"
   };
 
-  insertExecution("reservation", reservationDao);
-  sendDataChangeRq(originId, "reservation", [reservationDao]);
+  insertTypeDefinition("reservation", reservationDao);
+  sendDataChange("reservation", [reservationDao]);
 
-  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
-  fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(reservingUser.teamId)), "DashboardPage");
-  fireEvent(buildRefreshItemEvent("ReservationList", createCalendarViewReservationList(selectedTeamId)), "CalendarViewPage");
-  fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservation_successMsg), originId);
+  fireEvent(createRefreshItemTargetEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
+  fireEvent(createRefreshItemTargetEvent("DashboardList", createDashboardListData(reservingUser.teamId)), "DashboardPage");
+  fireEvent(createRefreshItemTargetEvent("ReservationList", createCalendarViewReservationList(selectedTeamId)), "CalendarViewPage");
+  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.reservation_successMsg), originId);
 
   finishPage("SaveReservationPopup", originId);
 }

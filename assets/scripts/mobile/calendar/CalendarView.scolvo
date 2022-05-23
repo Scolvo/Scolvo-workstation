@@ -15,7 +15,7 @@ function onCalendarView(originId) {
     }
   };
   var actionEvents = [
-    buildSourceSelectionChanged("CalendarViewTeamSelect", "CalendarViewTeamSelectChanged")
+    createSelectionChangeSourceEvent("CalendarViewTeamSelect", "CalendarViewTeamSelectChanged")
   ];
 
   display(CalendarViewPage, data, originId, actionEvents);
@@ -63,7 +63,7 @@ page CalendarViewPage {
 function onCalendarViewPageLoaded(originId) {}
 
 function onCalendarViewTeamSelectChanged(originId) {
-  fireEvent(buildRefreshItemEvent("ReservationList", createCalendarViewReservationList($IN.data.value)), "CalendarViewPage");
+  fireEvent(createRefreshItemTargetEvent("ReservationList", createCalendarViewReservationList($IN.data.value)), "CalendarViewPage");
 }
 
 function onReservationListSelectionChanged(originId) {

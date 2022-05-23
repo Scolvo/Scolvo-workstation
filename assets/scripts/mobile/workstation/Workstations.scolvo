@@ -27,7 +27,7 @@ function displayWorkstationsPage(originId, day) {
     }
   };
   var actionEvents = [
-    buildSourceSelectionChanged("WorkstationsTeamSelect", "WorkstationsTeamSelectChanged")
+    createSelectionChangeSourceEvent("WorkstationsTeamSelect", "WorkstationsTeamSelectChanged")
   ];
   display(WorkstationsPage, data, originId, actionEvents);
 }
@@ -117,8 +117,8 @@ function onWorkstationsTeamSelectChanged(originId) {
   else {
     selectComponentData.put("helper_icon", "");
   }
-  fireEvent(buildTargetValueChangeEvent("WorkstationsTeamSelect", selectComponentData), originId);
-  fireEvent(buildRefreshItemEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
+  fireEvent(createValueChangeTargetEvent("WorkstationsTeamSelect", selectComponentData), originId);
+  fireEvent(createRefreshItemTargetEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
 }
 
 function onWorkstationsListSelectionChanged(originId) {}

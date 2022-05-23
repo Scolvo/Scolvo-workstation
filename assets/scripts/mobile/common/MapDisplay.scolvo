@@ -10,7 +10,7 @@ function displayMapPopup(originId, titleText, mapPath) {
   };
 
   var actionEvents = [
-    buildSourceClickedEvent("CloseMapDisplayButton", "CloseMapDisplayButtonClicked")
+    createClickSourceEvent("CloseMapDisplayButton", "CloseMapDisplayButtonClicked")
   ];
 
   display(MapDisplayPopup, data, originId, actionEvents);
@@ -30,8 +30,6 @@ page MapDisplayPopup {
 }
 
 function onMapDisplayPopupLoaded(originId) {}
-
-function onMapDisplayPopupCancel(originId) {}
 
 function onCloseMapDisplayButtonClicked(originId) {
   finishPage("MapDisplayPopup", originId);

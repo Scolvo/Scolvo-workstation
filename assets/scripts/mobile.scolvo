@@ -1,6 +1,5 @@
 import {
   /mobile/SessionUser,
-  /mobile/Builders,
   /mobile/common/TeamsReservation,
   /mobile/workstation/Dashboard,
   /mobile/calendar/CalendarView,
@@ -9,7 +8,7 @@ import {
   /mobile/DataChange
 }
 
-menu defaultChild Dashboard {
+menu defaultItem Dashboard {
   item Dashboard {
     roles: ["worker"]
   },

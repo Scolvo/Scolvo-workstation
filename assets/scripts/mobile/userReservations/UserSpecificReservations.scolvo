@@ -14,7 +14,7 @@ function onMyReservations(originId) {
     }
   };
   var actionEvents = [
-    buildSourceValueChangedEvent("UserVisibleCheckBox", "UserVisibleCheckBoxValueChanged")
+    createValueChangeSourceEvent("UserVisibleCheckBox", "UserVisibleCheckBoxValueChanged")
   ];
   display(UserSpecificReservationsPage, data, originId, actionEvents);
 }
@@ -81,8 +81,8 @@ function onUserVisibleCheckBoxValueChanged(originId) {
   var userDao = getLoggedInUser();
   userDao.put("visible", visible);
   userDao.put("changeType", "UPDATE");
-  updateExecution("user", userDao.id, userDao);
-  sendDataChangeRq(originId, "user", [userDao]);
+  updateTypeDefinition("user", userDao.id, userDao);
+  sendDataChange("user", [userDao]);
   setLoggedInUserVisible(visible);
 }
 

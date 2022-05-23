@@ -1,6 +1,5 @@
 import {
-  mhub / SessionUser,
-  common / TypeDefinitionExtension
+  /mhub/SessionUser
 }
 
 var requestIds = [];
@@ -9,14 +8,6 @@ function getRequestId() {
   var generatedRequestId = uuid();
   requestIds.add(generatedRequestId);
   return generatedRequestId;
-}
-
-function sendDataChangeRq(originId_, typeDefinition_, changeset_) {
-  var dataChangeMsg = com.scolvo.core.vm.action.rq.DataChangeRq(uuid());
-  dataChangeMsg.setTypeDefinition(typeDefinition_);
-  dataChangeMsg.setTypeDefinitionVersion(nowInMillis());
-  dataChangeMsg.setChangeset(changeset_);
-  publish(dataChangeMsg);
 }
 
 var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
@@ -57,11 +48,11 @@ function onDataChangeDg(originId) {
   changeset.each(function(changeDao) {
     var changeType = changeDao.changeType;
     if (changeType == "INSERT") {
-      insertOrReplaceExecution(typeDefinition, changeDao);
+      insertOrReplaceTypeDefinition(typeDefinition, changeDao);
     } else if (changeType == "UPDATE") {
-      updateExecution(typeDefinition, changeDao.id, changeDao);
+      updateTypeDefinition(typeDefinition, changeDao.id, changeDao);
     } else if (changeType == "DELETE") {
-      deleteExecution(typeDefinition, changeDao.id);
+      deleteTypeDefinition(typeDefinition, changeDao.id);
     }
   });
 }

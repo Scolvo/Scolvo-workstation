@@ -1,7 +1,7 @@
 import {
-  /mhub/user / CreateUser,
-  /mhub/user / ModifyUser,
-  /mhub/repository / UserRepository
+  /mhub/user/CreateUser,
+  /mhub/user/ModifyUser,
+  /mhub/repository/UserRepository
 }
 
 function displayUsersPage(originId) {
@@ -80,9 +80,9 @@ function changeUserStatus(newUserStatus, recordId, originId) {
   var userDao = getUserRowById(recordId);
   userDao.put("status", newUserStatus);
   userDao.put("changeType", "UPDATE");
-  updateExecution("user", userDao.id, userDao);
-  sendDataChangeRq(originId, "user", [userDao.deepClone()]);
-  fireEvent(buildRefreshItemEvent("UsersList", [buildUserListRowFromDao(userDao)]), originId);
+  updateTypeDefinition("user", userDao.id, userDao);
+  sendDataChange("user", [userDao.deepClone()]);
+  fireEvent(createRefreshItemTargetEvent("UsersList", [buildUserListRowFromDao(userDao)]), originId);
 }
 
 function buildUserListRowFromDao(userDao) {

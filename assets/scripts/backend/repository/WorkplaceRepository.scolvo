@@ -1,4 +1,4 @@
-function getWorkplaces() { 
+function getWorkplaces() {
   return select()
   .selectAs("id")
   .selectAs("teamId")

@@ -51,8 +51,8 @@ function onSaveWorkplace(originId) {
     "changeType": "INSERT"
   };
 
-  insertExecution("workplace", workplaceDao);
-  sendDataChangeRq(originId, "workplace", [workplaceDao]);
-  fireEvent(buildRefreshItemEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
+  insertTypeDefinition("workplace", workplaceDao);
+  sendDataChange("workplace", [workplaceDao]);
+  fireEvent(createRefreshItemTargetEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
   finishPage("CreateWorkplacePage" ,originId);
 }

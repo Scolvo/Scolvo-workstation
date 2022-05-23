@@ -1,8 +1,6 @@
 import {
   /mhub/DataChange,
-  /mhub/Builders,
   /mhub/user/CreateModifyUserCommon,
-  /common/TypeDefinitionExtension,
   /mhub/repository/UserRepository
 }
 
@@ -90,7 +88,7 @@ function onSaveModifyUser(originId) {
       "operation": "modify"
     };
 
-    sendDataChangeRq(originId, "request", [requestData]);
+    sendDataChange(originId, "request", [requestData]);
   }
 }
 
@@ -100,13 +98,13 @@ function modifyUser(userDao, isEmailAddressAvailable) {
     validationResult.addMessage("ERROR", "Email", DICTIONARY.validationMsg_mailAlreadyExists);
     publish(validationResult);
   } else {
-    updateExecution("user", userDao.id, userDao);
+    updateTypeDefinition("user", userDao.id, userDao);
     if(modifiedUserPassword != null) {
       userDao.put("password", modifiedUserPassword);
     }
-    sendDataChangeRq(originId, "user", [userDao]);
+    sendDataChange(originId, "user", [userDao]);
 
-    fireEvent(buildRefreshItemEvent("UsersList", createUserListData()), "UsersPage");
+    fireEvent(createRefreshItemTargetEvent("UsersList", createUserListData()), "UsersPage");
     finishPage("ModifyUserPage", originId);
   }
 }

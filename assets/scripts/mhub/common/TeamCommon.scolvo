@@ -12,7 +12,7 @@ function resolveTeam(teamId) {
 
 function getTeamOptions(selectedId) {
   return getTeams().map(function(teamDao) {
-    return buildSelectOptions(teamDao.id, teamDao.name, teamDao.id == selectedId);
+    return createSelectOption(teamDao.id, teamDao.name, teamDao.id == selectedId);
   });
 }
 
@@ -24,8 +24,8 @@ function validateTeam(result, data) {
 
 function createYesNoOptions(selected) {
   return [
-    buildSelectOptions("yes", DICTIONARY.text_Yes, selected == "yes"),
-    buildSelectOptions("no", DICTIONARY.text_No, selected == "no")
+    createSelectOption("yes", DICTIONARY.text_Yes, selected == "yes"),
+    createSelectOption("no", DICTIONARY.text_No, selected == "no")
   ];
 }
 

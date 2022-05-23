@@ -25,7 +25,7 @@ function onDashboard(originId) {
     }
   };
   var actionEvents = [
-    buildSourceSelectionChanged("DashboardTeamSelect", "DashboardTeamSelectChanged")
+    createSelectionChangeSourceEvent("DashboardTeamSelect", "DashboardTeamSelectChanged")
   ];
   display(DashboardPage, data, originId, actionEvents);
 }
@@ -116,8 +116,8 @@ function onDashboardTeamSelectChanged(originId) {
   else {
     selectComponentData.put("helper_icon", "");
   }
-  fireEvent(buildTargetValueChangeEvent("DashboardTeamSelect", selectComponentData), originId);
-  fireEvent(buildRefreshItemEvent("DashboardList", createDashboardListData(selectedDashboardTeamId)), "DashboardPage");
+  fireEvent(createValueChangeTargetEvent("DashboardTeamSelect", selectComponentData), originId);
+  fireEvent(createRefreshItemTargetEvent("DashboardList", createDashboardListData(selectedDashboardTeamId)), "DashboardPage");
 }
 
 function onDashboardListSelectionChanged(originId) {

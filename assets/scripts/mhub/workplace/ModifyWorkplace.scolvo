@@ -60,8 +60,8 @@ function onSaveModifiedWorkplace(originId) {
     "changeType": "UPDATE"
   };
 
-  updateExecution("workplace", workplaceDao.id, workplaceDao);
-  sendDataChangeRq(originId, "workplace", [workplaceDao]);
-  fireEvent(buildRefreshItemEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
+  updateTypeDefinition("workplace", workplaceDao.id, workplaceDao);
+  sendDataChange("workplace", [workplaceDao]);
+  fireEvent(createRefreshItemTargetEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
   finishPage("ModifyWorkplacePage" ,originId);
 }

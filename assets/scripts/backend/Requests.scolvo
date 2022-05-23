@@ -1,6 +1,6 @@
 import {
-  /backend/userHandling / ChangePassword,
-  /backend/repository / UserRepository
+  /backend/userHandling/ChangePassword,
+  /backend/repository/UserRepository
 }
 
 function onChangePasswordRequest(originId) {
