@@ -3,5 +3,7 @@
 /bin/
 .classpath
 .env
+.history/
+.vscode/
 
 import/

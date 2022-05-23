@@ -19,6 +19,7 @@ printHelp() {
 
 COMPOSE_FILES='-f docker-compose.yml'
 SERVICES_TO_START='auth authdb mq proxy be bedb webapp'
+SERVICES_TO_LOG='be admin webapp'
 
 ADMIN=1
 while true
@@ -85,7 +86,10 @@ case "${ACTION}" in
 	sleep 1
 	docker-compose ${COMPOSE_FILES} build ${SERVICES_TO_START}
 	;;
-    logs)
-	docker-compose ${COMPOSE_FILES} logs -f --tail=100
-	;;
+	logs)
+		docker-compose logs -f --tail=100 ${SERVICES_TO_LOG}
+		;;
+	fullLogs)
+		docker-compose ${COMPOSE_FILES} logs -f --tail=100
+		;;
 esac
