@@ -76,6 +76,8 @@ page UserSpecificReservationsPage {
 
 function onUserSpecificReservationsPageLoaded(originId) {}
 
+function onUserSpecificReservationsListSelectionChanged(originId) {}
+
 function onUserVisibleCheckBoxValueChanged(originId) {
   var visible = $IN.data.state;
   var userDao = getLoggedInUser();

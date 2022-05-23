@@ -87,7 +87,7 @@ function onMeetingRoomTimetableSelectHelperAction(originId) {
   displayMapPopup(originId, meetingRoom.name, meetingRoom.mapPicturePath);
 }
 
-function ononMeetingRoomTimetableListSelectionChanged(originId) {}
+function onMeetingRoomTimetableListSelectionChanged(originId) {}
 
 function onMeetingRoomTimetableSelectChanged(originId) {
   selectedMeetingRoomId = $IN.data.value;
