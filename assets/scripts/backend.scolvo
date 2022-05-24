@@ -1,5 +1,4 @@
 import {
-  /common/TypeDefinitionExtension,
   /backend/LifecycleManagement,
   /backend/Jobs,
   /backend/DataSync,

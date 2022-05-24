@@ -53,7 +53,7 @@ function setLoggedInUserVisible(visibility) {
 
 function createTeamOptions(selectedId) {
   return getTeams().map(function (teamDao) {
-    return buildSelectOptions(teamDao.id, teamDao.name, selectedId == teamDao.id);
+    return createSelectOption(teamDao.id, teamDao.name, selectedId == teamDao.id);
   });
 }
 

@@ -3,7 +3,3 @@ function initScheduledJobs() {}
 //========================== Execute initScheduledJobs
 initScheduledJobs();
 //==========================
-
-function getTimeLimitForDays(days) {
-  return nowInMillis() - (days * 86400000);
-}

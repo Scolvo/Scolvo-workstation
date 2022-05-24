@@ -19,7 +19,7 @@ function onUserInserted(originId) {
     "keycloakId": $IN.data.preScriptResult,
     "changeType": "UPDATE"
   };
-  updateExecution("user", userDaoFromRequest.id, userDao);
+  updateTypeDefinition("user", userDaoFromRequest.id, userDao);
 }
 
 function onUserUpdating(originId) {}

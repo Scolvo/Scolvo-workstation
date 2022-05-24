@@ -23,14 +23,14 @@ function displayMeetingRoomTimetablePage(originId, meetingRoomId) {
     }
   };
   var actionEvents = [
-    buildSourceSelectionChanged("MeetingRoomTimetableSelect", "MeetingRoomTimetableSelectChanged")
+    createSelectionChangeSourceEvent("MeetingRoomTimetableSelect", "MeetingRoomTimetableSelectChanged")
   ];
   display(MeetingRoomTimetablePage, data, originId, actionEvents);
 }
 
 function createMeetingRoomOptions(selectedId) {
   return getMeetingRooms().map(function (meetingRoomDao) {
-    return buildSelectOptions(meetingRoomDao.id, meetingRoomDao.name, selectedId == meetingRoomDao.id);
+    return createSelectOption(meetingRoomDao.id, meetingRoomDao.name, selectedId == meetingRoomDao.id);
   });
 }
 
@@ -87,7 +87,7 @@ function onMeetingRoomTimetableSelectHelperAction(originId) {
   displayMapPopup(originId, meetingRoom.name, meetingRoom.mapPicturePath);
 }
 
-function ononMeetingRoomTimetableListSelectionChanged(originId) {}
+function onMeetingRoomTimetableListSelectionChanged(originId) {}
 
 function onMeetingRoomTimetableSelectChanged(originId) {
   selectedMeetingRoomId = $IN.data.value;
@@ -101,8 +101,8 @@ function onMeetingRoomTimetableSelectChanged(originId) {
   else {
     selectData.put("helper_icon", "");
   }
-  fireEvent(buildTargetValueChangeEvent("MeetingRoomTimetableSelect", selectData), originId);
-  fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
+  fireEvent(createValueChangeTargetEvent("MeetingRoomTimetableSelect", selectData), originId);
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
 }
 
 function onDeleteMeetingRoomReservation(originId) {

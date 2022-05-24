@@ -3,7 +3,7 @@ var endingTime = null;
 var numberOfParticipants = null;
 
 function displayReserveMeetingRoomPage(originId) {
-  var headerString = "Foglalás " + dateToString(selectedMeetingRoomDay, "yyyy MMMM dd.");
+  var headerString = DICTIONARY.page_ReserveMeetingRoomPage_headerText_prefix + " " + dateToString(selectedMeetingRoomDay, "yyyy MMMM dd.");
   var data = {
     "ReserveMeetingRoomPage": {
       "headerText": headerString,
@@ -11,10 +11,11 @@ function displayReserveMeetingRoomPage(originId) {
     }
   };
   var actionEvents = [
-    buildSourceValueChangedEvent("TimeOfStart", "TimeOfStartSelectionChanged"),
-    buildSourceValueChangedEvent("TimeOfEnd", "TimeOfEndSelectionChanged"),
-    buildSourceSelectionChanged("NumberOfParticipantsSelect", "NumberOfParticipantsSelectChanged"),
-    buildSourceClickedEvent("SaveMeetingRoomReservationButton", "SaveMeetingRoomReservationButtonClicked")
+    createValueChangeSourceEvent("TimeOfStart", "TimeOfStartSelectionChanged"),
+    createValueChangeSourceEvent("TimeOfEnd", "TimeOfEndSelectionChanged"),
+    createSelectionChangeSourceEvent("NumberOfParticipantsSelect", "NumberOfParticipantsSelectChanged"),
+    createClickSourceEvent("SaveMeetingRoomReservationButton", "SaveMeetingRoomReservationButtonClicked"),
+    createValueChangeTargetEvent("TimeOfStart", null)
   ];
 
   display(ReserveMeetingRoomPage, data, originId, actionEvents);
@@ -24,7 +25,8 @@ function createNumberOfParticipantsOptions() {
   var selectedMeetingRoom = getMeetingRoomById(selectedMeetingRoomId);
   var numberOfParticipantsOptions = [];
   for(var i = 1; i <= selectedMeetingRoom.capacity; i += 1) {
-    numberOfParticipantsOptions.add(buildSelectOptions(i, decimalFormat(i, "##"), false));
+    var selectIdString = "" + i;
+    numberOfParticipantsOptions.add(createSelectOption(selectIdString, decimalFormat(i, "##"), false));
   }
   return numberOfParticipantsOptions;
 }
@@ -55,10 +57,12 @@ page ReserveMeetingRoomPage {
 function onReserveMeetingRoomPageLoaded(originId) {}
 
 function onTimeOfStartSelectionChanged(originId) {
+  debug("Time of start has been changed: " + $IN.data);
   startingTime = $IN.data.time;
 }
 
 function onTimeOfEndSelectionChanged(originId) {
+  debug("Time of end has been changed: " + $IN.data);
   endingTime = $IN.data.time;
 }
 
@@ -79,7 +83,7 @@ function onSaveMeetingRoomReservationButtonClicked(originId) {
   var reservationStart = createReservationTimeForSelectedDay(startingTime);
   var reservationEnd = createReservationTimeForSelectedDay(endingTime);
   if(!getMeetingRoomsReservedForPeriod(selectedMeetingRoomId, reservationStart, reservationEnd).isEmpty()) {
-    fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservation_periodAlreadyReservedMsg), originId);
+    fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.reservation_periodAlreadyReservedMsg), originId);
     return null;
   }
   var reservationDao = {
@@ -92,14 +96,14 @@ function onSaveMeetingRoomReservationButtonClicked(originId) {
     "changeType": "INSERT"
   };
 
-  insertExecution("reservation", reservationDao);
-  sendDataChangeRq(originId, "reservation", [reservationDao]);
+  insertTypeDefinition("reservation", reservationDao);
+  sendDataChange("reservation", [reservationDao]);
 
-  fireEvent(buildRefreshItemEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
-  fireEvent(buildRefreshItemEvent("MeetingRoomsDailyList", createMeetingRoomsDailyData()), "MeetingRoomsDailyPage");
-  fireEvent(buildRefreshItemEvent("MeetingRoomsDashboardList", createMeetingRoomsDashboardListData()), "MeetingRoomsDashboardPage");
-  fireEvent(buildRefreshItemEvent("MeetingRoomCalendarViewList", createMeetingRoomCalendarViewReservationList()), "MeetingRoomsDashboardPage");
-  fireEvent(buildShortToastNotificationEvent(DICTIONARY.reservation_successMsg), originId);
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomsDailyList", createMeetingRoomsDailyData()), "MeetingRoomsDailyPage");
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomsDashboardList", createMeetingRoomsDashboardListData()), "MeetingRoomsDashboardPage");
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomCalendarViewList", createMeetingRoomCalendarViewReservationList()), "MeetingRoomsDashboardPage");
+  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.reservation_successMsg), originId);
 
   finishPage("ReserveMeetingRoomPage", originId);
 }
@@ -122,20 +126,25 @@ function isReservationValid() {
 }
 
 function isTimeValid(selectedTime, componentId) {
+  debug("Checking selected time for component: " + componentId + " selected time is: " + selectedTime);
   var isValid = true;
   // Empty field
   if(selectedTime == null) {
-    fireEvent(buildErrorValueChangeEvent(componentId, DICTIONARY.reservationTime_emptyMsg), originId);
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.reservationTime_emptyMsg), originId);
     isValid = false;
   }
   //Minute must be 00 or 30
   if(isValid && (dateToString(selectedTime, "mm") != "00" && dateToString(selectedTime, "mm") != "30")) {
-    fireEvent(buildErrorValueChangeEvent(componentId, DICTIONARY.reservationTime_invalidUnitMsg), originId);
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.reservationTime_invalidUnitMsg), originId);
     isValid = false;
   }
   //Selected time must be between 8:00 and 19:00
-  if(isValid && (dateBefore(createReservationTimeForSelectedDay(selectedTime), getDayStart(selectedMeetingRoomDay)) || dateAfter(createReservationTimeForSelectedDay(selectedTime), getDayEnd(selectedMeetingRoomDay)))) {
-    fireEvent(buildErrorValueChangeEvent(componentId, DICTIONARY.reservationTime_invalidInterval), originId);
+  var reservationTime = createReservationTimeForSelectedDay(selectedTime);
+  var dayStart = getDayStart(selectedMeetingRoomDay);
+  var dayEnd = getDayEnd(selectedMeetingRoomDay);
+  debug("Reservation time for " + componentId + ": " + reservationTime + " dayStart: " + dayStart + " dayEnd: " + dayEnd);
+  if(isValid && (dateBefore(reservationTime, dayStart) || dateAfter(reservationTime, dayEnd))) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.reservationTime_invalidInterval), originId);
     isValid = false;
   }
 
@@ -145,12 +154,12 @@ function isTimeValid(selectedTime, componentId) {
 function isStartEndTimeRelationValid() {
   var isValid = true;
   if(dateSame(createReservationTimeForSelectedDay(startingTime), createReservationTimeForSelectedDay(endingTime), "minute")) {
-    fireEvent(buildErrorValueChangeEvent("TimeOfStart", DICTIONARY.reservationTime_sameStartEnd), originId);
-    fireEvent(buildErrorValueChangeEvent("TimeOfEnd", DICTIONARY.reservationTime_sameStartEnd), originId);
+    fireEvent(createErrorValueChangeTargetEvent("TimeOfStart", DICTIONARY.reservationTime_sameStartEnd), originId);
+    fireEvent(createErrorValueChangeTargetEvent("TimeOfEnd", DICTIONARY.reservationTime_sameStartEnd), originId);
     isValid = false;
   }
   if(isValid && dateAfter(createReservationTimeForSelectedDay(startingTime), createReservationTimeForSelectedDay(endingTime))) {
-    fireEvent(buildErrorValueChangeEvent("TimeOfStart", DICTIONARY.reservationTime_startAfterEnd), originId);
+    fireEvent(createErrorValueChangeTargetEvent("TimeOfStart", DICTIONARY.reservationTime_startAfterEnd), originId);
     isValid = false;
   }
   return isValid;
@@ -158,7 +167,7 @@ function isStartEndTimeRelationValid() {
 
 function isNumberOfParticipantsValid() {
   if(numberOfParticipants == null) {
-    fireEvent(buildErrorValueChangeEvent("NumberOfParticipantsSelect", DICTIONARY.reservationNumberOfParticipants_emptyMsg), originId);
+    fireEvent(createErrorValueChangeTargetEvent("NumberOfParticipantsSelect", DICTIONARY.reservationNumberOfParticipants_emptyMsg), originId);
     return false;
   }
   return true;

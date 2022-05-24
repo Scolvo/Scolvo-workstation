@@ -1,6 +1,6 @@
 function getTeams() {
   return select()
-  .from("team")
+  .from("team").orderBy("name", "asc")
   .execute();
 }
 

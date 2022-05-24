@@ -62,9 +62,9 @@ function onSaveMeetingRoom(originId) {
 }
 
 function saveMeetingRoomDao(meetingRoomDao) {
-  insertExecution("meetingRoom", meetingRoomDao);
-  sendDataChangeRq(originId, "meetingRoom", [meetingRoomDao]);
-  fireEvent(buildRefreshItemEvent("MeetingRoomsList", createMeetingRoomsListData()), "MeetingRoomsPage");
+  insertTypeDefinition("meetingRoom", meetingRoomDao);
+  sendDataChange("meetingRoom", [meetingRoomDao]);
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomsList", createMeetingRoomsListData()), "MeetingRoomsPage");
   finishPage("CreateMeetingRoomPage" ,originId);
 }
 

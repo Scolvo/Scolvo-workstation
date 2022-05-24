@@ -68,9 +68,9 @@ function onSaveModifiedMeetingRoom(originId) {
 }
 
 function updateMeetingRoomDao(meetingRoomDao) {
-  updateExecution("meetingRoom", meetingRoomDao.id, meetingRoomDao);
-  sendDataChangeRq(originId, "meetingRoom", [meetingRoomDao]);
-  fireEvent(buildRefreshItemEvent("MeetingRoomsList", createMeetingRoomsListData()), "MeetingRoomsPage");
+  updateTypeDefinition("meetingRoom", meetingRoomDao.id, meetingRoomDao);
+  sendDataChange("meetingRoom", [meetingRoomDao]);
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomsList", createMeetingRoomsListData()), "MeetingRoomsPage");
   finishPage("ModifyMeetingRoomPage" ,originId);
 }
 

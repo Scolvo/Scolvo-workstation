@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOGS" value="./logs" />
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%green(%d{ISO8601}) %highlight(%-5level) [%blue(%15.15t)] %yellow(%40.40C): %msg%n%throwable</pattern>
+        </encoder>
+    </appender>
+    <appender name="ConsoleColored" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%green(%d{ISO8601}) %highlight(%-5level) [%blue(%15.15t)] %yellow(%40.40C): %msg%n%throwable</pattern>
+        </encoder>
+    </appender>
+    <appender name="Interpreter" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%green(%d{ISO8601}) %highlight(%-5level) [%blue(%15.15t)] %yellow(%40.40C): %white(%msg%n%throwable)</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/backend.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/archived/backend-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="ConsoleColored" />
+    </root>
+    <logger name="com.scolvo" level="debug" additivity="false">
+        <appender-ref ref="ConsoleColored" />
+    </logger>
+    <logger name="com.scolvo.web.service.svm.WebLogger" level="debug" additivity="false">
+        <appender-ref ref="Interpreter" />
+    </logger>
+    <logger name="sun.rmi" level="error" additivity="false">
+        <appender-ref ref="ConsoleColored" />
+    </logger>
+    <logger name="com.zaxxer.hikari" level="error" additivity="false">
+        <appender-ref ref="ConsoleColored" />
+    </logger>
+    <logger name="org.atmosphere" level="error" additivity="false">
+        <appender-ref ref="ConsoleColored" />
+    </logger>
+
+</configuration>

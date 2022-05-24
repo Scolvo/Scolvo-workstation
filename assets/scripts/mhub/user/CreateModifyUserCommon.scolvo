@@ -9,8 +9,8 @@ var ROLE_WORKER = "worker";
 
 function getRoleOptions(selectedId) {
   return [
-    buildSelectOptions(ROLE_ADMIN, DICTIONARY.role_admin, ROLE_ADMIN == selectedId),
-    buildSelectOptions(ROLE_WORKER, DICTIONARY.role_worker, ROLE_WORKER == selectedId)
+    createSelectOption(ROLE_ADMIN, DICTIONARY.role_admin, ROLE_ADMIN == selectedId),
+    createSelectOption(ROLE_WORKER, DICTIONARY.role_worker, ROLE_WORKER == selectedId)
   ];
 }
 

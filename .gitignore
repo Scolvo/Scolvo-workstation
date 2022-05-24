@@ -3,5 +3,9 @@
 /bin/
 .classpath
 .env
+.history/
+.vscode/
+license/
+build/
 
 import/

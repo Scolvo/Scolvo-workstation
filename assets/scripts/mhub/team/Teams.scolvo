@@ -33,7 +33,7 @@ page TeamsPage {
   list TeamsList {
     template: normal;
     itemTemplate: grid;
-    span: 24;
+    span: 0;
     filterVisible: true;
     actions: [
       CreateTeam

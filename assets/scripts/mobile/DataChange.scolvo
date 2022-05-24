@@ -1,15 +1,6 @@
 import {
-  /common/TypeDefinitionExtension,
   /common/Roles,
   /mobile/repository/ReservationRepository
-}
-
-function sendDataChangeRq(originId_, typeDefinition_, changeset_) {
-  var dataChangeMsg = com.scolvo.core.vm.action.rq.DataChangeRq(uuid());
-  dataChangeMsg.setTypeDefinition(typeDefinition_);
-  dataChangeMsg.setTypeDefinitionVersion(nowInMillis());
-  dataChangeMsg.setChangeset(changeset_);
-  publish(dataChangeMsg);
 }
 
 var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
@@ -51,30 +42,30 @@ function onDataChangeDg(originId) {
     if (changeType == "INSERT") {
       insertChangeDao(typeDefinition, changeDao);
     } else if (changeType == "UPDATE") {
-      updateExecution(typeDefinition, changeDao.id, changeDao);
+      updateTypeDefinition(typeDefinition, changeDao.id, changeDao);
     } else if (changeType == "DELETE") {
-      deleteExecution(typeDefinition, changeDao.id);
+      deleteTypeDefinition(typeDefinition, changeDao.id);
     }
   });
 }
 
 function insertChangeDao(typeDefinition, changeDao) {
   if(typeDefinition == "reservation" && getReservationById(changeDao.id) == null) {
-    insertOrReplaceExecution(typeDefinition, changeDao);
+    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
   }
   else if(typeDefinition == "user" && getUserById(changeDao.id) == null) {
-    insertOrReplaceExecution(typeDefinition, changeDao);
+    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
   }
   else if(typeDefinition == "team" && getTeamById(changeDao.id) == null) {
-    insertOrReplaceExecution(typeDefinition, changeDao);
+    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
     addTeamToTeamsData(changeDao);
   }
   else if(typeDefinition == "workplace" && getWorkstationById(changeDao.id) == null) {
-    insertOrReplaceExecution(typeDefinition, changeDao);
+    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
     addWorkstationToWorkstationsData(changeDao);
   }
   else if(typeDefinition == "meetingRoom" && getMeetingRoomById(changeDao.id) == null) {
-    insertOrReplaceExecution(typeDefinition, changeDao);
+    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
     addMeetingRoomToMeetingRoomsData(changeDao);
   }
 }

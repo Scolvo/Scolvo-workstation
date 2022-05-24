@@ -1,8 +1,6 @@
 import {
   /mhub/DataChange,
-  /mhub/Builders,
   /mhub/user/CreateModifyUserCommon,
-  /common/TypeDefinitionExtension,
   /mhub/repository/UserRepository
 }
 
@@ -50,7 +48,6 @@ page ModifyUserPage {
 function onModifyUserPageLoaded(originId) {}
 
 var modifiedUserPassword;
-
 function onSaveModifyUser(originId) {
   var modifiedUserPassword = null;
   var userModifyData = $IN.data;
@@ -58,12 +55,6 @@ function onSaveModifyUser(originId) {
   if (userValidationResult.messages.size() != 0) {
     publish(userValidationResult);
     return null;
-  }
-
-  var businessCenterId = userModifyData.BusinessCenter;
-
-  if (sessionUserIsBusinessCenterManager()) {
-    businessCenterId = getUserById(getCurrentUser().id).businessCenterId;
   }
 
   var userDao = {
@@ -90,7 +81,7 @@ function onSaveModifyUser(originId) {
       "operation": "modify"
     };
 
-    sendDataChangeRq(originId, "request", [requestData]);
+    sendDataChange("request", [requestData]);
   }
 }
 
@@ -100,13 +91,14 @@ function modifyUser(userDao, isEmailAddressAvailable) {
     validationResult.addMessage("ERROR", "Email", DICTIONARY.validationMsg_mailAlreadyExists);
     publish(validationResult);
   } else {
-    updateExecution("user", userDao.id, userDao);
+    updateTypeDefinition("user", userDao.id, userDao);
+
     if(modifiedUserPassword != null) {
       userDao.put("password", modifiedUserPassword);
     }
-    sendDataChangeRq(originId, "user", [userDao]);
+    sendDataChange("user", [userDao.deepClone()]);
 
-    fireEvent(buildRefreshItemEvent("UsersList", createUserListData()), "UsersPage");
+    fireEvent(createRefreshItemTargetEvent("UsersList", createUserListData()), "UsersPage");
     finishPage("ModifyUserPage", originId);
   }
 }

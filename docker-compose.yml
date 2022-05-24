@@ -86,7 +86,7 @@ services:
     be:
         restart: always
         container_name: backend
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-backend:2.58.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-backend:2.98.0
         environment:
         - SCOLVO_PROJECT_ROOT=/app
         - EMAIL_USERNAME=${EMAIL_USERNAME}
@@ -94,7 +94,6 @@ services:
         - RABBIT_MQ_HOST=mq
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
         - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-        - FCM_CREDENTIALS_FILE_PATH=/app/credentials/fcm_credentials.json
         - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
         - AWS_SECRET_KEY=${AWS_SECRET_KEY}
         - AWS_BUCKET_NAME=${BUCKET_NAME}
@@ -105,11 +104,19 @@ services:
         - SPRING_PROFILES_ACTIVE=${BACKEND_SPRING_PROFILES_ACTIVE}
         - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
         - LOGGING_CONFIG_PATH=/app/logback-spring.xml
-        - LICENCE_CONFIG_PATH=/app/assets/config/backend/licenceConfig.yaml
+        - LIQUIBASE_CHANGESET_FILE=/app/assets/liquibase/changeLog.xml
+        - SELF_REGISTRATION_SUPPORTED=false
+        - EMAIL_DOMAIN=${EMAIL_DOMAIN}
+        - PASSWORD_POLICY=${PASSWORD_POLICY}
+        - LICENSE_PATH=/app/license
+        - LICENSE_OWNER=${LICENSE_OWNER:-Scolvo Technology Partner}
+        - LICENSE_DOMAIN=${LICENSE_DOMAIN:-localdemo.scolvo.solutions}
+        - LICENSE_NOTIFICATION_EMAILS=${LICENSE_NOTIFICATION_EMAILS}
+        - LICENSE_INFORMATION_EMAILS=${LICENSE_INFORMATION_EMAILS}
         volumes:
         - ./assets:/app/assets
         - ./assets/config/backend/logback-spring.xml:/app/logback-spring.xml
-        - ${FCM_CREDENTIALS_FILE_PATH:-/dev/null}:/app/credentials/fcm_credentials.json
+        - ${LICENSE_DIR:-./license}:/app/license
         - ${IMPORT_DIR_PATH:-./import}:/import
         depends_on:
         - auth
@@ -144,7 +151,7 @@ services:
     admin:
         restart: always
         container_name: admin
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:3.5.1_hotfix_3_5_1-748
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:3.27.0
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
@@ -159,9 +166,13 @@ services:
         - SPRING_PROFILES_ACTIVE=${ADMIN_SPRING_PROFILES_ACTIVE:-}
         - LIQUIBASE_CHANGELOG_FILE=file:/app/liquibase/changeLog.xml
         - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
+        - ROOT_CONTEXT_PATH=scolvo-mhub
+        - DEFAULT_USERNAME=${DEFAULT_USERNAME:-}
+        - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-}
         volumes:
         - ./assets/liquibase/mhub:/app/liquibase
-        - ./assets/config/mhub/auth.jks:/app/auth.jks
+        - ./assets/config/mhub/logback-spring-local.xml:/app/logback-spring-local.xml
+        - ./assets/config/mhub/logback-spring.xml:/app/logback-spring.xml
         - ./assets/config/mhub/application.properties:/app/application.properties
         ports:
         - '29991:9991'
@@ -173,7 +184,7 @@ services:
     webapp:
         restart: always
         container_name: webapp
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:3.5.1_hotfix_3_5_1-748
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:3.27.0
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
@@ -189,9 +200,12 @@ services:
         - LIQUIBASE_CHANGELOG_FILE=file:/app/liquibase/changeLog.xml
         - DEVICE_TYPE=WEBAPP
         - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
+        - DEFAULT_USERNAME=${DEFAULT_USERNAME:-}
+        - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-}
         volumes:
         - ./assets/liquibase/mobile:/app/liquibase
-        - ./assets/config/webapp/auth.jks:/app/auth.jks
+        - ./assets/config/webapp/logback-spring-local.xml:/app/logback-spring-local.xml
+        - ./assets/config/webapp/logback-spring.xml:/app/logback-spring.xml
         - ./assets/config/webapp/application.properties:/app/application.properties
         ports:
         - '39991:9991'

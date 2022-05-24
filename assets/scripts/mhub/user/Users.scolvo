@@ -1,7 +1,8 @@
 import {
-  /mhub/user / CreateUser,
-  /mhub/user / ModifyUser,
-  /mhub/repository / UserRepository
+  /mhub/user/CreateUser,
+  /mhub/user/ModifyUser,
+  /mhub/repository/UserRepository,
+  /mhub/common/TeamCommon
 }
 
 function displayUsersPage(originId) {
@@ -28,7 +29,7 @@ page UsersPage {
   list UsersList {
     template: normal;
     itemTemplate: grid;
-    span: 24;
+    span: 0;
     filterVisible: true;
     actions: [
       CreateUser
@@ -40,22 +41,6 @@ page UsersPage {
       role
     ]
   }
-}
-
-function getUserRowById(id) {
-  var userDaos = select()
-    .selectAs("id")
-    .selectAs("name")
-    .selectAs("email")
-    .selectAs("team")
-    .from("user")
-    .where(eq("id", id))
-    .execute();
-
-  if (userDaos.isEmpty()) {
-    throw UserNotFoundException;
-  }
-  return userDaos.get(0);
 }
 
 function onUsersPageLoaded(originId) {}
@@ -77,12 +62,14 @@ function onModifyUser(originId) {
 }
 
 function changeUserStatus(newUserStatus, recordId, originId) {
-  var userDao = getUserRowById(recordId);
+  var userDao = getUserById(recordId);
   userDao.put("status", newUserStatus);
   userDao.put("changeType", "UPDATE");
-  updateExecution("user", userDao.id, userDao);
-  sendDataChangeRq(originId, "user", [userDao.deepClone()]);
-  fireEvent(buildRefreshItemEvent("UsersList", [buildUserListRowFromDao(userDao)]), originId);
+
+  updateTypeDefinition("user", userDao.id, userDao);
+  sendDataChange("user", [userDao.deepClone()]);
+
+  fireEvent(createReplaceItemTargetEvent("UsersList", buildUserListRowFromDao(userDao)), originId);
 }
 
 function buildUserListRowFromDao(userDao) {

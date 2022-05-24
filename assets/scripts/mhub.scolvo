@@ -31,7 +31,7 @@ function onPasswordChange(originId) {
 }
 
 //========================== Menu
-menu defaultChild Users {
+menu defaultItem Users {
   item Users {
     roles: ["administrator", "superAdministrator"]
   },
@@ -47,7 +47,7 @@ menu defaultChild Users {
   item PasswordChange {
     roles: ["administrator", "worker"]
   },
-  defaultPages: {
+  defaultItems: {
     "administrator": "Users",
     "worker": "PasswordChange",
   }
