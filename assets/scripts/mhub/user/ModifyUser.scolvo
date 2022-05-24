@@ -48,7 +48,6 @@ page ModifyUserPage {
 function onModifyUserPageLoaded(originId) {}
 
 var modifiedUserPassword;
-
 function onSaveModifyUser(originId) {
   var modifiedUserPassword = null;
   var userModifyData = $IN.data;
@@ -56,12 +55,6 @@ function onSaveModifyUser(originId) {
   if (userValidationResult.messages.size() != 0) {
     publish(userValidationResult);
     return null;
-  }
-
-  var businessCenterId = userModifyData.BusinessCenter;
-
-  if (sessionUserIsBusinessCenterManager()) {
-    businessCenterId = getUserById(getCurrentUser().id).businessCenterId;
   }
 
   var userDao = {
@@ -88,7 +81,7 @@ function onSaveModifyUser(originId) {
       "operation": "modify"
     };
 
-    sendDataChange(originId, "request", [requestData]);
+    sendDataChange("request", [requestData]);
   }
 }
 
@@ -99,10 +92,11 @@ function modifyUser(userDao, isEmailAddressAvailable) {
     publish(validationResult);
   } else {
     updateTypeDefinition("user", userDao.id, userDao);
+
     if(modifiedUserPassword != null) {
       userDao.put("password", modifiedUserPassword);
     }
-    sendDataChange(originId, "user", [userDao]);
+    sendDataChange("user", [userDao.deepClone()]);
 
     fireEvent(createRefreshItemTargetEvent("UsersList", createUserListData()), "UsersPage");
     finishPage("ModifyUserPage", originId);
