@@ -31,9 +31,13 @@
         </rollingPolicy>
     </appender>
 
-    <root level="debug">
+
+    <root level="info">
         <appender-ref ref="ConsoleColored" />
     </root>
+    <logger name="com.scolvo" level="debug" additivity="false">
+        <appender-ref ref="ConsoleColored" />
+    </logger>
     <logger name="com.scolvo.web.service.svm.WebLogger" level="debug" additivity="false">
         <appender-ref ref="Interpreter" />
     </logger>

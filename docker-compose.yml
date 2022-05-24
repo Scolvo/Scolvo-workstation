@@ -172,7 +172,7 @@ services:
         volumes:
         - ./assets/liquibase/mhub:/app/liquibase
         - ./assets/config/mhub/logback-spring-local.xml:/app/logback-spring-local.xml
-        - ./assets/config/webapp/logback-spring.xml:/app/logback-spring.xml
+        - ./assets/config/mhub/logback-spring.xml:/app/logback-spring.xml
         - ./assets/config/mhub/application.properties:/app/application.properties
         ports:
         - '29991:9991'
