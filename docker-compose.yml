@@ -86,7 +86,7 @@ services:
     be:
         restart: always
         container_name: backend
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-backend:2.96.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-backend:2.98.0
         environment:
         - SCOLVO_PROJECT_ROOT=/app
         - EMAIL_USERNAME=${EMAIL_USERNAME}

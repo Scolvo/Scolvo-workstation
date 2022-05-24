@@ -6,5 +6,6 @@
 .history/
 .vscode/
 license/
+build/
 
 import/
