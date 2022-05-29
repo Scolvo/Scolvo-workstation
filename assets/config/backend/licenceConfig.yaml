@@ -1,9 +1,0 @@
-outputPath: /app/licence
-cronExpression: "0 0 1 ? * *"
-pricingRoles:
-  Admin:
-    priorityOrder: 0
-    keycloakRoles: [administrator,superAdministrator]
-  Business:
-    priorityOrder: 1
-    keycloakRoles: [relationshipManager,corporateManager,businessCenterManager]
