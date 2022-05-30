@@ -1,4 +1,4 @@
-This repo can be used to launch a full Scolvo Dev environment locally or on a cloud based Virtual Machine.
+This repo can be used to launch a full Scolvo Dev environment locally or on a cloud based Virtual Machine. (Getting started with Scolvo Development Framework: https://github.com/Scolvo/Scolvo-Development-Platform)
 
 
 # Starting the server 
