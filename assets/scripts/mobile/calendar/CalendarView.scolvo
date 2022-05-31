@@ -15,7 +15,7 @@ function onCalendarView(originId) {
     }
   };
   var actionEvents = [
-    createSelectionChangeSourceEvent("CalendarViewTeamSelect", "CalendarViewTeamSelectChanged")
+    createValueChangeSourceEvent("CalendarViewTeamSelect", "CalendarViewTeamSelectChanged")
   ];
 
   display(CalendarViewPage, data, originId, actionEvents);

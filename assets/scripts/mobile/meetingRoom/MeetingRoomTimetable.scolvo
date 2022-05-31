@@ -23,7 +23,7 @@ function displayMeetingRoomTimetablePage(originId, meetingRoomId) {
     }
   };
   var actionEvents = [
-    createSelectionChangeSourceEvent("MeetingRoomTimetableSelect", "MeetingRoomTimetableSelectChanged")
+    createValueChangeSourceEvent("MeetingRoomTimetableSelect", "MeetingRoomTimetableSelectChanged")
   ];
   display(MeetingRoomTimetablePage, data, originId, actionEvents);
 }

@@ -13,7 +13,7 @@ function displayReserveMeetingRoomPage(originId) {
   var actionEvents = [
     createValueChangeSourceEvent("TimeOfStart", "TimeOfStartSelectionChanged"),
     createValueChangeSourceEvent("TimeOfEnd", "TimeOfEndSelectionChanged"),
-    createSelectionChangeSourceEvent("NumberOfParticipantsSelect", "NumberOfParticipantsSelectChanged"),
+    createValueChangeSourceEvent("NumberOfParticipantsSelect", "NumberOfParticipantsSelectChanged"),
     createClickSourceEvent("SaveMeetingRoomReservationButton", "SaveMeetingRoomReservationButtonClicked"),
     createValueChangeTargetEvent("TimeOfStart", null)
   ];

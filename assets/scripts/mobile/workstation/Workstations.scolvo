@@ -27,7 +27,7 @@ function displayWorkstationsPage(originId, day) {
     }
   };
   var actionEvents = [
-    createSelectionChangeSourceEvent("WorkstationsTeamSelect", "WorkstationsTeamSelectChanged")
+    createValueChangeSourceEvent("WorkstationsTeamSelect", "WorkstationsTeamSelectChanged")
   ];
   display(WorkstationsPage, data, originId, actionEvents);
 }
