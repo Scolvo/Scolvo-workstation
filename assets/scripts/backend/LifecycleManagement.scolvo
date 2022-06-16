@@ -39,7 +39,7 @@ function onUserUpdated(originId) {
     userConfig.put("username", userDao.username);
   }
   if (userDao.containsKey("role")) {
-    userConfig.put("realmroles", ["authenticated", userDao.role]);
+    userConfig.put("realmRoles", ["authenticated", userDao.role]);
   }
   if (userDao.containsKey("password")) {
     userConfig.put("password", userDao.password);
