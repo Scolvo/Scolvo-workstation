@@ -5,7 +5,7 @@ import {
 function resolveTeam(teamId) {
   var team = getTeamById(teamId);
   if(team == null) {
-    return "Unknown team";
+    return "-";
   }
   return team.get("name");
 }
@@ -16,10 +16,31 @@ function getTeamOptions(selectedId) {
   });
 }
 
-function validateTeam(result, data) {
+function validateTeamForWorkplace(data, componentId, pageName) {
+  if (data.canBeBooked == "yes" && (data.teamId == null || data.teamId.isEmpty())) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_Team), pageName);
+    return false;
+  }
+  return true;
+}
+
+function validateTeamId(result, data) {
   if (data.Team == null || data.Team.isEmpty()) {
     result.addMessage("ERROR", "Team", DICTIONARY.userValidationMsg_Team);
   }
+}
+
+function validateTeam(data, componentId, pageName) {
+  if (data.role == ROLE_WORKER && (data.teamId == null || data.teamId.isEmpty())) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_Team), pageName);
+    return false;
+  } else if (data.role == ROLE_ADMIN && data.teamId != null) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_AdminMustNotHaveTeam), pageName);
+    error("Admin must not have team!");
+    return false;
+  }
+
+  return true;
 }
 
 function createYesNoOptions(selected) {
@@ -41,6 +62,18 @@ function validateTeamName(result, data) {
   }
 }
 
+function validateTeamNameB(data, componentId, pageName) {
+  if (data.name == null || data.name.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_TeamName), pageName);
+    return false;
+  } else if (data.name.length() > 50) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_TeamNameTooLong), pageName);
+    return false;
+  }
+
+  return true;
+}
+
 function validateTeamLocation(result, data) {
   if (data.Location == null || data.Location.isEmpty()) {
     result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocation);
@@ -49,28 +82,56 @@ function validateTeamLocation(result, data) {
   }
 }
 
+function validateTeamLocationB(data, componentId, pageName) {
+  if (data.location == null || data.location.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_TeamLocation), pageName);
+    return false;
+  } else if (data.location.length() > 50) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_TeamLocationTooLong), pageName);
+    return false;
+  }
+
+  return true;
+}
+
 function validateTeamMapFileType(result, data) {
   if(data.UploadMap.mimeType != "image/png" && data.UploadMap.mimeType != "image/jpg" && data.UploadMap.mimeType != "image/jpeg") {
     result.addMessage("ERROR", "UploadMap", DICTIONARY.userValidationMsg_TeamMapInvalidType);
   }
 }
 
+function validateTeamMapFileTypeB(data, componentId, pageName) {
+  if (data.uploadMap.mimeType != "image/png" && data.uploadMap.mimeType != "image/jpg" && data.uploadMap.mimeType != "image/jpeg") {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_TeamMapInvalidType), pageName);
+    return false;
+  }
+  return true;
+}
+
 function validateTeamData(teamData, originId) {
   var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
   validateTeamName(validationResult, teamData);
   validateTeamLocation(validationResult, teamData);
-  if(teamData.UploadMap != null) {
+  if (teamData.UploadMap != null && teamData.UploadMap.fileName != null) {
     validateTeamMapFileType(validationResult, teamData);
   }
   return validationResult;
 }
 
+
+function validateModifiedTeamData(teamData, pageName) {
+  debug("Validating modified team data ...");
+  var nameIsValid = validateTeamNameB(teamData, "NameInput", pageName);
+  var locationIsValid = validateTeamLocationB(teamData, "LocationInput", pageName);
+  var uploadMapIsValid = true;
+  if (teamData.uploadMap != null && teamData.uploadMap.fileName != null) {
+    debug("Validating uploaded file ...");
+    uploadMapIsValid = validateTeamMapFileType(validationResult, teamData);
+  }
+
+  return nameIsValid && locationIsValid && uploadMapIsValid;
+}
+
 function onTeamMapUploadFailure(originId) {
-  publishNotification({
-    "userId": getCurrentUser().userId,
-    "level": "error",
-    "type": "text",
-    "duration": "long",
-    "message": DICTIONARY.uploadFail_msg
-  }, originId);
+  publishNotificationMessage(originId, DICTIONARY.uploadFail_msg);
 }

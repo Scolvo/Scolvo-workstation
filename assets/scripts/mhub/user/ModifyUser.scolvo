@@ -4,135 +4,202 @@ import {
   /mhub/repository/UserRepository
 }
 
-var modifyUserData = null;
+var modifyUserData;
+var modifyUserOriginalData;
+
+var modifyUserPagePassword;
+var modifyUserPageConfirmPassword;
 
 function displayUserModifyPage(originId, selectedUserId) {
+
+  modifyUserPagePassword = null;
+  modifyUserPageConfirmPassword = null;
+
   modifyUserData = getUserById(selectedUserId);
-  var data = {
-    "ModifyUserPage": {
-      "ModifyUserForm": {
-        "id": modifyUserData.id,
-        "name": modifyUserData.name,
-        "email": modifyUserData.email,
-        "teamOptions": getTeamOptions(modifyUserData.teamId),
-        "username": modifyUserData.username,
-        "roleOptions": getRoleOptions(modifyUserData.role)
-      }
-    }
-  };
-  display(ModifyUserPage, data, originId);
+  modifyUserOriginalData = modifyUserData.deepClone();
+
+
+  var events = [
+    createValueChangeTargetEvent("NameInput", modifyUserData.name),
+    createValueChangeTargetEvent("EmailInput", modifyUserData.email),
+    createValueChangeTargetEvent("RoleInput", getRoleOptions(modifyUserData.role)),
+    createValueChangeTargetEvent("TeamInput", getTeamOptions(modifyUserData.teamId)),
+    createValueChangeTargetEvent("UsernameInput", modifyUserData.username),
+
+    createValueChangeSourceEvent("NameInput", "ModifyUserNameChanged"),
+    createValueChangeSourceEvent("EmailInput", "ModifyUserEmailChanged"),
+    createValueChangeSourceEvent("RoleInput", "ModifyUserRoleChanged"),
+    createValueChangeSourceEvent("TeamInput", "ModifyUserTeamChanged"),
+    createValueChangeSourceEvent("UsernameInput", "ModifyUserUsernameChanged"),
+    createValueChangeSourceEvent("PasswordInput", "ModifyUserPasswordChanged"),
+    createValueChangeSourceEvent("ConfirmPasswordInput", "ModifyUserConfirmPasswordChanged"),
+
+    createClickSourceEvent("SaveUser", "ModifyUserSaveUserClicked")
+  ];
+
+  if (modifyUserData.role == ROLE_ADMIN) {
+    events.add(createVisibilityChangeTargetEvent("TeamInput", "gone"));
+  }
+
+  display(ModifyUserPage, {}, originId, events);
 }
 
 page ModifyUserPage {
   layout: vertical;
   template: general;
 
-  form ModifyUserForm {
-    template: normal;
-    span: 24;
-    actions: [
-      SaveModifyUser
-    ]
-    fields: [
-      field Name => name formItemInputNormal,
-      field Email => email formItemInputNormal,
-      field Team => team formItemSelectNormal,
-      field Role => role formItemSelectNormal,
-      field Username => username formItemInputNormal,
-      field Password => password formItemInputPassword,
-      field ConfirmPassword => confirmPassword formItemInputPassword
-    ]
+  inputField NameInput {
+    inputType: text;
+  }
+  inputField EmailInput {
+    inputType: text;
+  }
+  inputField RoleInput {
+    inputType: selectOne;
+  }
+  inputField TeamInput {
+    inputType: selectOne;
+  }
+  inputField UsernameInput {
+    inputType: text;
+  }
+  inputField PasswordInput {
+    inputType: password;
+  }
+  inputField ConfirmPasswordInput {
+    inputType: password;
+  }
+  container Buttons{
+    layout: horizontal;
+
+    button SaveUser{
+      template: primary;
+    }
   }
 }
 
 function onModifyUserPageLoaded(originId) {}
 
-var modifiedUserPassword;
-function onSaveModifyUser(originId) {
-  var modifiedUserPassword = null;
-  var userModifyData = $IN.data;
-  var userValidationResult = validateModifyUserData(userModifyData, originId);
-  if (userValidationResult.messages.size() != 0) {
-    publish(userValidationResult);
-    return null;
-  }
+function onModifyUserNameChanged(originId) {
+  modifyUserData.put("name", $IN.data.value);
+}
 
-  var userDao = {
-    "id": userModifyData.id,
-    "name": userModifyData.Name,
-    "email": userModifyData.Email,
-    "teamId": userModifyData.Team,
-    "username": userModifyData.Username,
-    "role": userModifyData.Role,
-    "changeType": "UPDATE"
-  };
+function onModifyUserEmailChanged(originId) {
+  modifyUserData.put("email", $IN.data.value);
+}
 
-  if (userModifyData.Password != null && !userModifyData.Password.isEmpty()) {
-    modifiedUserPassword = userModifyData.Password;
-  }
-
-  if (userModifyData.Email == modifyUserData.email) {
-    modifyUser(userDao, true);
+function onModifyUserRoleChanged(originId) {
+  modifyUserData.put("role", $IN.data.value);
+  fireEvent(createErrorValueChangeTargetEvent("RoleInput", ""), "ModifyUserPage");
+  if (modifyUserData.role == ROLE_ADMIN) {
+    fireEvent(createVisibilityChangeTargetEvent("TeamInput", "gone"), "ModifyUserPage");
+    modifyUserData.put("teamId", null);
   } else {
-    var requestData = {
-      "type": "userDataValidationRequest",
-      "requestId": getRequestId(),
-      "userDao": userDao,
-      "operation": "modify"
+    fireEvent(createValueChangeTargetEvent("TeamInput", getTeamOptions(null)), "ModifyUserPage");
+    fireEvent(createVisibilityChangeTargetEvent("TeamInput", "visible"), "ModifyUserPage");
+  }
+}
+
+function onModifyUserTeamChanged(originId) {
+  modifyUserData.put("teamId", $IN.data.value);
+  fireEvent(createErrorValueChangeTargetEvent("TeamInput", ""), "ModifyUserPage");
+}
+
+function onModifyUserUsernameChanged(originId) {
+  modifyUserData.put("username", $IN.data.value);
+}
+
+function onModifyUserPasswordChanged(originId) {
+  modifyUserPagePassword = $IN.data.value;
+}
+
+function onModifyUserConfirmPasswordChanged(originId) {
+  modifyUserPageConfirmPassword = $IN.data.value;
+}
+
+function onModifyUserSaveUserClicked(originId) {
+  debug("Validating ...");
+  if (validateModifyUserData()) {
+    debug("Validated");
+    var userDao = {
+      "id": modifyUserData.id,
+      "name": modifyUserData.name,
+      "email": modifyUserData.email,
+      "teamId": modifyUserData.teamId,
+      "username": modifyUserData.username,
+      "role": modifyUserData.role,
+      "changeType": "UPDATE"
     };
 
-    sendDataChange("request", [requestData]);
+    debug("Checking emails");
+    if (modifyUserData.email == modifyUserOriginalData.email) {
+      debug("No email change");
+      modifyUser(userDao, true);
+    } else {
+      debug("Email change");
+      var requestData = {
+        "type": "userDataValidationRequest",
+        "requestId": getRequestId(),
+        "userDao": userDao,
+        "operation": "modify"
+      };
+      sendDataChange("request", [requestData]);
+    }
   }
 }
 
 function modifyUser(userDao, isEmailAddressAvailable) {
+  debug("Modifying ...");
   if (!isEmailAddressAvailable) {
-    var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
-    validationResult.addMessage("ERROR", "Email", DICTIONARY.validationMsg_mailAlreadyExists);
-    publish(validationResult);
+    debug("Email not available");
+    fireEvent(createErrorValueChangeTargetEvent("EmailInput", DICTIONARY.validationMsg_mailAlreadyExists), "ModifyUserPage");
   } else {
+    debug("Updating locally");
     updateTypeDefinition("user", userDao.id, userDao);
 
-    if(modifiedUserPassword != null) {
-      userDao.put("password", modifiedUserPassword);
+    debug("Checking password");
+    if (modifyUserPagePassword != null) {
+      userDao.put("password", modifyUserPagePassword);
     }
-    sendDataChange("user", [userDao.deepClone()]);
+    debug("Sending data change");
+    var cloned = userDao.deepClone();
+    // Null bug in deepClone!
+    cloned.put("teamId", userDao.teamId);
 
+    sendDataChange("user", [cloned]);
+    debug("Refreshing local pages");
     fireEvent(createRefreshItemTargetEvent("UsersList", createUserListData()), "UsersPage");
     finishPage("ModifyUserPage", originId);
   }
 }
 
-function validateModifyUserData(userData, originId) {
-  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
-  validateUserName(validationResult, userData);
-  validateUserMail(validationResult, userData);
-  validateTeam(validationResult, userData);
-  validateUserRole(validationResult, userData);
-  validateModifyUsername(validationResult, userData);
-  if (userData.Password != null && !userData.Password.isEmpty()) {
-    validateUserPassword(validationResult, userData);
+function validateModifyUserData() {
+  debug("Validating name");
+  var nameValid = validateUserName(modifyUserData, "NameInput", "ModifyUserPage");
+  debug("Validating email");
+  var emailValid = validateUserMail(modifyUserData, "EmailInput", "ModifyUserPage");
+  debug("Validating team");
+  var teamValid = validateTeam(modifyUserData, "TeamInput", "ModifyUserPage");
+  debug("Validating role");
+  var roleValid = validateUserRole(modifyUserData, "RoleInput", "ModifyUserPage");
+  debug("Validating username");
+  var usernameValid = validateModifyUsername("UsernameInput", "ModifyUserPage");
+
+  var passwordValid = true;
+  debug("Validating password");
+  if (modifyUserPagePassword != null && !modifyUserPagePassword.isEmpty()) {
+    debug("Really Validating password");
+    passwordValid = validateUserPasswordWithValues(modifyUserPagePassword, modifyUserPageConfirmPassword, "PasswordInput", "ConfirmPasswordInput", "ModifyUserPage");
   }
-  return validationResult;
+  debug("Final check: name " + nameValid + " email " + emailValid + " team " + teamValid + " role " + roleValid + " username " + usernameValid + " password " + passwordValid);
+  var result = nameValid && emailValid && teamValid && roleValid && usernameValid && passwordValid;
+  debug("Final result: " + result);
+  return result;
 }
 
-function validateModifyUsername(result, data) {
-  if (data.Username == modifyUserData.username) {
-    return null;
+function validateModifyUsername(componentId, pageName) {
+  if (modifyUserData.username == modifyUserOriginalData.username) {
+    return true;
   }
-
-  if (data.Username == null || data.Username.isEmpty()) {
-    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_Username);
-  } else if(data.Username == "su") {
-    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernamuSuNotAllowed);
-  } else {
-    var userDaos = select()
-      .selectAs("id")
-      .from("user")
-      .where(eq("username", data.Username))
-      .execute();
-    if (!userDaos.isEmpty()) {
-      result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernameAlreadyExists);
-    }
-  }
+  return validateUsername(modifyUserData, componentId, pageName);
 }

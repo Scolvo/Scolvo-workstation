@@ -1,0 +1,76 @@
+var reservationIdToDelete = null;
+var isWorkstationsDeleteFromMyReservations = false;
+
+function displayDeleteWorkstaionReservationPopup(originId, reservationId, workstationId, selectedReservationDay, isDeleteFromMyReservations) {
+  reservationIdToDelete = reservationId;
+  isWorkstationsDeleteFromMyReservations = isDeleteFromMyReservations;
+  var workstation = getWorkstationById(workstationId);
+  var actionEvents = [
+    createValueChangeTargetEvent("DateLabel", dateToString(selectedReservationDay, "yyyy MMMM dd.", CENTRAL_TIME_ZONE)),
+    createClickSourceEvent("DontDeleteWorkstationReservationButton", "DontDeleteWorkstationReservationButtonClicked"),
+    createClickSourceEvent("DeleteWorkstationReservationButton", "DeleteWorkstationReservationButtonClicked"),
+  ];
+  var data = {
+    "DeleteWorkstationReservationPopup": {
+      "headerText": workstation.name
+    }
+  };
+  display(DeleteWorkstationReservationPopup, data, originId, actionEvents);
+}
+
+page DeleteWorkstationReservationPopup {
+  layout: vertical;
+  template: popup;
+
+  label ConfirmationLabel {
+    template: heading4Primary|multi;
+    alignment: left;
+  }
+
+  spacer {
+    span: 8;
+  }
+
+  label DateLabel {
+    template: bodyCopy1CondensedSecondary;
+    alignment: left;
+  }
+
+  container DeleteWorkstationReservationButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button DontDeleteWorkstationReservationButton {
+      template: secondaryMedium;
+    }
+
+    button DeleteWorkstationReservationButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onDontDeleteWorkstationReservationButtonClicked(originId) {
+  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.reservationDelete_unsuccessfulMsg), originId);
+  finishPage("DeleteWorkstationReservationPopup", originId);
+}
+
+function onDeleteWorkstationReservationButtonClicked(originId) {
+  deleteTypeDefinition("reservation", reservationIdToDelete);
+  var reservationDeleteDao = {
+    "id": reservationIdToDelete,
+    "changeType": "DELETE"
+  };
+  sendDataChange("reservation", [reservationDeleteDao]);
+
+  if(isWorkstationsDeleteFromMyReservations) {
+    fireEvent(createRemoveItemTargetEvent("UserSpecificReservationsList", reservationIdToDelete), "UserSpecificReservationsPage");
+  }
+  else {
+    fireEvent(createRefreshItemTargetEvent("WorkstationsList", createWorkstationsForADayData()), "WorkstationsForADayPage");
+    fireEvent(createRefreshItemTargetEvent("DashboardList", createDashboardListData()), "DashboardPage");
+    fireEvent(createRefreshItemTargetEvent("ReservationList", createCalendarViewReservationList()), "CalendarViewPage");
+  }
+  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.reservationDelete_successMsg), originId);
+
+  finishPage("DeleteWorkstationReservationPopup", originId);
+}

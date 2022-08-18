@@ -6,7 +6,7 @@ import {
   /mobile/repository/MeetingRoomRepository
 }
 
-function onMeetingRooms(originId) {
+function displayMeetingRoomsDashboardPage(originId) {
   display(MeetingRoomsDashboardPage, {}, originId);
 }
 

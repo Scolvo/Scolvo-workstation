@@ -11,10 +11,10 @@ function displayMeetingRoomsDashboardFragment(originId) {
 function createMeetingRoomsDashboardListData() {
   var meetingRoomsListData = [];
   var currentDay = now();
-  var reservations = prepareMeetingRoomReservationForPeriod(getDayStart(now()).getTime(), getDayEnd(dateAdd(now(), 29, "day")).getTime());
-  var totalAvailableReservationUnits = getMeetingRooms().size() * 22;
-  for(var i = 0; i < 30; i += 1) {
-    var reservationString = dateToString(currentDay, "yyyy.MM.dd.");
+  var reservations = prepareMeetingRoomReservationForPeriod(getDayStartForCentralTimeZone(now()).getTime(), getDayEndForCentralTimeZone(dateAdd(now(), DATE_LIST_FOLLOWING_DAYS_PLUS_ONE, "day")).getTime());
+  var totalAvailableReservationUnits = getMeetingRooms().size() * MEETING_ROOM_DAILY_MINUTES;
+  for(var i = 0; i <= DATE_LIST_FOLLOWING_DAYS; i += 1) {
+    var reservationString = dateToString(currentDay, "yyyy.MM.dd.", CENTRAL_TIME_ZONE);
     var availableCount = totalAvailableReservationUnits;
     if (reservations.get(reservationString) != null) {
       availableCount = totalAvailableReservationUnits - reservations.get(reservationString);

@@ -1,58 +1,98 @@
+
+var createWorplaceName = null;
+var createWorkplaceTeamId = null;
+var createWorkplaceCanBeBooked = true;
+
 function displayCreateWorkplacePage(originId) {
-  var data = {
-    "CreateWorkplacePage": {
-      "CreateWorkplaceForm": {
-        "teamOptions": getTeamOptions(null),
-        "canBeBookedOptions": createYesNoOptions("yes")
-      }
-    }
-  };
-  display(CreateWorkplacePage, data, originId);
+  createWorplaceName = null;
+  createWorkplaceTeamId = null;
+  createWorkplaceCanBeBooked = "yes";
+
+  var events = [
+    createValueChangeTargetEvent("TeamInput", getTeamOptions(null))
+    createValueChangeTargetEvent("CanBeBookedInput", createYesNoOptions(createWorkplaceCanBeBooked)),
+
+    createValueChangeSourceEvent("NameInput", "CreateWorkplaceNameChanged"),
+    createValueChangeSourceEvent("TeamInput", "CreateWorkplaceTeamChanged"),
+    createValueChangeSourceEvent("CanBeBookedInput", "CreateWorkplaceCanBeBookedChanged"),
+
+    createClickSourceEvent("SaveWorkplace", "CreateWrokplaceSaveWorkplaceClicked")
+  ];
+
+  display(CreateWorkplacePage, {}, originId, events);
 }
 
 page CreateWorkplacePage {
   layout: vertical;
   template: general;
 
-  form CreateWorkplaceForm {
-    template: normal;
-    span: 24;
-    actions: [
-      SaveWorkplace
-    ]
-    fields: [
-      field Name => name formItemInputNormal,
-      field Team => team formItemSelectNormal,
-      field CanBeBooked => canBeBooked formItemSelectNormal
-    ]
+  inputField NameInput {
+    inputType: text;
+  }
+
+  inputField CanBeBookedInput {
+    inputType: selectOne;
+  }
+
+  inputField TeamInput {
+    inputType: selectOne;
+  }
+
+  container Buttons{
+    layout: horizontal;
+
+    button SaveWorkplace{
+      template: primary;
+    }
   }
 }
 
 function onCreateWorkplacePageLoaded(originId) {}
 
-function onSaveWorkplace(originId) {
-  var workplaceData = $IN.data;
-  var userValidationResult = validateWorkplaceData(workplaceData, originId);
-  if (userValidationResult.messages.size() != 0) {
-    publish(userValidationResult);
-    return null;
+function onCreateWorkplaceNameChanged(originId) {
+  createWorplaceName = $IN.data.value;
+}
+
+function onCreateWorkplaceCanBeBookedChanged(originId) {
+  createWorkplaceCanBeBooked = $IN.data.value;
+  fireEvent(createErrorValueChangeTargetEvent("CanBeBookedInput", ""), "CreateWorkplacePage");
+  if (createWorkplaceCanBeBooked == "no") {
+    fireEvent(createVisibilityChangeTargetEvent("TeamInput", "gone"), "CreateWorkplacePage");
+    createWorkplaceTeamId = null;
+  } else {
+    fireEvent(createValueChangeTargetEvent("TeamInput", getTeamOptions(null)), "CreateWorkplacePage");
+    fireEvent(createVisibilityChangeTargetEvent("TeamInput", "visible"), "CreateWorkplacePage");
+  }
+}
+
+function onCreateWorkplaceTeamChanged(originId) {
+  createWorkplaceTeamId = $IN.data.value;
+  fireEvent(createErrorValueChangeTargetEvent("TeamInput", ""), "CreateWorkplacePage");
+}
+
+function onCreateWrokplaceSaveWorkplaceClicked(originId) {
+  var workplaceData = {};
+  workplaceData.put("name", createWorplaceName);
+  workplaceData.put("canBeBooked", createWorkplaceCanBeBooked);
+  workplaceData.put("teamId", createWorkplaceTeamId);
+
+  if (validateWorkplaceData(workplaceData, "CreateWorkplacePage")) {
+    var bookingEnabled = true;
+    if(workplaceData.canBeBooked == "no") {
+      bookingEnabled = false;
+    }
+
+    var workplaceDao = {
+      "id": uuid(),
+      "name": workplaceData.name,
+      "teamId": workplaceData.teamId,
+      "canBeBooked": bookingEnabled,
+      "changeType": "INSERT"
+    };
+    insertTypeDefinition("workplace", workplaceDao);
+    sendDataChange("workplace", [workplaceDao]);
+    fireEvent(createRefreshItemTargetEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
+    finishPage("CreateWorkplacePage" ,originId);
   }
 
-  var bookingEnabled = true;
-  if(workplaceData.CanBeBooked == "no") {
-    bookingEnabled = false;
-  }
-
-  var workplaceDao = {
-    "id": uuid(),
-    "name": workplaceData.Name,
-    "teamId": workplaceData.Team,
-    "canBeBooked": bookingEnabled,
-    "changeType": "INSERT"
-  };
-
-  insertTypeDefinition("workplace", workplaceDao);
-  sendDataChange("workplace", [workplaceDao]);
-  fireEvent(createRefreshItemTargetEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
-  finishPage("CreateWorkplacePage" ,originId);
 }

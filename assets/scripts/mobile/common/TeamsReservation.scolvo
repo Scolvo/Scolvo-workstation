@@ -7,23 +7,23 @@ var teams = null;
 var workstations = null;
 var meetingRooms = null;
 
-function getTeamsData() {
+function getTeamsIdMap() {
   if(teams == null) {
-    teams = prepareData(getTeams());
+    teams = createIdBasedMap(getTeams());
   }
   return teams;
 }
 
-function getWorkstationsData() {
+function getWorkstationsIdMap() {
   if(workstations == null) {
-    workstations = prepareData(getWorkstations());
+    workstations = createIdBasedMap(getWorkstations());
   }
   return workstations;
 }
 
-function getMeetingRoomsData() {
+function getMeetingRoomsIdMap() {
   if(meetingRooms == null) {
-    meetingRooms = prepareData(getMeetingRooms());
+    meetingRooms = createIdBasedMap(getMeetingRooms());
   }
   return meetingRooms;
 }
@@ -57,18 +57,32 @@ function createTeamOptions(selectedId) {
   });
 }
 
-function getDayStart(day) {
-  var dayStartString = dateToString(day, "yyyy-MM-dd") + " 8:00";
-  return parseStringToDate(dayStartString, "yyyy-MM-dd HH:mm");
+// ###############################
+// Time related functions
+// ###############################
+
+function getDayStartForLocalTimeZone(day) {
+  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 00:00", "yyyy-MM-dd HH:mm");
 }
 
-function getDayEnd(day) {
-  var dayEndString = dateToString(day, "yyyy-MM-dd") + " 19:00";
-  return parseStringToDate(dayEndString, "yyyy-MM-dd HH:mm");
+function getDayStartForCentralTimeZone(day) {
+  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 00:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
+}
+
+function getReservationStartForCentralTimeZone(day) {
+  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 08:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
+}
+
+function getDayEndForCentralTimeZone(day) {
+  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 23:59", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
+}
+
+function getReservationEndForCentralTimeZone(day) {
+  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 19:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
 }
 
 function getDateStringForList(day, relativeDayCount) {
-  var dateString = dateToString(currentDay, "yyyy MMMM dd.");
+  var dateString = dateToString(day, "yyyy MMMM dd.", CENTRAL_TIME_ZONE);
   if(relativeDayCount == 0) {
     dateString = DICTIONARY.today + ", " + dateString;
   } else if(relativeDayCount == 1) {
@@ -100,18 +114,17 @@ function resolveMeetingRoomsAvailabilityPicture(totalMeetingRooms, availableMeet
 }
 
 function resolveReservationIntervalText(reservationStart, reservationEnd) {
-  return dateToString(reservationStart, "HH:mm") + " - " + dateToString(reservationEnd, "HH:mm");
+  return dateToString(reservationStart, "HH:mm", CENTRAL_TIME_ZONE) + " - " + dateToString(reservationEnd, "HH:mm", CENTRAL_TIME_ZONE);
 }
 
-function prepareCalendarDayData(day, reservations, totalAvailable) {
-  var reservationString = dateToString(day, "yyyy.MM.dd.");
+function prepareCalendarDayData(dayInLocalTimeZone, reservations, totalAvailable) {
+  var reservationString = dateToString(dayInLocalTimeZone, "yyyy.MM.dd.");
   var reservationsForCurrentDay = 0;
   if (reservations.get(reservationString) != null) {
     reservationsForCurrentDay = reservations.get(reservationString);
   }
-
   var dayData = {
-    "eventDate": day.getTime(),
+    "eventDate": dayInLocalTimeZone.getTime(),
     "eventMarkerColor": resolveCalendarMarkerColor(reservationsForCurrentDay, totalAvailable)
   };
   return dayData;
@@ -132,15 +145,18 @@ function prepareWorkstationReservationForPeriod(teamId, startOfPeriod, endOfPeri
   var reservationsByPeriod = getWorkstationReservationsForTeamByPeriod(teamId, startOfPeriod, endOfPeriod);
   var reservations = {};
   reservationsByPeriod.each(function(reservationDao) {
-    reservations.put(reservationDao.reservationStr, reservationDao.count);
+    var reservationStr = dateToString(reservationDao.reservationDate, "yyyy.MM.dd.", CENTRAL_TIME_ZONE);
+    reservations.put(reservationStr, reservationDao.count);
   });
+  debug("prepareWorkstationReservationForPeriod - Calculated reservations are: " + reservations);
   return reservations;
 }
 
 function prepareWorkstationReservationForDay(teamId, day) {
-  var reservationsByDay = getWorkstationReservationsForDayByTeam(teamId, day);
+  debug("Retrieving reservations for teamId " + teamId + " and day: " + day);
+  var teamReservationsByDay = getWorkstationReservationsForDayByTeam(teamId, day);
   var reservations = {};
-  reservationsByDay.each(function(reservationDao) {
+  teamReservationsByDay.each(function(reservationDao) {
     var innerData = {
       "id": reservationDao.id,
       "userId": reservationDao.userId
@@ -168,7 +184,7 @@ function prepareMeetingRoomReservationForDay(startOfPeriod, endOfPeriod) {
   return reservations;
 }
 
-function prepareData(dataArray) {
+function createIdBasedMap(dataArray) {
   var preparedData = {};
   dataArray.each(function (dataDao) {
     preparedData.put(dataDao.id, dataDao);

@@ -1,67 +1,106 @@
-var modifiedWorkplaceId;
+
+var modifyWorkplaceData = {};
 
 function displayModifyWorkplacePage(originId, selectedId) {
-  modifiedWorkplaceId = selectedId;
-  var workplace = getWorkplaceById(selectedId);
+  modifyWorkplaceData = getWorkplaceById(selectedId);
+  debug("Found Workplace data: " + modifyWorkplaceData);
+
   var canBeBookedValue = "yes";
-  if(!workplace.canBeBooked) {
+  if(!modifyWorkplaceData.canBeBooked) {
     canBeBookedValue = "no";
   }
-  var data = {
-    "ModifyWorkplacePage": {
-      "ModifyWorkplaceForm": {
-        "name": workplace.name,
-        "teamOptions": getTeamOptions(workplace.teamId),
-        "canBeBookedOptions": createYesNoOptions(canBeBookedValue)
-      }
-    }
-  };
-  display(ModifyWorkplacePage, data, originId);
+  modifyWorkplaceData.put("canBeBooked", canBeBookedValue);
+
+  var events = [
+    createValueChangeTargetEvent("NameInput", modifyWorkplaceData.name),
+    createValueChangeTargetEvent("TeamInput", getTeamOptions(modifyWorkplaceData.teamId))
+    createValueChangeTargetEvent("CanBeBookedInput", createYesNoOptions(canBeBookedValue)),
+
+    createValueChangeSourceEvent("NameInput", "ModifyWorkplaceNameChanged"),
+    createValueChangeSourceEvent("TeamInput", "ModifyWorkplaceTeamChanged"),
+    createValueChangeSourceEvent("CanBeBookedInput", "ModifyWorkplaceCanBeBookedChanged"),
+
+    createClickSourceEvent("SaveWorkplace", "ModifyWrokplaceSaveWorkplaceClicked")
+  ];
+  if (canBeBookedValue == "no") {
+    events.add(createVisibilityChangeTargetEvent("TeamInput", "gone"));
+  }
+
+  display(ModifyWorkplacePage, {}, originId, events);
 }
 
 page ModifyWorkplacePage {
   layout: vertical;
   template: general;
 
-  form ModifyWorkplaceForm {
-    template: normal;
-    span: 24;
-    actions: [
-      SaveModifiedWorkplace
-    ]
-    fields: [
-      field Name => name formItemInputNormal,
-      field Team => team formItemSelectNormal,
-      field CanBeBooked => canBeBooked formItemSelectNormal
-    ]
+  inputField NameInput {
+    inputType: text;
+  }
+
+  inputField CanBeBookedInput {
+    inputType: selectOne;
+  }
+
+  inputField TeamInput {
+    inputType: selectOne;
+  }
+
+  container Buttons{
+    layout: horizontal;
+
+    button SaveWorkplace{
+      template: primary;
+    }
   }
 }
 
 function onModifyWorkplacePageLoaded(originId) {}
 
-function onSaveModifiedWorkplace(originId) {
-  var workplaceData = $IN.data;
-  var userValidationResult = validateWorkplaceData(workplaceData, originId);
-  if (userValidationResult.messages.size() != 0) {
-    publish(userValidationResult);
-    return null;
+function onModifyWorkplaceNameChanged(originId) {
+  modifyWorkplaceData.put("name", $IN.data.value);
+}
+
+function onModifyWorkplaceCanBeBookedChanged(originId) {
+  modifyWorkplaceData.put("canBeBooked", $IN.data.value);
+  fireEvent(createErrorValueChangeTargetEvent("CanBeBookedInput", ""), "ModifyWorkplacePage");
+
+  if (modifyWorkplaceData.canBeBooked == "no") {
+    fireEvent(createVisibilityChangeTargetEvent("TeamInput", "gone"), "ModifyWorkplacePage");
+    modifyWorkplaceData.put("teamId", null);
+  } else {
+    fireEvent(createValueChangeTargetEvent("TeamInput", getTeamOptions(null)), "ModifyWorkplacePage");
+    fireEvent(createVisibilityChangeTargetEvent("TeamInput", "visible"), "ModifyWorkplacePage");
   }
+}
 
-  var bookingEnabled = true;
-  if(workplaceData.CanBeBooked == "no") {
-    bookingEnabled = false;
+function onModifyWorkplaceTeamChanged(originId) {
+  modifyWorkplaceData.put("teamId", $IN.data.value);
+  fireEvent(createErrorValueChangeTargetEvent("TeamInput", ""), "ModifyWorkplacePage");
+}
+
+function onModifyWrokplaceSaveWorkplaceClicked(originId) {
+  if (validateWorkplaceData(modifyWorkplaceData, "ModifyWorkplacePage")) {
+    var bookingEnabled = true;
+    if(modifyWorkplaceData.canBeBooked == "no") {
+      bookingEnabled = false;
+    }
+
+    var workplaceDao = {
+      "id": modifyWorkplaceData.id,
+      "name": modifyWorkplaceData.name,
+      "teamId": modifyWorkplaceData.teamId,
+      "canBeBooked": bookingEnabled,
+      "changeType": "UPDATE"
+    };
+
+    var cloned = workplaceDao.deepClone();
+    // deepClone does not handle nulls!
+    cloned.put("teamId", workplaceDao.teamId);
+
+    updateTypeDefinition("workplace", workplaceDao.id, workplaceDao);
+    debug("Sending to Backend: " + cloned);
+    sendDataChange("workplace", [cloned]);
+    fireEvent(createRefreshItemTargetEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
+    finishPage("ModifyWorkplacePage", originId);
   }
-
-  var workplaceDao = {
-    "id": modifiedWorkplaceId,
-    "name": workplaceData.Name,
-    "teamId": workplaceData.Team,
-    "canBeBooked": bookingEnabled,
-    "changeType": "UPDATE"
-  };
-
-  updateTypeDefinition("workplace", workplaceDao.id, workplaceDao);
-  sendDataChange("workplace", [workplaceDao]);
-  fireEvent(createRefreshItemTargetEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
-  finishPage("ModifyWorkplacePage" ,originId);
 }

@@ -1,5 +1,5 @@
 function getMeetingRooms() {
-  return select().from("meetingRoom").execute();
+  return select().from("meetingRoom").orderBy("name COLLATE NOCASE", "asc").execute();
 }
 
 function getMeetingRoomById(meetingRoomId) {

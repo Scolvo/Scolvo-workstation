@@ -2,11 +2,12 @@ import {
   /mobile/repository/MeetingRoomRepository,
   /mobile/repository/ReservationRepository,
   /mobile/repository/WorkstationRepository,
-  /mobile/workstation/DeleteReservation,
+  /mobile/workstation/DeleteWorkstationReservation,
   /mobile/meetingRoom/DeleteMeetingRoomReservation
 }
 
-function onMyReservations(originId) {
+
+function displayUserSpecificReservations(originId) {
   var data = {
     "UserSpecificReservationsPage": {
       "UserVisibleCheckBoxChecked": getLoggedInUser().visible,
@@ -19,19 +20,24 @@ function onMyReservations(originId) {
   display(UserSpecificReservationsPage, data, originId, actionEvents);
 }
 
+
 function createUserSpecificReservationsData() {
-  return getReservationsByUser(sessionUserId(), getDayStart(now()).getTime()).map(function (reservationDao) {
+  var workstations = getWorkstationsIdMap();
+  var meetingRoooms = getMeetingRoomsIdMap();
+  var teams = getTeamsIdMap();
+
+  return getReservationsByUser(sessionUserId(), getDayStartForCentralTimeZone(now()).getTime()).map(function (reservationDao) {
     return {
       "id": reservationDao.id,
       "reservationDate": resolveReservationDate(reservationDao.start),
-      "reservationText": resolveReservationText(reservationDao, getWorkstationsData(), getMeetingRoomsData(), getTeamsData()),
+      "reservationText": resolveReservationText(reservationDao, workstations, meetingRooms, teams),
       "actions": ["DeleteUserSpecificReservation"]
     };
   });
 }
 
 function resolveReservationDate(date) {
-  var dateString = dateToString(date, "yyyy MMMM dd.");
+  var dateString = dateToString(date, "yyyy MMMM dd.", CENTRAL_TIME_ZONE);
   if(dateSame(date, now(), "day")) {
     return DICTIONARY.today + ", " + dateString;
   }
@@ -42,14 +48,23 @@ function resolveReservationDate(date) {
 }
 
 function resolveReservationText(reservationDao, workstations, meetingRooms, teams) {
+  debug("Resolving reservation text for dao: " + reservationDao);
+
   var reservationText = "";
-  if(reservationDao.workplaceId != null) {
+  if (reservationDao.workplaceId != null) {
     var workstation = workstations.get(reservationDao.workplaceId);
-    return workstation.name + " | " + teams.get(workstation.teamId).name;
+    reservationText = workstation.name;
+    if (workstation.teamId != null) {
+      reservationText = reservationText + " | " + teams.get(workstation.teamId).name;
+    }
+    return reservationText;
+
+  } else if (reservationDao.meetingRoomId != null) {
+    var meetingRoom = meetingRooms.get(reservationDao.meetingRoomId);
+    return meetingRoom.name + " | " + resolveReservationIntervalText(reservationDao.start, reservationDao.end);
+
   }
-  else if(reservationDao.meetingRoomId != null) {
-    return meetingRooms.get(reservationDao.meetingRoomId).name + " | " + resolveReservationIntervalText(reservationDao.start, reservationDao.end);
-  }
+  warn("No workplace, nor meetingRoom given!");
   return reservationText;
 }
 
@@ -91,7 +106,7 @@ function onUserVisibleCheckBoxValueChanged(originId) {
 function onDeleteUserSpecificReservation(originId) {
   var reservation = getReservationById($IN.data.id);
   if(reservation.workplaceId != null) {
-    displayDeleteReservationPopup(originId, reservation.id, reservation.workplaceId, reservation.start, true);
+    displayDeleteWorkstaionReservationPopup(originId, reservation.id, reservation.workplaceId, reservation.start, true);
   }
   else if(reservation.meetingRoomId != null) {
     displayDeleteMeetingRoomReservationPopup(originId, reservation.id, resolveReservationIntervalText(reservation.start, reservation.end), reservation.start, true);

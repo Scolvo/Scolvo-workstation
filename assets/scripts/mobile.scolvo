@@ -5,7 +5,39 @@ import {
   /mobile/calendar/CalendarView,
   /mobile/meetingRoom/MeetingRoomDashboardPage,
   /mobile/userReservations/UserSpecificReservations,
-  /mobile/DataChange
+  /mobile/DataChange,
+  /mobile/admin/NoFeaturePage
+}
+
+// The time-zone of the Meeting Rooms and Workstations are in CENTRAL_TIME_ZONE.
+// The lists and time values are all converted to this zone.
+var CENTRAL_TIME_ZONE = "Europe/Budapest";
+// Date lists are generated according to these numbers:
+var DATE_LIST_PREVIOUS_DAYS = 7;
+var DATE_LIST_PREVIOUS_DAYS_PLUS_ONE = DATE_LIST_PREVIOUS_DAYS + 1;
+var DATE_LIST_FOLLOWING_DAYS = 29;
+var DATE_LIST_FOLLOWING_DAYS_PLUS_ONE = DATE_LIST_FOLLOWING_DAYS + 1;
+// Available daily minutes for a meeting room:
+var MEETING_ROOM_DAILY_MINUTES = 660;
+
+function onDashboard(originId) {
+  displayWorkstationsDashboardPage(originId);
+}
+
+function onCalendarView(originId) {
+  displayCalendarViewPage(originId);
+}
+
+function onMeetingRooms(originId) {
+  displayMeetingRoomsDashboardPage(originId);
+}
+
+function onMyReservations(originId) {
+  displayUserSpecificReservations(originId);
+}
+
+function onNoFeature(originId) {
+  displayNoFeaturePage(originId);
 }
 
 menu defaultItem Dashboard {
@@ -20,5 +52,13 @@ menu defaultItem Dashboard {
   },
   item MyReservations {
     roles: ["worker"]
+  },
+  item NoFeature {
+    roles: ["administrator", "superAdministrator"]
+  },
+  defaultItems: {
+    "superAdministrator": "NoFeature",
+    "administrator": "NoFeature",
+    "worker": "Dashboard"
   }
 }

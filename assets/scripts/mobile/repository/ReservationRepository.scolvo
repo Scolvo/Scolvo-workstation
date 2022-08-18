@@ -10,15 +10,16 @@ function getReservationById(reservationId) {
   return reservations.get(0);
 }
 
+// 1) NOTE: Based on the time difference between the CENTRAL_TIME_ZONE and GMT time the calculation for the first and last day might be wrong - I suggest to have an extra day before the start and after the end
+// 2) The result is calulated based on the fact, that all reservations for a day gets the same timestamp. The date string must be calculated in srcipt space to avoid time-zone conversion problems
 function getWorkstationReservationsForTeamByPeriod(teamId, startPeriod, endPeriod) {
   return select()
   .selectAs("count(*)", "count")
   .selectAs("start", "reservationDate")
-  .selectAs("strftime('%Y.%m.%d.', datetime(start / 1000, 'unixepoch') )", "reservationStr")
   .from("reservation")
   .join("innerJoin", table("workplace"), and(custom("workplace.id = reservation.workplaceId"), eq("workplace.teamId", teamId)))
   .where(and(custom("start >=" + startPeriod), custom("start <= " + endPeriod)))
-  .groupBy(["start"])
+  .groupBy(["reservationDate"])
   .execute();
 }
 
@@ -55,8 +56,7 @@ function getMeetingRoomsReservedForPeriod(meetingRoomId, startTime, endTime) {
 
 function getMeetingRoomsReservationsByDay(dayStart, dayEnd) {
   return select()
-  .selectAs("SUM((end - start)/1800000)", "count")
-  .selectAs("strftime('%s', date( datetime(start / 1000, 'unixepoch'), 'start of day', 'localtime')) * 1000", "reservationDate")
+  .selectAs("SUM((end - start)/60000)", "count")
   .selectAs("reservation.meetingRoomId", "meetingRoomId")
   .from("reservation")
   .where(and(custom("reservation.meetingRoomId IS NOT NULL"), and(custom("start >=" + dayStart), custom("start <= " + dayEnd))))
@@ -66,9 +66,8 @@ function getMeetingRoomsReservationsByDay(dayStart, dayEnd) {
 
 function getMeetingRoomsReservationsByPeriod(startPeriod, endPeriod) {
   return select()
-  .selectAs("SUM((end - start)/1800000)", "count")
-  .selectAs("strftime('%s', date( datetime(start / 1000, 'unixepoch'), 'start of day', 'localtime')) * 1000", "reservationDate")
-  .selectAs("strftime('%Y.%m.%d.', datetime(start / 1000, 'unixepoch'))", "reservationStr")
+  .selectAs("SUM((end - start)/60000)", "count")
+  .selectAs("strftime('%Y.%m.%d.', datetime(start / 1000, 'unixepoch', 'localtime'))", "reservationStr")
   .from("reservation")
   .where(and(custom("meetingRoomId IS NOT NULL"), and(custom("start >=" + startPeriod), custom("start <= " + endPeriod))))
   .groupBy(["reservationStr"])

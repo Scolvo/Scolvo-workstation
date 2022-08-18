@@ -9,5 +9,6 @@ function getUserById(id) {
 function getUsers() {
   return select()
   .from("user")
+  .orderBy("name COLLATE NOCASE", "asc")
   .execute();
 }

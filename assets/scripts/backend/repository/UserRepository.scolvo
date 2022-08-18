@@ -7,7 +7,23 @@ function getUsersForMhub() {
     .selectAs("username")
     .selectAs("email")
     .selectAs("status")
+    .selectAs("visible")
     .from("user")
+    .execute();
+}
+
+function getUsersForMhubByCreator(creatorUserId) {
+  return select()
+    .selectAs("id")
+    .selectAs("name")
+    .selectAs("role")
+    .selectAs("teamId")
+    .selectAs("username")
+    .selectAs("email")
+    .selectAs("status")
+    .selectAs("visible")
+    .from("user")
+    .where(eq("createdBy", creatorUserId))
     .execute();
 }
 

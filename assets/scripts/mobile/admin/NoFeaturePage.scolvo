@@ -1,0 +1,14 @@
+
+function displayNoFeaturePage(originId) {
+  display(NoFeaturePage, {}, originId);
+}
+
+page NoFeaturePage {
+  layout: vertical;
+  template: general;
+  scolvoMenuVisible: true;
+  settingsVisible: true;
+
+}
+
+function onNoFeaturePageLoaded(originId) {}

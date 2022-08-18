@@ -16,11 +16,15 @@ function displayWorkplacesPage(originId) {
 
 function createWorkplacesListData() {
   return getWorkplaces().map(function (workplaceDao) {
+    var convertedCanBeBooked = DICTIONARY.text_No;
+    if (workplaceDao.canBeBooked) {
+      convertedCanBeBooked = DICTIONARY.text_Yes;
+    }
     return {
       "id": workplaceDao.id,
       "name": workplaceDao.name,
       "team": resolveTeam(workplaceDao.teamId),
-      "canBeBooked": workplaceDao.canBeBooked,
+      "canBeBooked": convertedCanBeBooked,
       "actions": ["ModifyWorkplace"]
     };
   });

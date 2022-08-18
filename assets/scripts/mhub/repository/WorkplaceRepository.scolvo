@@ -1,5 +1,6 @@
 function getWorkplaces() {
-  return select().from("workplace").execute();
+  return select()
+  .from("workplace").orderBy("name COLLATE NOCASE", "ASC").execute();
 }
 
 function getWorkplaceById(workplaceId) {

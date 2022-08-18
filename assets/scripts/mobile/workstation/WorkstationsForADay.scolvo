@@ -1,17 +1,17 @@
 import {
-  /mobile/workstation/SaveReservation,
-  /mobile/workstation/DeleteReservation
+  /mobile/workstation/SaveWorkstationReservation,
+  /mobile/workstation/DeleteWorkstationReservation
 }
 
 var selectedDay = null;
 var selectedTeamId = null;
 var reservingUser = null;
 
-function displayWorkstationsPage(originId, day) {
+function displayWorkstationsPageForADayForTeam(originId, teamId, day) {
   selectedDay = day;
+  selectedTeamId = teamId;
   reservingUser = getLoggedInUser();
-  selectedTeamId = reservingUser.teamId;
-  var team = getTeamsData().get(selectedTeamId);
+  var team = getTeamsIdMap().get(selectedTeamId);
   var selectData = {
     "helper_label": team.location
   };
@@ -19,22 +19,25 @@ function displayWorkstationsPage(originId, day) {
     selectData.put("helper_icon", "\ue913");
   }
   var data = {
-    "WorkstationsPage": {
-      "headerText": dateToString(selectedDay, "yyyy MMMM dd."),
+    "WorkstationsForADayPage": {
+      "headerText": dateToString(selectedDay, "yyyy MMMM dd.", CENTRAL_TIME_ZONE),
       "WorkstationsTeamSelect": selectData,
       "WorkstationsTeamSelectOptions": createTeamOptions(selectedTeamId),
-      "WorkstationsList": createWorkstationsData()
+      "WorkstationsList": createWorkstationsForADayData()
     }
   };
   var actionEvents = [
     createValueChangeSourceEvent("WorkstationsTeamSelect", "WorkstationsTeamSelectChanged")
   ];
-  display(WorkstationsPage, data, originId, actionEvents);
+  display(WorkstationsForADayPage, data, originId, actionEvents);
 }
 
-function createWorkstationsData() {
+function createWorkstationsForADayData() {
+  debug("createWorkstationsData - selected day: " + selectedDay);
   var reservations = prepareWorkstationReservationForDay(selectedTeamId, selectedDay);
+  debug("createWorkstationsData - reservations are: " + reservations);
   return getWorkstationsForTeam(selectedTeamId).map(function (workstationDao) {
+    var workstaionAvailability = resolveWorkstationAvailabilty(workstationDao.id, reservations, reservingUser);
     var workstationData = {
       "id": workstationDao.id,
       "workstationName": workstationDao.name,
@@ -59,7 +62,7 @@ function resolveWorkstationAvailabiltyPicture(workstationId, reservations) {
   return "icon_office_desk_success";
 }
 
-page WorkstationsPage {
+page WorkstationsForADayPage {
   layout: vertical;
   template: general;
 
@@ -80,26 +83,26 @@ page WorkstationsPage {
   }
 }
 
-function onWorkstationsPageLoaded(originId) {}
+function onWorkstationsForADayPageLoaded(originId) {}
 
 function onWorkstationsTeamSelectHelperAction(originId) {
-  var team = getTeamsData().get(selectedTeamId);
+  var team = getTeamsIdMap().get(selectedTeamId);
   displayMapPopup(originId, team.name, team.mapPicturePath);
 }
 
 function onReserveWorkstation(originId) {
-  displaySaveReservationPopup(originId, $IN.data.id);
+  displaySaveWorkstationReservationPopup(originId, $IN.data.id);
 }
 
 function onDeleteReservation(originId) {
-  displayDeleteReservationPopup(originId, $IN.data.reservationId, $IN.data.id, selectedDay, false);
+  displayDeleteWorkstaionReservationPopup(originId, $IN.data.reservationId, $IN.data.id, selectedDay, false);
 }
 
 function resolveWorkstationAvailabilty(workstationId, reservations, user) {
-  if(reservations.get(workstationId) == null) {
+  if (reservations.get(workstationId) == null) {
     return DICTIONARY.free;
   }
-  if(user.visible) {
+  if (user.visible) {
     return DICTIONARY.reserved + ", " + user.name;
   }
   return DICTIONARY.reserved;
@@ -107,7 +110,7 @@ function resolveWorkstationAvailabilty(workstationId, reservations, user) {
 
 function onWorkstationsTeamSelectChanged(originId) {
   selectedTeamId = $IN.data.value;
-  var team = getTeamsData().get(selectedTeamId);
+  var team = getTeamsIdMap().get(selectedTeamId);
   var selectComponentData = {
     "helper_label": team.location
   };
@@ -118,7 +121,7 @@ function onWorkstationsTeamSelectChanged(originId) {
     selectComponentData.put("helper_icon", "");
   }
   fireEvent(createValueChangeTargetEvent("WorkstationsTeamSelect", selectComponentData), originId);
-  fireEvent(createRefreshItemTargetEvent("WorkstationsList", createWorkstationsData()), "WorkstationsPage");
+  fireEvent(createRefreshItemTargetEvent("WorkstationsList", createWorkstationsForADayData()), "WorkstationsForADayPage");
 }
 
 function onWorkstationsListSelectionChanged(originId) {}

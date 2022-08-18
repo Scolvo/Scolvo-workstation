@@ -1,96 +1,142 @@
-var uploadedModifiedMeetingRoomMapPath;
-var modifiedMeetingRoomName;
-var modifiedMeetingRoomLocation;
-var modifiedMeetingRoomCapacity;
+import {
+  /mhub/common/MapDisplay
+}
+
+var modifyMeetingRoomData;
 var modifiedMeetingRoomId;
+
+var uploadedModifiedMeetingRoomMapPath;
+var modifiedMeetingRoomOriginalMapPath;
+var modifiedMeetingRoomOriginalName;
 
 function displayModifyMeetingRoomPage(originId, meetingRoomId) {
   modifiedMeetingRoomId = meetingRoomId;
-  var meetingRoom = getMeetingRoomById(meetingRoomId);
-  var data = {
-    "ModifyMeetingRoomPage": {
-      "ModifyMeetingRoomForm": {
-        "name": meetingRoom.name,
-        "location": meetingRoom.location,
-        "capacity": decimalFormat(meetingRoom.capacity, "#")
-      }
-    }
-  };
-  display(ModifyMeetingRoomPage, data, originId);
+  uploadedModifiedMeetingRoomMapPath = null;
+
+  modifyMeetingRoomData = getMeetingRoomById(meetingRoomId);
+  debug("Actual meeting room: " + modifyMeetingRoomData);
+  modifiedMeetingRoomOriginalMapPath = modifyMeetingRoomData.mapPicturePath;
+  modifiedMeetingRoomOriginalName = modifyMeetingRoomData.name;
+  if (modifyMeetingRoomData.capacity != null) {
+    var actualCapacity = "" + modifyMeetingRoomData.capacity;
+    modifyMeetingRoomData.put("capacity", actualCapacity);
+  }
+
+  var events = [
+    createValueChangeTargetEvent("NameInput", modifyMeetingRoomData.name),
+    createValueChangeTargetEvent("LocationInput", modifyMeetingRoomData.location),
+    createValueChangeTargetEvent("CapacityInput", modifyMeetingRoomData.capacity),
+    createValueChangeTargetEvent("MapPicturePathInput", modifyMeetingRoomData.mapPicturePath)
+
+    createValueChangeSourceEvent("NameInput", "ModifyModifyMeetingRoomNameChanged"),
+    createValueChangeSourceEvent("LocationInput", "ModifyModifyMeetingRoomLocationChanged"),
+    createValueChangeSourceEvent("CapacityInput", "ModifyModifyMeetingRoomCapacityChanged"),
+    createValueChangeSourceEvent("MapPictureUploadField", "MapPictureUploadFieldChanged"),
+
+    createClickSourceEvent("SaveModifiedMeetingRoom", "SaveModifiedMeetingRoomClicked")
+  ];
+
+  display(ModifyMeetingRoomPage, {}, originId, events);
 }
 
 page ModifyMeetingRoomPage {
   layout: vertical;
   template: general;
 
-  form ModifyMeetingRoomForm {
-    template: normal;
-    span: 24;
-    actions: [
-      SaveModifiedMeetingRoom
-    ]
-    fields: [
-      field Name => name formItemInputNormal,
-      field Location => location formItemInputNormal,
-      field Capacity => capacity formItemInputNormal,
-      field UploadMap => uploadMap formItemUploadSingle
-    ]
+  inputField NameInput {
+    inputType: text;
+  }
+
+  inputField LocationInput {
+    inputType: text;
+  }
+
+  inputField CapacityInput {
+    inputType: number;
+  }
+
+  inputField MapPicturePathInput {
+    inputType: textReadOnly;
+  }
+
+  inputField MapPictureUploadField {
+    template: inputFieldSimple;
+    inputType: upload;
+  }
+
+  button SaveModifiedMeetingRoom {
+    template: primary;
   }
 }
 
 function onModifyMeetingRoomPageLoaded(originId) {}
 
-function onSaveModifiedMeetingRoom(originId) {
-  var meetingRoomData = $IN.data;
-  var userValidationResult = validateMeetingRoomData(meetingRoomData, originId);
-  if (userValidationResult.messages.size() != 0) {
-    publish(userValidationResult);
-    return null;
-  }
+function onModifyModifyMeetingRoomNameChanged(originId) {
+  modifyMeetingRoomData.put("name", $IN.data.value);
+}
 
-  if(meetingRoomData.UploadMap != null) {
-    uploadedModifiedMeetingRoomMapPath = createMeetingRoomMapRelativePath(modifiedMeetingRoomId, meetingRoomData.UploadMap.fileName);
-    modifiedMeetingRoomName = meetingRoomData.Name;
-    modifiedMeetingRoomLocation = meetingRoomData.Location;
-    modifiedMeetingRoomCapacity = parseNumber(meetingRoomData.Capacity);
-    documentPut(originId, uploadedModifiedMeetingRoomMapPath, meetingRoomData.UploadMap.absolutePath, "ModifyMeetingRoomMapUploadSuccess", "MeetingRoomMapUploadFailure");
-  }
-  else {
-    var meetingRoomDao = {
-      "id": createdMeetingRoomId,
-      "name": meetingRoomData.Name,
-      "location": meetingRoomData.Location,
-      "capacity": parseNumber(meetingRoomData.Capacity),
-      "changeType": "UPDATE"
-    };
-    updateMeetingRoomDao(meetingRoomDao);
+function onModifyModifyMeetingRoomLocationChanged(originId) {
+  modifyMeetingRoomData.put("location", $IN.data.value);
+}
+
+function onModifyModifyMeetingRoomCapacityChanged(originId) {
+  modifyMeetingRoomData.put("capacity", $IN.data.value);
+}
+
+function onMapPictureUploadFieldChanged(originId) {
+  modifyMeetingRoomData.put("uploadMap", $IN.data.value);
+  debug("New selected file: " + modifyMeetingRoomData.uploadMap);
+}
+
+function onSaveModifiedMeetingRoomClicked(originId) {
+  debug("Meeting room data: " + modifyMeetingRoomData);
+
+  if (validateMeetingRoomModifiedData(modifyMeetingRoomData, "ModifyMeetingRoomPage")) {
+
+    if (modifyMeetingRoomData.uploadMap != null && modifyMeetingRoomData.uploadMap.absolutePath != null) {
+
+      uploadedModifiedMeetingRoomMapPath = createMeetingRoomMapRelativePath(modifiedMeetingRoomId, modifyMeetingRoomData.uploadMap.originalFileName);
+      debug("Uploading new picture file to " + uploadedModifiedMeetingRoomMapPath);
+      documentPut(originId, uploadedModifiedMeetingRoomMapPath, modifyMeetingRoomData.uploadMap.absolutePath, "ModifyMeetingRoomMapUploadSuccess", "MeetingRoomMapUploadFailure");
+
+    } else {
+
+      var meetingRoomDao = {
+        "id": modifiedMeetingRoomId,
+        "name": modifyMeetingRoomData.name,
+        "location": modifyMeetingRoomData.location,
+        "capacity": parseNumber(modifyMeetingRoomData.capacity),
+        "changeType": "UPDATE"
+      };
+      updateMeetingRoomDao(meetingRoomDao);
+
+    }
   }
 }
 
 function updateMeetingRoomDao(meetingRoomDao) {
   updateTypeDefinition("meetingRoom", meetingRoomDao.id, meetingRoomDao);
-  sendDataChange("meetingRoom", [meetingRoomDao]);
+  sendDataChange("meetingRoom", [meetingRoomDao.deepClone()]);
+
   fireEvent(createRefreshItemTargetEvent("MeetingRoomsList", createMeetingRoomsListData()), "MeetingRoomsPage");
   finishPage("ModifyMeetingRoomPage" ,originId);
 }
 
 function onModifyMeetingRoomMapUploadSuccess(originId) {
+  debug("Upload has been done!");
+
   var meetingRoomDao = {
     "id": modifiedMeetingRoomId,
-    "name": modifiedMeetingRoomName,
-    "location": modifiedMeetingRoomLocation,
-    "capacity": modifiedMeetingRoomCapacity,
+    "name": modifyMeetingRoomData.name,
+    "location": modifyMeetingRoomData.location,
+    "capacity": modifyMeetingRoomData.capacity,
     "mapPicturePath": uploadedModifiedMeetingRoomMapPath,
     "changeType": "UPDATE"
   };
   updateMeetingRoomDao(meetingRoomDao);
+  publishNotificationMessage(originId, DICTIONARY.uploadSuccess_msg);
+}
 
-
-  publishNotification({
-    "userId": getCurrentUser().userId,
-    "level": "default",
-    "type": "text",
-    "duration": "long",
-    "message": DICTIONARY.uploadSuccess_msg
-  }, originId);
+function onMapPicturePathInputHelperAction(originId) {
+  displayMapPopup(originId, modifiedMeetingRoomOriginalName, modifiedMeetingRoomOriginalMapPath);
 }

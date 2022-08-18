@@ -2,7 +2,7 @@ import {
   /mobile/common/TeamsReservation,
   /mobile/repository/ReservationRepository,
   /mobile/repository/WorkstationRepository,
-  /mobile/workstation/Workstations
+  /mobile/workstation/WorkstationsForADay
 }
 
 function displayMeetingRoomCalendarViewFragment(originId) {
@@ -17,16 +17,17 @@ function displayMeetingRoomCalendarViewFragment(originId) {
 
 function createMeetingRoomCalendarViewReservationList() {
   var calendarViewReservationsListData = [];
-  var today = getDayStart(now());
-  var totalAvailableReservationUnits = getMeetingRooms().size() * 22;
-  var reservations = prepareMeetingRoomReservationForPeriod(dateSubtract(today, 7, "day").getTime(), getDayEnd(dateAdd(now(), 29, "day")).getTime());
+  var today = getDayStartForCentralTimeZone(now());
+  var totalAvailableReservationUnits = getMeetingRooms().size() * MEETING_ROOM_DAILY_MINUTES;
+  // Add more to the beginning and for the end to be sure with the time-zone changes
+  var reservations = prepareMeetingRoomReservationForPeriod(dateSubtract(today, DATE_LIST_PREVIOUS_DAYS_PLUS_ONE, "day").getTime(), getDayEndForCentralTimeZone(dateAdd(now(), DATE_LIST_FOLLOWING_DAYS_PLUS_ONE, "day")).getTime());
 
-  for(var i = 7; i > 0; i -= 1) {
+  for(var i = DATE_LIST_PREVIOUS_DAYS; i > 0; i -= 1) {
     var currentDay = dateSubtract(today, i, "day");
     calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations, totalAvailableReservationUnits));
   }
   calendarViewReservationsListData.add(prepareCalendarDayData(today, reservations, totalAvailableReservationUnits));
-  for(var i = 1; i < 30; i += 1) {
+  for(var i = 1; i <= DATE_LIST_FOLLOWING_DAYS; i += 1) {
     var currentDay = dateAdd(today, i, "day");
     calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations, totalAvailableReservationUnits));
   }

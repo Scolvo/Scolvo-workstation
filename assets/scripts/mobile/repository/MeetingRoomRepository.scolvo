@@ -14,3 +14,20 @@ function getMeetingRoomById(meetingRoomId) {
 
   return meetingRooms.get(0);
 }
+
+function getMeetingRoomByReservationId(reservationId) {
+  var daos = select()
+  .selectAs("meetingRoom.id", "id")
+  .selectAs("meetingRoom.name", "name")
+  .selectAs("meetingRoom.capacity", "capacity")
+  .selectAs("meetingRoom.location", "location")
+  .from("reservation")
+  .join("innerJoin", table("meetingRoom"), custom("reservation.meetingRoomId = meetingRoom.id"))
+  .where(eq("reservation.id", reservationId))
+  .execute();
+
+  if (daos.isEmpty()) {
+    return null;
+  }
+  return daos.get(0);
+}
