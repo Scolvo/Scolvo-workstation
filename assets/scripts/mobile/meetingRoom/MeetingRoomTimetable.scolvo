@@ -7,7 +7,7 @@ var selectedMeetingRoomId = null;
 
 function displayMeetingRoomTimetablePage(originId, meetingRoomId) {
   selectedMeetingRoomId = meetingRoomId;
-  var meetingRoom = getMeetingRoomsData().get(meetingRoomId);
+  var meetingRoom = getMeetingRoomsIdMap().get(meetingRoomId);
   var selectData = {
     "helper_label": meetingRoom.location
   };
@@ -16,7 +16,7 @@ function displayMeetingRoomTimetablePage(originId, meetingRoomId) {
   }
   var data = {
     "MeetingRoomTimetablePage": {
-      "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd."),
+      "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd.", CENTRAL_TIME_ZONE),
       "MeetingRoomTimetableSelectOptions": createMeetingRoomOptions(meetingRoomId),
       "MeetingRoomTimetableSelect": selectData,
       "MeetingRoomTimetableList": createMeetingRoomTimetableData()
@@ -30,12 +30,13 @@ function displayMeetingRoomTimetablePage(originId, meetingRoomId) {
 
 function createMeetingRoomOptions(selectedId) {
   return getMeetingRooms().map(function (meetingRoomDao) {
-    return createSelectOption(meetingRoomDao.id, meetingRoomDao.name, selectedId == meetingRoomDao.id);
+    var extendedName = meetingRoomDao.name + " (" + meetingRoomDao.capacity + ")";
+    return createSelectOption(meetingRoomDao.id,  extendedName, selectedId == meetingRoomDao.id);
   });
 }
 
 function createMeetingRoomTimetableData() {
-  return getMeetingRoomReservationsForDay(selectedMeetingRoomId, getDayStart(selectedMeetingRoomDay).getTime(), getDayEnd(selectedMeetingRoomDay).getTime()).map(function (reservationDao) {
+  return getMeetingRoomReservationsForDay(selectedMeetingRoomId, getDayStartForCentralTimeZone(selectedMeetingRoomDay).getTime(), getDayEndForCentralTimeZone(selectedMeetingRoomDay).getTime()).map(function (reservationDao) {
     var reservationData = {
       "id": reservationDao.id,
       "reservationInterval": resolveReservationIntervalText(reservationDao.start, reservationDao.end),
@@ -83,7 +84,7 @@ page MeetingRoomTimetablePage {
 function onMeetingRoomTimetablePageLoaded(originId) {}
 
 function onMeetingRoomTimetableSelectHelperAction(originId) {
-  var meetingRoom = getMeetingRoomsData().get(selectedMeetingRoomId);
+  var meetingRoom = getMeetingRoomsIdMap().get(selectedMeetingRoomId);
   displayMapPopup(originId, meetingRoom.name, meetingRoom.mapPicturePath);
 }
 
@@ -91,7 +92,7 @@ function onMeetingRoomTimetableListSelectionChanged(originId) {}
 
 function onMeetingRoomTimetableSelectChanged(originId) {
   selectedMeetingRoomId = $IN.data.value;
-  var meetingRoom = getMeetingRoomsData().get(selectedMeetingRoomId);
+  var meetingRoom = getMeetingRoomsIdMap().get(selectedMeetingRoomId);
   var selectData = {
     "helper_label": meetingRoom.location
   };

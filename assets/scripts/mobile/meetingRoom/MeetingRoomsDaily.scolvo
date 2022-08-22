@@ -8,7 +8,7 @@ function displayMeetingRoomsDailyPage(originId, day) {
   selectedMeetingRoomDay = day;
   var data = {
     "MeetingRoomsDailyPage": {
-      "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd."),
+      "headerText": dateToString(selectedMeetingRoomDay, "yyyy MMMM dd.", CENTRAL_TIME_ZONE),
       "MeetingRoomsDailyList": createMeetingRoomsDailyData()
     }
   };
@@ -16,17 +16,17 @@ function displayMeetingRoomsDailyPage(originId, day) {
 }
 
 function createMeetingRoomsDailyData() {
-  var reservations = prepareMeetingRoomReservationForDay(getDayStart(selectedMeetingRoomDay).getTime(), getDayEnd(selectedMeetingRoomDay).getTime());
+  var reservations = prepareMeetingRoomReservationForDay(getDayStartForCentralTimeZone(selectedMeetingRoomDay).getTime(), getDayEndForCentralTimeZone(selectedMeetingRoomDay).getTime());
   return getMeetingRooms().map(function (meetingRoomDao) {
-    var availableCount = 22;
+    var availableCount = MEETING_ROOM_DAILY_MINUTES;
     if (reservations.get(meetingRoomDao.id) != null) {
-      availableCount = 22 - reservations.get(meetingRoomDao.id);
+      availableCount = MEETING_ROOM_DAILY_MINUTES - reservations.get(meetingRoomDao.id);
     }
     var meetingRoomData = {
       "id": meetingRoomDao.id,
       "meetingRoomName": meetingRoomDao.name + " (" + decimalFormat(meetingRoomDao.capacity, "##") + ")",
-      "availability": resolveAvailableMeetingRoomLabel(availableCount, 22),
-      "availabilityPicture": resolveMeetingRoomsAvailabilityPicture(22, availableCount)
+      "availability": resolveAvailableMeetingRoomLabel(availableCount, MEETING_ROOM_DAILY_MINUTES),
+      "availabilityPicture": resolveMeetingRoomsAvailabilityPicture(MEETING_ROOM_DAILY_MINUTES, availableCount)
     };
     return meetingRoomData;
   });

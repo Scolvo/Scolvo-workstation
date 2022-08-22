@@ -1,23 +1,31 @@
-function validateWorkplaceData(workplaceData, originId) {
-  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
-  validateWorkplaceName(validationResult, workplaceData);
-  validateTeam(validationResult, workplaceData);
-  validateCanBeBooked(validationResult, workplaceData);
-  return validationResult;
+function validateWorkplaceData(workplaceData, pageName) {
+  debug("Validating: " + workplaceData);
+  var nameIsValid = validateWorkplaceName(workplaceData, pageName);
+  var canBeBookedIsValid = validateCanBeBooked(workplaceData, pageName);
+  var teamIsValid = validateTeamForWorkplace(workplaceData, "TeamInput", pageName);
+
+  return nameIsValid && teamIsValid && canBeBookedIsValid;
 }
 
-function validateWorkplaceName(result, data) {
-  if (data.Name == null || data.Name.isEmpty()) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_WorkstationName);
-  } else if (data.Name.length() > 50) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_WorkstationNameTooLong);
+function validateWorkplaceName(data, pageName) {
+  if (data.name == null || data.name.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent("NameInput", DICTIONARY.userValidationMsg_WorkstationName), pageName);
+    return false;
+  } else if (data.name.length() > 50) {
+    fireEvent(createErrorValueChangeTargetEvent("NameInput", DICTIONARY.userValidationMsg_WorkstationNameTooLong), pageName);
+    return false;
   }
+  return true;
 }
 
-function validateCanBeBooked(result, data) {
-  if (data.CanBeBooked == null || data.CanBeBooked.isEmpty()) {
-    result.addMessage("ERROR", "CanBeBooked", DICTIONARY.userValidationMsg_CanBeBooked);
-  } else if (data.CanBeBooked != "yes" && data.CanBeBooked != "no") {
-    result.addMessage("ERROR", "CanBeBooked", DICTIONARY.userValidationMsg_CanBeBooked_Invalid);
+function validateCanBeBooked(data, pageName) {
+  if (data.canBeBooked == null || data.canBeBooked.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent("CanBeBookedInput", DICTIONARY.userValidationMsg_CanBeBooked), pageName);
+    return false;
+  } else if (data.canBeBooked != "yes" && data.canBeBooked != "no") {
+    fireEvent(createErrorValueChangeTargetEvent("CanBeBookedInput", DICTIONARY.userValidationMsg_CanBeBooked_Invalid), pageName);
+    return false;
   }
+
+  return true;
 }

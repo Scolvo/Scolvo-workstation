@@ -70,11 +70,21 @@ function handlingUserDataValidationResponse(response) {
   }
 }
 
-function publishNotification(dao,originId) {
+function publishNotification(dao, originId) {
 	var notifyActionEvent = {
 		"targetElementId": "Notification",
 		"targetElementEvent": "notify",
 		"data": dao
 	};
 	fireEvent(notifyActionEvent, originId);
+}
+
+function publishNotificationMessage(originId, messageContent) {
+	publishNotification({
+    "userId": getCurrentUser().userId,
+    "level": "default",
+    "type": "text",
+    "duration": "short",
+    "message": messageContent
+  }, originId);
 }

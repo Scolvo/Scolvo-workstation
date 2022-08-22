@@ -7,15 +7,18 @@ import {
 }
 
 function onDataSync(userId, deviceType) {
+  debug("onDataSync for userId '" + userId + "' and deviceType '" + deviceType + "' ...");
   if (userId == "superUser") {
     if (deviceType == "MHUB") {
-      return dataSyncByAdministrator();
+      debug("Super User case");
+      return dataSyncBySuperAdministrator();
     }
     return [];
   }
   var user = getUserById(userId);
   if (user.role == "administrator" && deviceType == "MHUB") {
-    return dataSyncByAdministrator();
+    debug("Admin case as creator");
+    return dataSyncByAdministrator(userId);
   }
   if (user.role == "worker" && deviceType == "MHUB") {
     return [];
@@ -29,9 +32,18 @@ function onDataSync(userId, deviceType) {
   }
 }
 
-function dataSyncByAdministrator() {
+function dataSyncByAdministrator(userId) {
   return [
-    createDataSyncElement("team", getTeamsForMhub()),
+    createDataSyncElement("team", getTeams()),
+    createDataSyncElement("user", getUsersForMhubByCreator(userId)),
+    createDataSyncElement("workplace", getWorkplaces()),
+    createDataSyncElement("meetingRoom", getMeetingRoomsForMhub())
+  ];
+}
+
+function dataSyncBySuperAdministrator() {
+  return [
+    createDataSyncElement("team", getTeams()),
     createDataSyncElement("user", getUsersForMhub()),
     createDataSyncElement("workplace", getWorkplaces()),
     createDataSyncElement("meetingRoom", getMeetingRoomsForMhub())
@@ -41,8 +53,8 @@ function dataSyncByAdministrator() {
 function dataSyncByWorker() {
   return [
     createDataSyncElement("user", getUsersForMobile()),
-    createDataSyncElement("team", getTeamsForMobile()),
-    createDataSyncElement("workplace", getWorkplacesForMobile()),
+    createDataSyncElement("team", getTeams()),
+    createDataSyncElement("workplace", getWorkplaces()),
     createDataSyncElement("meetingRoom", getMeetingRoomsForMobile()),
     createDataSyncElement("reservation", getReservations()),
   ];

@@ -1,16 +1,16 @@
 import {
   /mobile/repository/ReservationRepository,
   /mobile/repository/WorkstationRepository,
-  /mobile/workstation/Workstations,
+  /mobile/workstation/WorkstationsForADay,
   /mobile/repository/UserRepository,
   /mobile/common/MapDisplay
 }
 
 var selectedDashboardTeamId;
 
-function onDashboard(originId) {
+function displayWorkstationsDashboardPage(originId) {
   selectedDashboardTeamId = getUserById(sessionUserId()).teamId;
-  var team = getTeamsData().get(selectedDashboardTeamId);
+  var team = getTeamsIdMap().get(selectedDashboardTeamId);
   var selectData = {
     "helper_label": team.location
   };
@@ -21,7 +21,7 @@ function onDashboard(originId) {
     "DashboardPage": {
       "DashboardTeamSelect": selectData,
       "DashboardTeamSelectOptions": createTeamOptions(selectedDashboardTeamId),
-      "DashboardList": createDashboardListData(selectedDashboardTeamId)
+      "DashboardList": createDashboardListData()
     }
   };
   var actionEvents = [
@@ -30,15 +30,16 @@ function onDashboard(originId) {
   display(DashboardPage, data, originId, actionEvents);
 }
 
-function createDashboardListData(selectedTeamId) {
+function createDashboardListData() {
   var dashboardListData = [];
-  var today = getDayStart(now());
-  var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
-  var reservations = prepareWorkstationReservationForPeriod(selectedTeamId, today.getTime(), dateAdd(today, 29, "day").getTime());
+  var today = getDayStartForCentralTimeZone(now());
+  var totalWorkstationsForTeam = getWorkstationsForTeam(selectedDashboardTeamId).size();
+  var reservations = prepareWorkstationReservationForPeriod(selectedDashboardTeamId, today.getTime(), dateAdd(today, DATE_LIST_FOLLOWING_DAYS_PLUS_ONE, "day").getTime());
 
   var currentDay = today;
-  for(var i = 0; i < 30; i += 1) {
-    var reservationString = dateToString(currentDay, "yyyy.MM.dd.");
+  for(var i = 0; i <= DATE_LIST_FOLLOWING_DAYS; i += 1) {
+    var reservationString = dateToString(currentDay, "yyyy.MM.dd.", CENTRAL_TIME_ZONE);
+    debug("Current day when building up the list: " + currentDay.getTime() + ", as date: " + currentDay + ", The reservation string (CTZ): " + reservationString);
     var availableCount = totalWorkstationsForTeam;
     if (reservations.get(reservationString) != null) {
       availableCount = totalWorkstationsForTeam - reservations.get(reservationString);
@@ -100,13 +101,13 @@ page DashboardPage {
 function onDashboardPageLoaded(originId) {}
 
 function onDashboardTeamSelectHelperAction(originId) {
-  var team = getTeamsData().get(selectedDashboardTeamId);
+  var team = getTeamsIdMap().get(selectedDashboardTeamId);
   displayMapPopup(originId, team.name, team.mapPicturePath);
 }
 
 function onDashboardTeamSelectChanged(originId) {
   selectedDashboardTeamId = $IN.data.value;
-  var team = getTeamsData().get(selectedDashboardTeamId);
+  var team = getTeamsIdMap().get(selectedDashboardTeamId);
   var selectComponentData = {
     "helper_label": team.location
   };
@@ -117,9 +118,10 @@ function onDashboardTeamSelectChanged(originId) {
     selectComponentData.put("helper_icon", "");
   }
   fireEvent(createValueChangeTargetEvent("DashboardTeamSelect", selectComponentData), originId);
-  fireEvent(createRefreshItemTargetEvent("DashboardList", createDashboardListData(selectedDashboardTeamId)), "DashboardPage");
+  fireEvent(createRefreshItemTargetEvent("DashboardList", createDashboardListData()), "DashboardPage");
 }
 
 function onDashboardListSelectionChanged(originId) {
-  displayWorkstationsPage(originId, $IN.data.day);
+  var selectedDayToShow = $IN.data.day;
+  displayWorkstationsPageForADayForTeam(originId, selectedDashboardTeamId, selectedDayToShow);
 }

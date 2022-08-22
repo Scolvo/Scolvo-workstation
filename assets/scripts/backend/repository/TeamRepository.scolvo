@@ -1,13 +1,4 @@
-function getTeamsForMhub() {
-  return select()
-  .selectAs("id")
-  .selectAs("name")
-  .selectAs("location")
-  .from("team")
-  .execute();
-}
-
-function getTeamsForMobile() {
+function getTeams() {
   return select()
   .selectAs("id")
   .selectAs("name")

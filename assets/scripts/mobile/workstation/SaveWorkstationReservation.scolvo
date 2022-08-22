@@ -1,0 +1,74 @@
+var workstationReserveId = null;
+
+function displaySaveWorkstationReservationPopup(originId, workstationId) {
+  var workstation = getWorkstationById(workstationId);
+  workstationReserveId = workstationId;
+  var actionEvents = [
+    createValueChangeTargetEvent("DateLabel", dateToString(selectedDay, "yyyy MMMM dd.", CENTRAL_TIME_ZONE)),
+    createClickSourceEvent("DontSaveWorkstationReservationButton", "DontSaveWorkstationReservationButtonClicked"),
+    createClickSourceEvent("SaveWorkstationReservationButton", "SaveWorkstationReservationButtonClicked"),
+  ];
+  var data = {
+    "SaveWorkstationReservationPopup": {
+      "headerText": workstation.name
+    }
+  };
+  display(SaveWorkstationReservationPopup, data, originId, actionEvents);
+}
+
+page SaveWorkstationReservationPopup {
+  layout: vertical;
+  template: popup;
+
+  label ConfirmationLabel {
+    template: heading4Primary|multi;
+    alignment: left;
+  }
+
+  spacer {
+    span: 8;
+  }
+
+  label DateLabel {
+    template: bodyCopy1CondensedSecondary;
+    alignment: left;
+  }
+
+  container SaveWorkstationReservationButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button DontSaveWorkstationReservationButton {
+      template: secondaryMedium;
+    }
+
+    button SaveWorkstationReservationButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onDontSaveWorkstationReservationButtonClicked(originId) {
+  finishPage("SaveWorkstationReservationPopup", originId);
+}
+
+function onSaveWorkstationReservationButtonClicked(originId) {
+  // This date has to be the day start in CENTRAL_TIME_ZONE
+  var selectedDayReservationStartInCentralTimeZone = selectedDay;
+  var reservationDao = {
+    "id": uuid(),
+    "userId": reservingUser.id,
+    "workplaceId": workstationReserveId,
+    "start": selectedDayReservationStartInCentralTimeZone,
+    "changeType": "INSERT"
+  };
+  debug("Saving workstation reservation for selected day: " + selectedDay + ", dao is: " + reservationDao);
+  insertTypeDefinition("reservation", reservationDao);
+  sendDataChange("reservation", [reservationDao]);
+
+  fireEvent(createRefreshItemTargetEvent("WorkstationsList", createWorkstationsForADayData()), "WorkstationsForADayPage");
+  fireEvent(createRefreshItemTargetEvent("DashboardList", createDashboardListData()), "DashboardPage");
+  fireEvent(createRefreshItemTargetEvent("ReservationList", createCalendarViewReservationList()), "CalendarViewPage");
+  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.reservation_successMsg), originId);
+
+  finishPage("SaveWorkstationReservationPopup", originId);
+}

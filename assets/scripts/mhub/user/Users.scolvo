@@ -6,9 +6,10 @@ import {
 }
 
 function displayUsersPage(originId) {
+  var users = createUserListData();
   var data = {
     "UsersPage": {
-      "UsersList": createUserListData()
+      "UsersList": users
     }
   };
   display(UsersPage, data, originId);

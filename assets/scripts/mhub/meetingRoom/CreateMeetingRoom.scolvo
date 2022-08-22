@@ -42,14 +42,15 @@ function onSaveMeetingRoom(originId) {
     return null;
   }
   createdMeetingRoomId = uuid();
-  if(meetingRoomData.UploadMap != null) {
+  if (meetingRoomData.UploadMap != null && meetingRoomData.UploadMap.fileName != null) {
+
     uploadedMeetingRoomMapPath = createMeetingRoomMapRelativePath(createdMeetingRoomId, meetingRoomData.UploadMap.fileName);
     meetingRoomName = meetingRoomData.Name;
     meetingRoomLocation = meetingRoomData.Location;
     meetingRoomCapacity = parseNumber(meetingRoomData.Capacity);
     documentPut(originId, uploadedMeetingRoomMapPath, meetingRoomData.UploadMap.absolutePath, "MeetingRoomMapUploadSuccess", "MeetingRoomMapUploadFailure");
-  }
-  else {
+
+  } else {
     var meetingRoomDao = {
       "id": createdMeetingRoomId,
       "name": meetingRoomData.Name,
@@ -69,6 +70,8 @@ function saveMeetingRoomDao(meetingRoomDao) {
 }
 
 function onMeetingRoomMapUploadSuccess(originId) {
+  debug("After upoad: " + $IN.data);
+
   var meetingRoomDao = {
     "id": createdMeetingRoomId,
     "name": meetingRoomName,
@@ -78,13 +81,5 @@ function onMeetingRoomMapUploadSuccess(originId) {
     "changeType": "INSERT"
   };
   saveMeetingRoomDao(meetingRoomDao);
-
-
-  publishNotification({
-    "userId": getCurrentUser().userId,
-    "level": "default",
-    "type": "text",
-    "duration": "long",
-    "message": DICTIONARY.uploadSuccess_msg
-  }, originId);
+  publishNotificationMessage(originId, DICTIONARY.uploadSuccess_msg);
 }

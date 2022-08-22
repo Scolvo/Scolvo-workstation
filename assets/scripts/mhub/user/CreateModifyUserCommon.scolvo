@@ -15,55 +15,90 @@ function getRoleOptions(selectedId) {
 }
 
 //========================== Validation
-function validateUserName(result, data) {
-  if (data.Name == null || data.Name.isEmpty()) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_UserName);
-  } else if (data.Name.length() > 50) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_UserNameTooLong);
+function validateUserName(data, componentId, pageName) {
+  if (data.name == null || data.name.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_UserName), pageName);
+    return false;
+  } else if (data.name.length() > 50) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_UserNameTooLong), pageName);
+    return false;
   }
+  return true;
 }
 
-function validateUserMail(result, data) {
-  if (data.Email == null || data.Email.isEmpty()) {
-    result.addMessage("ERROR", "Email", DICTIONARY.userValidationMsg_Mail);
-  } else if (data.Email.length() > 50) {
-    result.addMessage("ERROR", "Email", DICTIONARY.userValidationMsg_MailTooLong);
-  } else if (!isEmailFormatValid(data.Email)) {
-    result.addMessage("ERROR", "Email", DICTIONARY.validationMsg_wrongEmailFormat);
+function validateUserMail(data, componentId, pageName) {
+  if (data.email == null || data.email.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_Mail), pageName);
+    return false;
+  } else if (data.email.length() > 50) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_MailTooLong), pageName);
+    return false;
+  } else if (!isEmailFormatValid(data.email)) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.validationMsg_wrongEmailFormat), pageName);
+    return false;
   }
+  return true;
 }
 
-function validateUserRole(result, data) {
-  if (data.Role == null || data.Role.isEmpty()) {
-    result.addMessage("ERROR", "Role", DICTIONARY.userValidationMsg_Role);
+function validateUserRole(data, componentId, pageName) {
+  if (data.role == null || data.role.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_Role), pageName);
+    return false;
   }
+  return true;
 }
 
-function validateUsername(result, data) {
-  if (data.Username == null || data.Username.isEmpty()) {
-    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_Username);
-  } else if (data.Username.length() > 20) {
-    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernameTooLong);
-  } else if(data.Username == "su") {
-    result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernamuSuNotAllowed);
+function validateUsername(data, componentId, pageName) {
+  if (data.username == null || data.username.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_Username), pageName);
+    return false;
+  } else if (data.username.length() > 20) {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_UsernameTooLong), pageName);
+    return false;
+  } else if(data.username == "su") {
+    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_UsernamuSuNotAllowed), pageName);
+    return false;
   } else {
     var userDaos = select()
       .selectAs("id")
       .from("user")
-      .where(eq("username", data.Username))
+      .where(eq("username", data.username))
       .execute();
     if (!userDaos.isEmpty()) {
-      result.addMessage("ERROR", "Username", DICTIONARY.userValidationMsg_UsernameAlreadyExists);
+      fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_UsernameAlreadyExists), pageName);
+      return false;
     }
+  }
+
+  return true;
+}
+
+function validateUserPasswordWithValidationResult(result, data) {
+  if (data.Password == null || data.Password.isEmpty()) {
+    result.addMessage("ERROR", "Password", DICTIONARY.validationMsgRequiredField);
+  } else if (data.ConfirmPassword == null || data.ConfirmPassword.isEmpty()) {
+    result.addMessage("ERROR", "ConfirmPassword", DICTIONARY.validationMsgRequiredField);
+  } else if (data.Password != data.ConfirmPassword) {
+    result.addMessage("ERROR", "Password", DICTIONARY.validationMsgValuesDoNotMatch);
+  } else if (!data.Password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$")) {
+    result.addMessage("ERROR", "Password", DICTIONARY.validationMsgPasswordFormalNotMatch);
   }
 }
 
-function validateUserPassword(result, data) {
-  if (data.Password == null || data.Password.isEmpty()) {
-    result.addMessage("ERROR", "Password", DICTIONARY.userValidationMsg_Password);
-  } else if (data.ConfirmPassword == null || data.ConfirmPassword.isEmpty()) {
-    result.addMessage("ERROR", "ConfirmPassword", DICTIONARY.userValidationMsg_ConfirmPassword);
-  } else if (data.Password != data.ConfirmPassword) {
-    result.addMessage("ERROR", "Password", DICTIONARY.userValidationMsg_PasswordNotMatch);
+function validateUserPassword(data, componentIdPassword, componentIdConfirmPassword, pageName) {
+  return validateUserPasswordWithValues(data.password, data.confirmPassword, componentIdPassword, componentIdConfirmPassword, pageName);
+}
+
+function validateUserPasswordWithValues(passwordValue, confirmPasswordValue, componentIdPassword, componentIdConfirmPassword, pageName) {
+  if (passwordValue == null || passwordValue.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent(componentIdPassword, DICTIONARY.userValidationMsg_Password), pageName);
+    return false;
+  } else if (confirmPasswordValue == null || confirmPasswordValue.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent(componentIdConfirmPassword, DICTIONARY.userValidationMsg_ConfirmPassword), pageName);
+    return false;
+  } else if (passwordValue != confirmPasswordValue) {
+    fireEvent(createErrorValueChangeTargetEvent(componentIdConfirmPassword, DICTIONARY.userValidationMsg_PasswordNotMatch), pageName);
+    return false;
   }
+  return true;
 }

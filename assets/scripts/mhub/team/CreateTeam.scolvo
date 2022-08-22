@@ -40,32 +40,36 @@ function onSaveTeam(originId) {
     return null;
   }
   createdTeamId = uuid();
-  if(teamData.UploadMap != null) {
+
+  if (teamData.UploadMap != null && teamData.UploadMap.fileName != null) {
+
     uploadedTeamMapPath = createTeamMapRelativePath(createdTeamId, teamData.UploadMap.fileName);
     teamName = teamData.Name;
     teamLocation = teamData.Location;
     documentPut(originId, uploadedTeamMapPath, teamData.UploadMap.absolutePath, "TeamMapUploadSuccess", "TeamMapUploadFailure");
-  }
-  else {
+
+  } else {
     var teamDao = {
       "id": createdTeamId,
       "name": teamData.Name,
       "location": teamData.Location,
       "changeType": "INSERT"
     };
-
     saveTeamDao(teamDao);
   }
 }
 
 function saveTeamDao(teamDao) {
+
   insertTypeDefinition("team", teamDao);
   sendDataChange("team", [teamDao]);
+
   fireEvent(createRefreshItemTargetEvent("TeamsList", createTeamsListData()), "TeamsPage");
   finishPage("CreateTeamPage" ,originId);
 }
 
 function onTeamMapUploadSuccess(originId) {
+
   var teamDao = {
     "id": createdTeamId,
     "name": teamName,
@@ -75,12 +79,5 @@ function onTeamMapUploadSuccess(originId) {
   };
   saveTeamDao(teamDao);
 
-
-  publishNotification({
-    "userId": getCurrentUser().userId,
-    "level": "default",
-    "type": "text",
-    "duration": "long",
-    "message": DICTIONARY.uploadSuccess_msg
-  }, originId);
+  publishNotificationMessage(originId, DICTIONARY.uploadSuccess_msg);
 }

@@ -2,16 +2,25 @@ import {
   /mobile/common/TeamsReservation,
   /mobile/repository/ReservationRepository,
   /mobile/repository/WorkstationRepository,
-  /mobile/workstation/Workstations
+  /mobile/workstation/WorkstationsForADay
 }
 
-function onCalendarView(originId) {
-  var selectedTeamId = getUserById(sessionUserId()).teamId;
+var selectedCalendarViewTeamId = null;
 
+function displayCalendarViewPage(originId) {
+  selectedCalendarViewTeamId = getUserById(sessionUserId()).teamId;
+  var team = getTeamsIdMap().get(selectedCalendarViewTeamId);
+  var selectData = {
+    "helper_label": team.location
+  };
+  if(team.mapPicturePath != null) {
+    selectData.put("helper_icon", "\ue913");
+  }
   var data = {
     "CalendarViewPage": {
-      "CalendarViewTeamSelectOptions": createTeamOptions(selectedTeamId),
-      "ReservationList": createCalendarViewReservationList(selectedTeamId)
+      "CalendarViewTeamSelect": selectData,
+      "CalendarViewTeamSelectOptions": createTeamOptions(selectedCalendarViewTeamId),
+      "ReservationList": createCalendarViewReservationList()
     }
   };
   var actionEvents = [
@@ -21,20 +30,27 @@ function onCalendarView(originId) {
   display(CalendarViewPage, data, originId, actionEvents);
 }
 
-function createCalendarViewReservationList(selectedTeamId) {
+function createCalendarViewReservationList() {
   var calendarViewReservationsListData = [];
-  var today = getDayStart(now());
-  var totalWorkstationsForTeam = getWorkstationsForTeam(selectedTeamId).size();
-  var reservations = prepareWorkstationReservationForPeriod(selectedTeamId, dateSubtract(today, 7, "day").getTime(), dateAdd(today, 29, "day").getTime());
+  // Day starts are populated for local time-zone
+  var today = getDayStartForLocalTimeZone(now());
+  var totalWorkstationsForTeam = getWorkstationsForTeam(selectedCalendarViewTeamId).size();
 
-  for(var i = 7; i > 0; i -= 1) {
+  // Because of the time-zone differences one day - and + is used then working with the period
+  var reservations = prepareWorkstationReservationForPeriod(selectedCalendarViewTeamId, dateSubtract(today, DATE_LIST_PREVIOUS_DAYS_PLUS_ONE, "day").getTime(), dateAdd(today, DATE_LIST_FOLLOWING_DAYS_PLUS_ONE, "day").getTime());
+  for(var i = DATE_LIST_PREVIOUS_DAYS; i > 0; i -= 1) {
     var currentDay = dateSubtract(today, i, "day");
-    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations, totalWorkstationsForTeam));
+    var dayData = prepareCalendarDayData(currentDay, reservations, totalWorkstationsForTeam);
+    calendarViewReservationsListData.add(dayData);
   }
-  calendarViewReservationsListData.add(prepareCalendarDayData(today, reservations, totalWorkstationsForTeam));
-  for(var i = 1; i < 30; i += 1) {
+
+  var dayData = prepareCalendarDayData(today, reservations, totalWorkstationsForTeam);
+  calendarViewReservationsListData.add(dayData);
+
+  for(var i = 1; i <= DATE_LIST_FOLLOWING_DAYS; i += 1) {
     var currentDay = dateAdd(today, i, "day");
-    calendarViewReservationsListData.add(prepareCalendarDayData(currentDay, reservations, totalWorkstationsForTeam));
+    var dayData = prepareCalendarDayData(currentDay, reservations, totalWorkstationsForTeam);
+    calendarViewReservationsListData.add(dayData);
   }
 
   return calendarViewReservationsListData;
@@ -62,10 +78,31 @@ page CalendarViewPage {
 
 function onCalendarViewPageLoaded(originId) {}
 
+function onCalendarViewTeamSelectHelperAction(originId) {
+  var team = getTeamsIdMap().get(selectedCalendarViewTeamId);
+  displayMapPopup(originId, team.name, team.mapPicturePath);
+}
+
 function onCalendarViewTeamSelectChanged(originId) {
-  fireEvent(createRefreshItemTargetEvent("ReservationList", createCalendarViewReservationList($IN.data.value)), "CalendarViewPage");
+  selectedCalendarViewTeamId = $IN.data.value;
+  var team = getTeamsIdMap().get(selectedCalendarViewTeamId);
+  var selectComponentData = {
+    "helper_label": team.location
+  };
+  if(team.mapPicturePath != null) {
+    selectComponentData.put("helper_icon", "\ue913");
+  }
+  else {
+    selectComponentData.put("helper_icon", "");
+  }
+  fireEvent(createValueChangeTargetEvent("CalendarViewTeamSelect", selectComponentData), originId);
+  fireEvent(createRefreshItemTargetEvent("ReservationList", createCalendarViewReservationList()), "CalendarViewPage");
 }
 
 function onReservationListSelectionChanged(originId) {
-  displayWorkstationsPage(originId, getDayStart($IN.data.selectedDay).getTime());
+  var dayToShow = $IN.data.selectedDay;
+  debug("CalendarView - day by the control is: " + dayToShow);
+  // This is client's local time-zone
+  var centralTimeZoneDay = getDayStartForCentralTimeZone(dayToShow).getTime();
+  displayWorkstationsPageForADayForTeam(originId, selectedCalendarViewTeamId, centralTimeZoneDay);
 }

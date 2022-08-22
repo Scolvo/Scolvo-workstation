@@ -12,3 +12,7 @@ services:
     mq:
         ports:
         - '5672:5672'
+    storage:
+        ports:
+        - '9080:8080'
+

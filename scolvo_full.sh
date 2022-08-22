@@ -18,8 +18,8 @@ printHelp() {
 }
 
 COMPOSE_FILES='-f docker-compose.yml'
-SERVICES_TO_START='auth authdb mq proxy be bedb webapp'
-SERVICES_TO_LOG='be admin webapp'
+SERVICES_TO_START='auth authdb mq proxy be bedb webapp storage'
+SERVICES_TO_LOG='be admin webapp storage'
 
 ADMIN=1
 while true

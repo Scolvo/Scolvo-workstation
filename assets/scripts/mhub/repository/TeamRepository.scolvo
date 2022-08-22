@@ -1,6 +1,6 @@
 function getTeams() {
   return select()
-  .from("team").orderBy("name", "asc")
+  .from("team").orderBy("name COLLATE NOCASE", "asc")
   .execute();
 }
 

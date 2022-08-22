@@ -4,14 +4,19 @@ var isMeetingRoomDeleteFromMyReservations = false;
 function displayDeleteMeetingRoomReservationPopup(originId, reservationId, reservationIntervalText, selectedReservationDay, isDeleteFromMyReservations) {
   meetingRoomReservationIdToDelete = reservationId;
   isMeetingRoomDeleteFromMyReservations = isDeleteFromMyReservations;
+  var meetingRoomDao = getMeetingRoomByReservationId(reservationId);
+
+  var reservationDayString = dateToString(selectedReservationDay, "yyyy MMMM dd.", CENTRAL_TIME_ZONE);
+  var dateStringWithHour = reservationDayString + " " + reservationIntervalText;
+  var calculatedHeaderText = meetingRoomDao.name + " " + dateStringWithHour;
   var actionEvents = [
-    createValueChangeTargetEvent("DateLabel", dateToString(selectedReservationDay, "yyyy MMMM dd.")),
+    createValueChangeTargetEvent("DateLabel", dateStringWithHour),
     createClickSourceEvent("DontDeleteMeetingRoomReservationButton", "DontDeleteMeetingRoomReservationButtonClicked"),
     createClickSourceEvent("DeleteMeetingRoomReservationButton", "DeleteMeetingRoomReservationButtonClicked"),
   ];
   var data = {
     "DeleteMeetingRoomReservationPopup": {
-      "headerText": reservationIntervalText
+      "headerText": calculatedHeaderText
     }
   };
   display(DeleteMeetingRoomReservationPopup, data, originId, actionEvents);
@@ -21,13 +26,13 @@ page DeleteMeetingRoomReservationPopup {
   layout: vertical;
   template: popup;
 
+  spacer {
+    span: 8;
+  }
+
   label ConfirmationLabel {
     template: heading4Primary|multi;
     alignment: left;
-  }
-
-  spacer {
-    span: 8;
   }
 
   label DateLabel {
@@ -51,7 +56,6 @@ page DeleteMeetingRoomReservationPopup {
 function onDeleteMeetingRoomReservationPopupCancel(originId) {}
 
 function onDontDeleteMeetingRoomReservationButtonClicked(originId) {
-  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.reservationDelete_unsuccessfulMsg), originId);
   finishPage("DeleteMeetingRoomReservationPopup", originId);
 }
 
@@ -63,10 +67,9 @@ function onDeleteMeetingRoomReservationButtonClicked(originId) {
   };
   sendDataChange("reservation", [reservationDeleteDao]);
 
-  if(isMeetingRoomDeleteFromMyReservations) {
+  if (isMeetingRoomDeleteFromMyReservations) {
     fireEvent(createRemoveItemTargetEvent("UserSpecificReservationsList", meetingRoomReservationIdToDelete), "UserSpecificReservationsPage");
-  }
-  else {
+  } else {
     fireEvent(createRefreshItemTargetEvent("MeetingRoomTimetableList", createMeetingRoomTimetableData()), "MeetingRoomTimetablePage");
     fireEvent(createRefreshItemTargetEvent("MeetingRoomsDailyList", createMeetingRoomsDailyData()), "MeetingRoomsDailyPage");
     fireEvent(createRefreshItemTargetEvent("MeetingRoomsDashboardList", createMeetingRoomsDashboardListData()), "MeetingRoomsDashboardPage");

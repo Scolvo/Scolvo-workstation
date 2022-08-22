@@ -1,12 +1,12 @@
 This repo can be used to launch a full Scolvo Dev environment locally or on a cloud based Virtual Machine. (Getting started with Scolvo Development Framework: https://github.com/Scolvo/Scolvo-Development-Platform)
 
 
-# Starting the server 
+# Starting the server
 
 #### Before starting the environment, make sure that you have a .env file created in the root folder of the project. Old .env files, previously created are also good.
 
     cp .env_sample .env
-    
+
 To set firebase settings see https://scolvo.atlassian.net/wiki/spaces/GEN/pages/678428673/Setup+Firebase+Service
 
 ## For mobile client development
@@ -33,7 +33,7 @@ To set up the keycloak realm and user please see : https://scolvo.atlassian.net/
     username: bedb
     password: bedb
     database: bedb
-    
+
 #### To log in to Nexus Docker registry:
 
     docker login https://nexus.scolvo.solutions:18088
@@ -99,8 +99,8 @@ BackendDB: use a mysql client such as Sequel Pro or similar.
     username: bedb
     password: bedb
     database: bedb
-    
-After starting the docker image, you can connect your local backend to the amqp endpoint: 
+
+After starting the docker image, you can connect your local backend to the amqp endpoint:
 
     localdemo.scolvo.solutions
 

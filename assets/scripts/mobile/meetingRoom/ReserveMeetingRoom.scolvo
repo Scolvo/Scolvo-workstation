@@ -1,9 +1,22 @@
-var startingTime = null;
-var endingTime = null;
+
+var startingTimeStr = null;
+var startingTimeStamp = null;
+var endingTimeStr = null;
+var endingTimeStamp = null;
 var numberOfParticipants = null;
+var reserveMeetingRoomDayStart = null;
+var reserveMeetingRoomDayEnd = null;
 
 function displayReserveMeetingRoomPage(originId) {
-  var headerString = DICTIONARY.page_ReserveMeetingRoomPage_headerText_prefix + " " + dateToString(selectedMeetingRoomDay, "yyyy MMMM dd.");
+  startingTimeStr = null;
+  startingTimeStamp = null;
+  endingTimeStr = null;
+  endingTimeStamp = null;
+  numberOfParticipants = null;
+  reserveMeetingRoomDayStart = getReservationStartForCentralTimeZone(selectedMeetingRoomDay);
+  reserveMeetingRoomDayEnd = getReservationEndForCentralTimeZone(selectedMeetingRoomDay);
+
+  var headerString = DICTIONARY.page_ReserveMeetingRoomPage_headerText_prefix + " " + dateToString(selectedMeetingRoomDay, "yyyy MMMM dd.", CENTRAL_TIME_ZONE);
   var data = {
     "ReserveMeetingRoomPage": {
       "headerText": headerString,
@@ -58,31 +71,37 @@ function onReserveMeetingRoomPageLoaded(originId) {}
 
 function onTimeOfStartSelectionChanged(originId) {
   debug("Time of start has been changed: " + $IN.data);
-  startingTime = $IN.data.time;
+  startingTimeStr = dateToString($IN.data.time, "HH:mm", getTimeZone());
+  debug("Time of start string: " + startingTimeStr);
+  startingTimeStamp = createTimeForSelectedDay(startingTimeStr);
+  debug("Generated starting time stamp: " + startingTimeStamp);
 }
 
 function onTimeOfEndSelectionChanged(originId) {
   debug("Time of end has been changed: " + $IN.data);
-  endingTime = $IN.data.time;
+  endingTimeStr = dateToString($IN.data.time, "HH:mm", getTimeZone());
+  endingTimeStamp = createTimeForSelectedDay(endingTimeStr);
 }
 
 function onNumberOfParticipantsSelectChanged(originId) {
   numberOfParticipants = $IN.data.value;
+  if (numberOfParticipants!=null && !numberOfParticipants.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent("NumberOfParticipantsSelect", ""), "ReserveMeetingRoomPage");
+  }
 }
 
-function createReservationTimeForSelectedDay(timeInput) {
-  var dateString = dateToString(selectedMeetingRoomDay, "yyyy-MM-dd");
-  var timeString = dateToString(timeInput, "HH:mm");
-  return parseStringToDate(dateString + " " + timeString, "yyyy-MM-dd HH:mm").getTime();
+function createTimeForSelectedDay(timeString) {
+  var dateString = dateToString(selectedMeetingRoomDay, "yyyy-MM-dd", CENTRAL_TIME_ZONE);
+  var fullTimeString = dateString + " " + timeString;
+  var timeStamp = parseStringToDate(fullTimeString, "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE).getTime();
+  return timeStamp;
 }
 
 function onSaveMeetingRoomReservationButtonClicked(originId) {
-  if(!isReservationValid()) {
+  if (!isReservationValid()) {
     return null;
   }
-  var reservationStart = createReservationTimeForSelectedDay(startingTime);
-  var reservationEnd = createReservationTimeForSelectedDay(endingTime);
-  if(!getMeetingRoomsReservedForPeriod(selectedMeetingRoomId, reservationStart, reservationEnd).isEmpty()) {
+  if (!getMeetingRoomsReservedForPeriod(selectedMeetingRoomId, startingTimeStamp, endingTimeStamp).isEmpty()) {
     fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.reservation_periodAlreadyReservedMsg), originId);
     return null;
   }
@@ -90,8 +109,8 @@ function onSaveMeetingRoomReservationButtonClicked(originId) {
     "id": uuid(),
     "userId": sessionUserId(),
     "meetingRoomId": selectedMeetingRoomId,
-    "start": reservationStart,
-    "end": reservationEnd,
+    "start": startingTimeStamp,
+    "end": endingTimeStamp,
     "numberOfParticipants": numberOfParticipants,
     "changeType": "INSERT"
   };
@@ -110,13 +129,14 @@ function onSaveMeetingRoomReservationButtonClicked(originId) {
 
 function isReservationValid() {
   var isValid = true;
-  if(!isTimeValid(startingTime, "TimeOfStart")) {
+  if (!isTimeValid(startingTimeStr, startingTimeStamp, "TimeOfStart")) {
     isValid = false;
   }
-  if(!isTimeValid(endingTime, "TimeOfEnd")) {
+  if (!isTimeValid(endingTimeStr, endingTimeStamp, "TimeOfEnd")) {
     isValid = false;
   }
-  if(!isStartEndTimeRelationValid()) {
+  // Relation is only checked when the start and end are both OK
+  if (isValid && !isStartEndTimeRelationValid()) {
     isValid = false;
   }
   if(!isNumberOfParticipantsValid()) {
@@ -125,48 +145,37 @@ function isReservationValid() {
   return isValid;
 }
 
-function isTimeValid(selectedTime, componentId) {
-  debug("Checking selected time for component: " + componentId + " selected time is: " + selectedTime);
-  var isValid = true;
-  // Empty field
-  if(selectedTime == null) {
+function isTimeValid(selectedTimeStr, selectedTimeStamp, componentId) {
+  debug("Checking selected time for component: " + componentId + " selected time is: " + selectedTimeStr);
+  if (selectedTimeStr == null || selectedTimeStr.isEmpty()) {
     fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.reservationTime_emptyMsg), originId);
-    isValid = false;
-  }
-  //Minute must be 00 or 30
-  if(isValid && (dateToString(selectedTime, "mm") != "00" && dateToString(selectedTime, "mm") != "30")) {
-    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.reservationTime_invalidUnitMsg), originId);
-    isValid = false;
-  }
-  //Selected time must be between 8:00 and 19:00
-  var reservationTime = createReservationTimeForSelectedDay(selectedTime);
-  var dayStart = getDayStart(selectedMeetingRoomDay);
-  var dayEnd = getDayEnd(selectedMeetingRoomDay);
-  debug("Reservation time for " + componentId + ": " + reservationTime + " dayStart: " + dayStart + " dayEnd: " + dayEnd);
-  if(isValid && (dateBefore(reservationTime, dayStart) || dateAfter(reservationTime, dayEnd))) {
-    fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.reservationTime_invalidInterval), originId);
-    isValid = false;
+    return false;
   }
 
-  return isValid;
+  debug("Validating Reservation time (local) for " + componentId + ": " + selectedTimeStamp + " dayStart : " + reserveMeetingRoomDayStart + " dayEnd : " + reserveMeetingRoomDayEnd);
+  if (dateBefore(selectedTimeStamp, reserveMeetingRoomDayStart) || dateAfter(selectedTimeStamp, reserveMeetingRoomDayEnd)) {
+    var textToShow = DICTIONARY.reservationTime_invalidInterval;
+    fireEvent(createErrorValueChangeTargetEvent(componentId, textToShow), originId);
+    return false;
+  }
+
+  return true;
 }
 
 function isStartEndTimeRelationValid() {
-  var isValid = true;
-  if(dateSame(createReservationTimeForSelectedDay(startingTime), createReservationTimeForSelectedDay(endingTime), "minute")) {
-    fireEvent(createErrorValueChangeTargetEvent("TimeOfStart", DICTIONARY.reservationTime_sameStartEnd), originId);
+  if (dateSame(startingTimeStamp, endingTimeStamp, "minute")) {
     fireEvent(createErrorValueChangeTargetEvent("TimeOfEnd", DICTIONARY.reservationTime_sameStartEnd), originId);
-    isValid = false;
+    return false;
   }
-  if(isValid && dateAfter(createReservationTimeForSelectedDay(startingTime), createReservationTimeForSelectedDay(endingTime))) {
+  if (dateAfter(startingTimeStamp, endingTimeStamp)) {
     fireEvent(createErrorValueChangeTargetEvent("TimeOfStart", DICTIONARY.reservationTime_startAfterEnd), originId);
-    isValid = false;
+    return false;
   }
-  return isValid;
+  return true;
 }
 
 function isNumberOfParticipantsValid() {
-  if(numberOfParticipants == null) {
+  if (numberOfParticipants == null) {
     fireEvent(createErrorValueChangeTargetEvent("NumberOfParticipantsSelect", DICTIONARY.reservationNumberOfParticipants_emptyMsg), originId);
     return false;
   }
