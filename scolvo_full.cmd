@@ -24,7 +24,7 @@ if "%1" == "help" (
 ) ELSE ^
 if "%1" == "start" (
 	SET COMPOSE_FILES=-f docker-compose.yml
-	SET SERVICES_TO_START=auth authdb mq proxy be bedb webapp
+	SET SERVICES_TO_START=auth authdb mq proxy be bedb webapp storage
 	SET /A ADMIN=1
 	
 	if "%2" == "-na" SET /A ADMIN=0
@@ -92,20 +92,20 @@ if "%1" == "reset" (
 ) ELSE ^
 IF "%1" == "logs" (
 
-	SET SERVICES_TO_LOG=be admin webapp
+	SET SERVICES_TO_LOG=be admin webapp storage
 	docker-compose logs -f --tail=100 !SERVICES_TO_LOG!
 
 ) ELSE ^
 IF "%1" == "fullLogs" (
 
-	SET COMPOSE_FILES=-f docker-compose.yml	
+	SET COMPOSE_FILES=-f docker-compose.yml
 	docker-compose !COMPOSE_FILES! logs  -f --tail=100
 
 ) ELSE ^
 IF "%1" == "checkRunning" (
 	SET SCRIPT_DRIVE_AND_PATH=%~dp0
 	ECHO Checking running state from !SCRIPT_DRIVE_AND_PATH! ...
-	
+
 	SET BACKEND_STATUS="notrunning"
 	FOR /f %%i in ( 'docker inspect backend --format='{{.State.Status}}' ' ) DO SET BACKEND_STATUS=%%i
 	IF "!BACKEND_STATUS!" == "'running'" ( ECHO The backend is running ...) ELSE ( ECHO The system is currently NOT running. & EXIT 1 )

@@ -3,7 +3,7 @@ services:
     proxy:
         restart: always
         container_name: proxy
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-dep-proxy:1.3.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-dep-proxy:1.12.0
         environment:
         - KEYCLOAK_ADMIN_ALLOWED_IP=${KEYCLOAK_ADMIN_ALLOWED_IP:-0.0.0.0/0}
         - DEFAULT_REDIRECT_PATH=scolvo-webapp/
@@ -20,9 +20,6 @@ services:
         image: nexus.scolvo.solutions:18088/scolvo/scolvo-dep-auth:2.2.0
         depends_on:
         - authdb
-        ports:
-        - '8080:8080'
-        - '8443:8443'
         environment:
         - KEYCLOAK_USER=${KEYCLOAK_USER}
         - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
@@ -94,10 +91,6 @@ services:
         - RABBIT_MQ_HOST=mq
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
         - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-        - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-        - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-        - AWS_BUCKET_NAME=${BUCKET_NAME}
-        - AWS_REGION_NAME=${REGION_NAME}
         - BEDB_MYSQL_USER=${BEDB_MYSQL_USER}
         - BEDB_MYSQL_PASSWORD=${BEDB_MYSQL_PASSWORD}
         - ENV=${ENV}
@@ -114,6 +107,10 @@ services:
         - LICENSE_DOMAIN=${LICENSE_DOMAIN:-localdemo.scolvo.solutions}
         - LICENSE_NOTIFICATION_EMAILS=${LICENSE_NOTIFICATION_EMAILS}
         - LICENSE_INFORMATION_EMAILS=${LICENSE_INFORMATION_EMAILS}
+        - CLOUD_REPOSITORY_TYPE=SCS
+        - SCS_BASE_URL=http://storage:8080
+        - SCS_USERNAME=su
+        - SCS_PASSWORD=${SU_PASSWORD:-}
         volumes:
         - ./assets:/app/assets
         - ./assets/config/backend/logback-spring.xml:/app/logback-spring.xml
@@ -152,17 +149,16 @@ services:
     admin:
         restart: always
         container_name: admin
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:4.2.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:4.4.0
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
         - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
         - AUTH_URL=${AUTH_URL:-auth}
-        - CLOUD_REPOSITORY_TYPE=AWS_S3
-        - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-        - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-        - AWS_BUCKET_NAME=${BUCKET_NAME}
-        - AWS_REGION_NAME=${REGION_NAME}
+        - CLOUD_REPOSITORY_TYPE=SCS
+        - SCS_BASE_URL=http://storage:8080
+        - SCS_USERNAME=su
+        - SCS_PASSWORD=${SU_PASSWORD:-}
         - ENV=${ENV}
         - SPRING_PROFILES_ACTIVE=${ADMIN_SPRING_PROFILES_ACTIVE:-}
         - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
@@ -173,9 +169,6 @@ services:
         - ./assets/config/mhub/logback-spring-local.xml:/app/logback-spring-local.xml
         - ./assets/config/mhub/logback-spring.xml:/app/logback-spring.xml
         - ./assets/config/mhub/application.properties:/app/application.properties
-        ports:
-        - '29991:9991'
-        - '${MHUB_SPRING_PORT:-28081}:8081'
         logging:
           options:
             max-size: "50m"
@@ -183,17 +176,16 @@ services:
     webapp:
         restart: always
         container_name: webapp
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:4.2.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:4.4.0
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
         - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
         - AUTH_URL=${AUTH_URL:-auth}
-        - CLOUD_REPOSITORY_TYPE=AWS_S3
-        - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-        - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-        - AWS_BUCKET_NAME=${BUCKET_NAME}
-        - AWS_REGION_NAME=${REGION_NAME}
+        - CLOUD_REPOSITORY_TYPE=SCS
+        - SCS_BASE_URL=http://storage:8080
+        - SCS_USERNAME=su
+        - SCS_PASSWORD=${SU_PASSWORD:-}
         - ENV=${ENV}
         - SPRING_PROFILES_ACTIVE=${WEBAPP_SPRING_PROFILES_ACTIVE:-}
         - DEVICE_TYPE=WEBAPP
@@ -204,14 +196,28 @@ services:
         - ./assets/config/webapp/logback-spring-local.xml:/app/logback-spring-local.xml
         - ./assets/config/webapp/logback-spring.xml:/app/logback-spring.xml
         - ./assets/config/webapp/application.properties:/app/application.properties
-        ports:
-        - '39991:9991'
-        - '${WEBAPP_SPRING_PORT:-38081}:8081'
         logging:
           options:
             max-size: "50m"
             max-file: "4"
-
+    storage:
+        restart: always
+        container_name: storage
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-core-storage-service:1.8.0
+        environment:
+        - LOGGING_CONFIG_PATH=/app/logback-spring.xml
+        - SPRING_PROFILES_ACTIVE=${STORAGE_SPRING_PROFILES_ACTIVE:-}
+        - EXTERNAL_URL=${EXTERNAL_BASE_URL:-https://localdemo.scolvo.solutions}
+        - STORAGE_ROOT=/app/storage
+        volumes:
+        - ./assets/config/storage/logback-spring.xml:/app/logback-spring.xml
+        - ./localstorage:/app/storage
+        depends_on:
+        - auth
+        logging:
+          options:
+            max-size: "50m"
+            max-file: "4"
 
 volumes:
     authdb:

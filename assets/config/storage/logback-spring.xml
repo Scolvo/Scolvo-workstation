@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="ConsoleColored" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%green(%d{ISO8601}) %highlight(%-5level) [%blue(%15.15t)] %yellow(%40.40C): %msg%n%throwable</pattern>
+        </encoder>
+    </appender>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{ISO8601} - %-5level [%15.15t] %40.40C : %msg%n%throwable</pattern>
+        </encoder>
+    </appender>
+    <root level="info">
+        <appender-ref ref="ConsoleColored" />
+    </root>
+    <logger name="com.scolvo.core" level="debug" additivity="false">
+        <appender-ref ref="ConsoleColored" />
+    </logger>
+
+</configuration>
