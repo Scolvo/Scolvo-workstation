@@ -1,0 +1,52 @@
+
+function getNotesForMeetingRoom(meetingRoomId) {
+  if (meetingRoomId == "all") {
+    return select()
+    .selectAs("note.id", "id")
+    .selectAs("note.title", "title")
+    .selectAs("note.notes", "notes")
+    .selectAs("note.checked", "checked")
+    .selectAs("note.createdAt", "createdAt")
+    .selectAs("note.createdBy", "createdBy")
+    .selectAs("note.meeting_room_id", "meeting_room_id")
+    .selectAs("meetingRoom.name", "meetingRoomName")
+    .from(["note", "meetingRoom"])
+    .where(custom("note.meeting_room_id = meetingRoom.id"))
+    .orderBy("note.checked", "asc")
+    .orderBy("note.createdAt", "desc")
+    .execute();
+  }
+
+  return select()
+    .selectAs("note.id", "id")
+    .selectAs("note.title", "title")
+    .selectAs("note.notes", "notes")
+    .selectAs("note.checked", "checked")
+    .selectAs("note.createdAt", "createdAt")
+    .selectAs("note.createdBy", "createdBy")
+    .selectAs("note.meeting_room_id", "meeting_room_id")
+    .selectAs("meetingRoom.name", "meetingRoomName")
+    .from(["note", "meetingRoom"])
+    .where(and(custom("note.meeting_room_id = meetingRoom.id"), eq("meeting_room_id", meetingRoomId)))
+    .orderBy("note.checked", "asc")
+    .orderBy("note.createdAt", "desc")
+    .execute();
+}
+
+function getUnhandledNotesCountForMeetingRoom(meetingRoomId) {
+  return select()
+  .from("note")
+  .where(and(eq("meeting_room_id", meetingRoomId), eq("checked", false)))
+  .orderBy("checked", "asc")
+  .orderBy("createdAt", "desc")
+  .execute().size();
+}
+
+function getNoteById(noteId) {
+  var noteDaos = select().from("note").where(eq("id", noteId)).execute();
+
+  if(noteDaos.isEmpty()) {
+    return null;
+  }
+  return noteDaos.get(0);
+}

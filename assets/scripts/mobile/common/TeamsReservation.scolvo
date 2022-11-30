@@ -1,5 +1,6 @@
 import {
-  /mobile/repository/TeamRepository
+  /mobile/repository/TeamRepository,
+  /common/Time
 }
 
 var loggedInUser = null;
@@ -55,30 +56,6 @@ function createTeamOptions(selectedId) {
   return getTeams().map(function (teamDao) {
     return createSelectOption(teamDao.id, teamDao.name, selectedId == teamDao.id);
   });
-}
-
-// ###############################
-// Time related functions
-// ###############################
-
-function getDayStartForLocalTimeZone(day) {
-  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 00:00", "yyyy-MM-dd HH:mm");
-}
-
-function getDayStartForCentralTimeZone(day) {
-  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 00:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
-}
-
-function getReservationStartForCentralTimeZone(day) {
-  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 08:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
-}
-
-function getDayEndForCentralTimeZone(day) {
-  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 23:59", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
-}
-
-function getReservationEndForCentralTimeZone(day) {
-  return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 19:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
 }
 
 function getDateStringForList(day, relativeDayCount) {

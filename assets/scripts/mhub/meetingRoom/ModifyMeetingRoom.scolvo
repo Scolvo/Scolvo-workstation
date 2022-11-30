@@ -7,6 +7,7 @@ var modifiedMeetingRoomId;
 
 var uploadedModifiedMeetingRoomMapPath;
 var modifiedMeetingRoomOriginalMapPath;
+var modifiedMeetingRoomMapPathToShow;
 var modifiedMeetingRoomOriginalName;
 
 function displayModifyMeetingRoomPage(originId, meetingRoomId) {
@@ -16,6 +17,7 @@ function displayModifyMeetingRoomPage(originId, meetingRoomId) {
   modifyMeetingRoomData = getMeetingRoomById(meetingRoomId);
   debug("Actual meeting room: " + modifyMeetingRoomData);
   modifiedMeetingRoomOriginalMapPath = modifyMeetingRoomData.mapPicturePath;
+  modifiedMeetingRoomMapPathToShow = modifyMeetingRoomData.mapPicturePath;
   modifiedMeetingRoomOriginalName = modifyMeetingRoomData.name;
   if (modifyMeetingRoomData.capacity != null) {
     var actualCapacity = "" + modifyMeetingRoomData.capacity;
@@ -33,8 +35,13 @@ function displayModifyMeetingRoomPage(originId, meetingRoomId) {
     createValueChangeSourceEvent("CapacityInput", "ModifyModifyMeetingRoomCapacityChanged"),
     createValueChangeSourceEvent("MapPictureUploadField", "MapPictureUploadFieldChanged"),
 
+    createClickSourceEvent("DeleteMapPicture", "ModifyModifyMeetingRoomDeleteMapPictureClicked"),
     createClickSourceEvent("SaveModifiedMeetingRoom", "SaveModifiedMeetingRoomClicked")
   ];
+
+  if (modifiedMeetingRoomOriginalMapPath == null || modifiedMeetingRoomOriginalMapPath.isEmpty()) {
+    events.add(createVisibilityChangeTargetEvent("DeleteMapPicture", "gone"));
+  }
 
   display(ModifyMeetingRoomPage, {}, originId, events);
 }
@@ -59,9 +66,21 @@ page ModifyMeetingRoomPage {
     inputType: textReadOnly;
   }
 
-  inputField MapPictureUploadField {
-    template: inputFieldSimple;
-    inputType: upload;
+  container MapPictureContainer {
+    layout: horizontal;
+
+    inputField MapPictureUploadField {
+      template: inputFieldSimple;
+      inputType: upload;
+    }
+
+    spacer {
+      span: 5;
+    }
+
+    button DeleteMapPicture {
+      template: primary;
+    }
   }
 
   button SaveModifiedMeetingRoom {
@@ -88,6 +107,13 @@ function onMapPictureUploadFieldChanged(originId) {
   debug("New selected file: " + modifyMeetingRoomData.uploadMap);
 }
 
+function onModifyModifyMeetingRoomDeleteMapPictureClicked(originId) {
+  modifyMeetingRoomData.put("uploadMap", null);
+  modifiedMeetingRoomMapPathToShow = null;
+  fireEvent(createRefreshItemTargetEvent("MapPicturePathInput", ""), "ModifyMeetingRoomPage");
+  debug("Map picture path updated to " + modifyMeetingRoomData.uploadMap);
+}
+
 function onSaveModifiedMeetingRoomClicked(originId) {
   debug("Meeting room data: " + modifyMeetingRoomData);
 
@@ -100,16 +126,27 @@ function onSaveModifiedMeetingRoomClicked(originId) {
       documentPut(originId, uploadedModifiedMeetingRoomMapPath, modifyMeetingRoomData.uploadMap.absolutePath, "ModifyMeetingRoomMapUploadSuccess", "MeetingRoomMapUploadFailure");
 
     } else {
+      // The modifyTeamData.uploadMap is null or empty
+      var mapPicturePathValue = modifiedMeetingRoomOriginalMapPath;
+      if (modifiedMeetingRoomOriginalMapPath != modifiedMeetingRoomMapPathToShow) {
+        mapPicturePathValue = modifiedMeetingRoomMapPathToShow;
+      }
 
       var meetingRoomDao = {
         "id": modifiedMeetingRoomId,
         "name": modifyMeetingRoomData.name,
         "location": modifyMeetingRoomData.location,
         "capacity": parseNumber(modifyMeetingRoomData.capacity),
+        "mapPicturePath": mapPicturePathValue,
         "changeType": "UPDATE"
       };
       updateMeetingRoomDao(meetingRoomDao);
 
+      if (mapPicturePathValue != modifiedMeetingRoomOriginalMapPath && modifiedMeetingRoomOriginalMapPath != null) {
+        documentDelete(modifiedMeetingRoomOriginalMapPath);
+      }
+
+      finishPage("ModifyMeetingRoomPage" ,originId);
     }
   }
 }
@@ -118,8 +155,7 @@ function updateMeetingRoomDao(meetingRoomDao) {
   updateTypeDefinition("meetingRoom", meetingRoomDao.id, meetingRoomDao);
   sendDataChange("meetingRoom", [meetingRoomDao.deepClone()]);
 
-  fireEvent(createRefreshItemTargetEvent("MeetingRoomsList", createMeetingRoomsListData()), "MeetingRoomsPage");
-  finishPage("ModifyMeetingRoomPage" ,originId);
+  refreshMeetingRoomsPageMeetingRoomsList();
 }
 
 function onModifyMeetingRoomMapUploadSuccess(originId) {
@@ -135,8 +171,15 @@ function onModifyMeetingRoomMapUploadSuccess(originId) {
   };
   updateMeetingRoomDao(meetingRoomDao);
   publishNotificationMessage(originId, DICTIONARY.uploadSuccess_msg);
+
+  if (modifiedMeetingRoomOriginalMapPath != null) {
+    documentDelete(modifiedMeetingRoomOriginalMapPath);
+  }
+  finishPage("ModifyMeetingRoomPage" ,originId);
 }
 
 function onMapPicturePathInputHelperAction(originId) {
-  displayMapPopup(originId, modifiedMeetingRoomOriginalName, modifiedMeetingRoomOriginalMapPath);
+  if (modifiedMeetingRoomOriginalMapPath != null && !modifiedMeetingRoomOriginalMapPath.isEmpty()) {
+    displayMapPopup(originId, modifiedMeetingRoomOriginalName, modifiedMeetingRoomOriginalMapPath);
+  }
 }

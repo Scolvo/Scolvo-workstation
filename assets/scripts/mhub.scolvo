@@ -6,12 +6,13 @@ import {
   /mhub/meetingRoom/MeetingRooms,
   /mhub/DataChange,
   /mhub/common/TeamCommon,
-  /mhub/common/MeetingRoomCommon
+  /mhub/common/MeetingRoomCommon,
+  /mhub/note/MeetingRoomNotes
 }
 
 //========================== UsersPage
 function onUsers(originId) {
-  displayUsersPage(originId);
+  displayUsersPage(originId, "all", "all", "all");
 }
 
 function onTeams(originId) {
@@ -30,6 +31,10 @@ function onPasswordChange(originId) {
   displayPasswordChangePage(originId);
 }
 
+function onNotes(originId) {
+  displayMeetingRoomNotesPage(originId, null);
+}
+
 //========================== Menu
 menu defaultItem Users {
   item Users {
@@ -42,6 +47,9 @@ menu defaultItem Users {
     roles: ["administrator", "superAdministrator"]
   },
   item MeetingRooms {
+    roles: ["administrator", "superAdministrator"]
+  },
+  item Notes {
     roles: ["administrator", "superAdministrator"]
   },
   item PasswordChange {

@@ -85,3 +85,15 @@ function onReservationUpdated(originId) {}
 function onReservationDeleting(originId) {}
 
 function onReservationDeleted(originId) {}
+
+function onNoteInserting(originId) {}
+
+function onNoteInserted(originId) {}
+
+function onNoteUpdating(originId) {}
+
+function onNoteUpdated(originId) {}
+
+function onNoteDeleting(originId) {}
+
+function onNoteDeleted(originId) {}

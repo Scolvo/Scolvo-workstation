@@ -1,0 +1,4 @@
+import {
+    /mhub/user/UsersTest,
+    /mhub/user/UserDetailsTest
+}

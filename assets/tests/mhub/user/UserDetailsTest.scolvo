@@ -1,0 +1,266 @@
+
+Test{ description: "Test display user details page when userId is given", ignored: false }
+function displayUserDetails_givenNonAdminUserId_whenDisplayUserDetailsInvoked_thenEventsAreCorrect(originId) {
+    var testUserId = givenUserId();
+    givenDatabaseFilledForUserDetails();
+    givenDatabaseFilledForUserDetailsTeams();
+
+    displayUserDetails(testUserId, originId);
+
+    // The display users page not necessarily received already, so there should be a short waiting
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(100).withRepetition(1).await();
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM user WHERE id = 'userId';"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var displayParam = params.get(0).get(0);
+    assertThat(displayParam, notNullValue());
+
+    assertThat(userDetailsUserData, notNullValue());
+    assertThat(userDetailsUserData.id, is("userId"));
+    assertThat(userDetailsUserData.role, is("worker"));
+
+    assertThat(displayParam.data.UserDetailsPage.headerText, is("Update User Details"));
+    assertThat(displayParam.actionEvents, notNullValue());
+    assertThat(displayParam.actionEvents.size(), is(13));
+}
+
+// Same for an Admin
+Test{ description: "Test display user details page when userId is given", ignored: false }
+function displayUserDetails_givenAdminUserId_whenDisplayUserDetailsInvoked_thenEventsAreCorrect(originId) {
+    var testUserId = givenUserId();
+    givenDatabaseFilledForAdminUserDetails();
+    givenDatabaseFilledForUserDetailsTeams();
+
+    displayUserDetails(testUserId, originId);
+
+    // The display users page not necessarily received already, so there should be a short waiting
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(100).withRepetition(1).await();
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM user WHERE id = 'userId';"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var displayParam = params.get(0).get(0);
+    assertThat(displayParam, notNullValue());
+
+    assertThat(userDetailsUserData, notNullValue());
+    assertThat(userDetailsUserData.id, is("userId"));
+    assertThat(userDetailsUserData.role, is("administrator"));
+
+    assertThat(displayParam.data.UserDetailsPage.headerText, is("Update User Details"));
+    assertThat(displayParam.actionEvents, notNullValue());
+    assertThat(displayParam.actionEvents.size(), is(14));
+}
+
+Test{ description: "Test display user details page when userId is not given", ignored: false }
+function displayUserDetails_givenNoUserId_whenDisplayUserDetailsInvoked_thenEventsAreCorrect(originId) {
+    var testUserId = null;
+    givenDatabaseFilledForUserDetailsTeams();
+
+    displayUserDetails(testUserId, originId);
+
+    // The display users page not necessarily received already, so there should be a short waiting
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(100).withRepetition(1).await();
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var displayParam = params.get(0).get(0);
+    assertThat(displayParam, notNullValue());
+
+    assertThat(userDetailsUserData, notNullValue());
+    assertThat(userDetailsUserData.isEmpty(), is(true));
+
+    assertThat(displayParam.data.UserDetailsPage.headerText, is("Create New User"));
+    assertThat(displayParam.actionEvents, notNullValue());
+    assertThat(displayParam.actionEvents.size(), is(13));
+}
+
+// Tests for getUserDetailsPageHeaderText
+
+Test{ description: "Test getUserDetailsPageHeaderText when userId is not given", ignored: false }
+function getUserDetailsPageHeaderText_givenNoUserId_whenFunctionInvoked_thenResultIsCorrect(originId) {
+    userDetailsUserData = { };
+
+    var result = getUserDetailsPageHeaderText();
+
+    assertThat(result, notNullValue());
+    assertThat(result, is("Create New User"));
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test getUserDetailsPageHeaderText when userId is given", ignored: false }
+function getUserDetailsPageHeaderText_givenUserId_whenFunctionInvoked_thenResultIsCorrect(originId) {
+    userDetailsUserData = { "id": "userId" };
+    var result = getUserDetailsPageHeaderText();
+
+    assertThat(result, notNullValue());
+    assertThat(result, is("Update User Details"));
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test changeRoleAndUpateTeamInput when new role is admin", ignored: false }
+function changeRoleAndUpateTeamInput_givenAdminRole_whenFunctionInvoked_thenResultIsCorrect(originId) {
+    userDetailsUserData = {};
+
+    changeRoleAndUpateTeamInput("administrator");
+
+    // Wait until the 2 events arrive
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(2).await();
+
+    assertThat(userDetailsUserData.role, is("administrator"));
+    assertThat(userDetailsUserData.teamId, nullValue());
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(2).verifyAndGetParams();
+
+    var errorValueChangeTargetEventParam = params.get(0).get(0);
+    assertThat(errorValueChangeTargetEventParam, notNullValue());
+    assertThat(errorValueChangeTargetEventParam.targetElementId, is("UserDetailsRoleInput"));
+    assertThat(errorValueChangeTargetEventParam.targetElementEvent, is("onErrorValueChange"));
+    assertThat(errorValueChangeTargetEventParam.data, is(""));
+
+    var visibilityChangeTargetEventParam = params.get(1).get(0);
+    assertThat(visibilityChangeTargetEventParam, notNullValue());
+    assertThat(visibilityChangeTargetEventParam.targetElementId, is("UserDetailsTeamInput"));
+    assertThat(visibilityChangeTargetEventParam.targetElementEvent, is("onVisibilityChange"));
+    assertThat(visibilityChangeTargetEventParam.data, is("gone"));
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test changeRoleAndUpateTeamInput when new role is non admin", ignored: false }
+function changeRoleAndUpateTeamInput_givenNonAdminRole_whenFunctionInvoked_thenResultIsCorrect(originId) {
+    userDetailsUserData = {};
+    givenDatabaseFilledForUserDetailsTeams();
+
+    changeRoleAndUpateTeamInput("worker");
+
+    // Wait until the 2 events arrive
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(3).await();
+
+    assertThat(userDetailsUserData.role, is("worker"));
+    assertThat(userDetailsUserData.teamId, nullValue());
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(3).verifyAndGetParams();
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"]).withRepetition(1).verify();
+
+    var errorValueChangeTargetEventParam = params.get(0).get(0);
+    assertThat(errorValueChangeTargetEventParam, notNullValue());
+    assertThat(errorValueChangeTargetEventParam.targetElementId, is("UserDetailsRoleInput"));
+    assertThat(errorValueChangeTargetEventParam.targetElementEvent, is("onErrorValueChange"));
+    assertThat(errorValueChangeTargetEventParam.data, is(""));
+
+    var valueChangeTargetEvent = params.get(1).get(0);
+    assertThat(valueChangeTargetEvent, notNullValue());
+    assertThat(valueChangeTargetEvent.targetElementId, is("UserDetailsTeamInput"));
+    assertThat(valueChangeTargetEvent.targetElementEvent, is("onValueChange"));
+    assertThat(valueChangeTargetEvent.data, notNullValue());
+    var teams = valueChangeTargetEvent.data;
+    assertThat(teams.size(), is(1));
+    var firstItem = teams.get(0);
+    assertThat(firstItem.default, is(false));
+    assertThat(firstItem.value, is("team1"));
+
+    var visibilityChangeTargetEventParam = params.get(2).get(0);
+    assertThat(visibilityChangeTargetEventParam, notNullValue());
+    assertThat(visibilityChangeTargetEventParam.targetElementId, is("UserDetailsTeamInput"));
+    assertThat(visibilityChangeTargetEventParam.targetElementEvent, is("onVisibilityChange"));
+    assertThat(visibilityChangeTargetEventParam.data, is("visible"));
+
+    mock().verifyNoMoreExecution();
+}
+
+// Test for changeUserDetailsTeamInput
+
+Test{ description: "Test changeUserDetailsTeamInput when new role is non admin", ignored: false }
+function changeUserDetailsTeamInput_givenNewTeamId_whenFunctionInvoked_thenResultIsCorrect(originId) {
+    userDetailsUserData = {};
+
+    changeUserDetailsTeamInput("newTeamId");
+
+    // Wait until one events arrive
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(1).await();
+
+    assertThat(userDetailsUserData.teamId, is("newTeamId"));
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    assertThat(params, notNullValue());
+    assertThat(params.size(), is(1));
+
+    var errorValueChangeTargetEventParam = params.get(0).get(0);
+    assertThat(errorValueChangeTargetEventParam, notNullValue());
+    assertThat(errorValueChangeTargetEventParam.targetElementId, is("UserDetailsTeamInput"));
+    assertThat(errorValueChangeTargetEventParam.targetElementEvent, is("onErrorValueChange"));
+    assertThat(errorValueChangeTargetEventParam.data, is(""));
+
+    mock().verifyNoMoreExecution();
+}
+
+
+// Tests for onSaveUserDetailsButtonClicked
+
+Test{ description: "Test onSaveUserDetailsButtonClicked when non admin data is given", ignored: false }
+function onSaveUserDetailsButtonClicked_givenNonAdminUserDetailsUserData_whenFunctionInvoked_thenResultIsCorrect(originId) {
+    userDetailsOriginalUserData = {
+        "id": "userId",
+        "username": "username"
+    };
+    userDetailsUserData = {
+        "id": "userId",
+        "name": "User Name",
+        "role": "worker",
+        "teamId": "teamId",
+        "email": "username@firm.com",
+        "username": "username"
+    };
+    userDetailsPassword = "Password1";
+    userDetailsConfirmPassword = "Password1";
+
+    onSaveUserDetailsButtonClicked(originId);
+
+    // Wait until ...
+    event().forRequestMessageLogger().withEvent("requestMessage").withTimeout(1000).withRepetition(1).await();
+
+    var params = mock().forRequestMessageLogger().withEvent("requestMessage").withRepetition(1).verifyAndGetParams();
+    mock().forDevice().clearEvents();
+    mock().verifyNoMoreExecution();
+}
+
+// -----------------------------------
+// Util functions for the tests
+// -----------------------------------
+
+function givenUserId() {
+    return "userId";
+}
+
+function givenDatabaseFilledForAdminUserDetails() {
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM user WHERE id = 'userId';").withValue([
+            {"id": "userId", "teamId": "team1", "name": "First User", "role": "administrator", "email": "first@gmail.com", "status": "active", "visible": "sb|true"}
+        ]).define();
+}
+
+function givenDatabaseFilledForUserDetails() {
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM user WHERE id = 'userId';").withValue([
+            {"id": "userId", "teamId": "team1", "name": "First User", "role": "worker", "email": "first@gmail.com", "status": "active", "visible": "sb|true"}
+        ]).define();
+}
+
+function givenDatabaseFilledForUserDetailsTeams() {
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;").withValue([{"id": "team1", "name": "Team 1", "location": "At the corner"}]).define();
+}
+

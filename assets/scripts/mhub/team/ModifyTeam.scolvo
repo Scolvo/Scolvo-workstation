@@ -3,6 +3,7 @@ var modifyTeamData = {};
 
 var uploadedUpdatedTeamMapPath;
 var modifiedTeamOriginalMapPath;
+var modifiedTeamMapPathToShow;
 var modifiedTeamOriginalName;
 
 function displayModifyTeamPage(originId, selectedTeamId) {
@@ -12,6 +13,7 @@ function displayModifyTeamPage(originId, selectedTeamId) {
   debug("Modifying team: " + modifyTeamData);
 
   modifiedTeamOriginalMapPath = modifyTeamData.mapPicturePath;
+  modifiedTeamMapPathToShow = modifyTeamData.mapPicturePath;
   modifiedTeamOriginalName = modifyTeamData.name;
 
   var events = [
@@ -23,8 +25,13 @@ function displayModifyTeamPage(originId, selectedTeamId) {
     createValueChangeSourceEvent("LocationInput", "ModifyTeamLocationChanged"),
     createValueChangeSourceEvent("MapPictureUploadField", "ModifyTeamMapPictureUploadFieldChanged"),
 
+    createClickSourceEvent("DeleteMapPicture", "ModifyTeamDeleteMapPictureClicked"),
     createClickSourceEvent("SaveModifiedTeam", "SaveModifiedTeamClicked")
   ];
+
+  if (modifiedTeamOriginalMapPath == null || modifiedTeamOriginalMapPath.isEmpty()) {
+    events.add(createVisibilityChangeTargetEvent("DeleteMapPicture", "gone"));
+  }
 
   display(ModifyTeamPage, {}, originId, events);
 }
@@ -45,9 +52,21 @@ page ModifyTeamPage {
     inputType: textReadOnly;
   }
 
-  inputField MapPictureUploadField {
-    template: inputFieldSimple;
-    inputType: upload;
+  container MapPictureContainer {
+    layout: horizontal;
+
+    inputField MapPictureUploadField {
+      template: inputFieldSimple;
+      inputType: upload;
+    }
+
+    spacer {
+      span: 5;
+    }
+
+    button DeleteMapPicture {
+      template: primary;
+    }
   }
 
   button SaveModifiedTeam {
@@ -71,6 +90,13 @@ function onModifyTeamMapPictureUploadFieldChanged(originId) {
   debug("New selected file: " + modifyTeamData.uploadMap);
 }
 
+function onModifyTeamDeleteMapPictureClicked(originId) {
+  modifyTeamData.put("uploadMap", null);
+  modifiedTeamMapPathToShow = null;
+  fireEvent(createRefreshItemTargetEvent("TeamMapPicturePathInput", ""), "ModifyTeamPage");
+  debug("Map picture path updated to " + modifyTeamData.uploadMap);
+}
+
 function onSaveModifiedTeamClicked(originId) {
 
   if (validateModifiedTeamData(modifyTeamData, "ModifyTeamPage")) {
@@ -80,15 +106,26 @@ function onSaveModifiedTeamClicked(originId) {
       documentPut(originId, uploadedUpdatedTeamMapPath, modifyTeamData.uploadMap.absolutePath, "TeamUpdateMapUploadSuccess", "TeamMapUploadFailure");
 
     } else {
+      // The modifyTeamData.uploadMap is null or empty
+      var mapPicturePathValue = modifiedTeamOriginalMapPath;
+      if (modifiedTeamOriginalMapPath != modifiedTeamMapPathToShow) {
+        mapPicturePathValue = modifiedTeamMapPathToShow;
+      }
 
       var teamDao = {
         "id": modifiedTeamId,
         "name": modifyTeamData.name,
         "location": modifyTeamData.location,
+        "mapPicturePath": mapPicturePathValue,
         "changeType": "UPDATE"
       };
       updateTeamDao(teamDao);
 
+      if (mapPicturePathValue != modifiedTeamOriginalMapPath && modifiedTeamOriginalMapPath != null) {
+        documentDelete(modifiedTeamOriginalMapPath);
+        debug("Original picutre has been deleted.");
+      }
+      finishPage("ModifyTeamPage" ,originId);
     }
   }
 }
@@ -99,7 +136,6 @@ function updateTeamDao(teamDao) {
   sendDataChange("team", [teamDao.deepClone()]);
 
   fireEvent(createRefreshItemTargetEvent("TeamsList", createTeamsListData()), "TeamsPage");
-  finishPage("ModifyTeamPage" ,originId);
 }
 
 function onTeamUpdateMapUploadSuccess(originId) {
@@ -112,10 +148,16 @@ function onTeamUpdateMapUploadSuccess(originId) {
   };
   updateTeamDao(teamDao);
   publishNotificationMessage(originId, DICTIONARY.uploadSuccess_msg);
+
+  if (modifiedTeamOriginalMapPath != null) {
+    documentDelete(modifiedTeamOriginalMapPath);
+    debug("Original picutre has been deleted.");
+  }
+  finishPage("ModifyTeamPage" ,originId);
 }
 
 function onTeamMapPicturePathInputHelperAction(originId) {
-  if (modifiedTeamOriginalMapPath != null && !modifiedTeamOriginalMapPath.isEmpty()) {
-    displayMapPopup(originId, modifiedTeamOriginalName, modifiedTeamOriginalMapPath);
+  if (modifiedTeamMapPathToShow != null && !modifiedTeamMapPathToShow.isEmpty()) {
+    displayMapPopup(originId, modifiedTeamOriginalName, modifiedTeamMapPathToShow);
   }
 }

@@ -3,6 +3,35 @@ function getWorkplaces() {
   .from("workplace").orderBy("name COLLATE NOCASE", "ASC").execute();
 }
 
+function getWorkplacesByFilters(teamId) {
+  var query = select()
+  .selectAs("workplace.id", "id")
+  .selectAs("workplace.name", "name")
+  .selectAs("workplace.teamId", "teamId")
+  .selectAs("workplace.canBeBooked", "canBeBooked")
+  .selectAs("team.name", "teamName")
+  .join("leftJoin", table("team"), custom("team.id = workplace.teamId"))
+  .from("workplace");
+
+  var crit = null;
+  if (teamId != null && teamId != "all") {
+    var teamCrit = eq("teamId", teamId);
+    if (teamId == "none") {
+      teamCrit = custom("teamId IS NULL");
+    }
+    if (crit != null) {
+      crit = and(crit, teamCrit);
+    } else {
+      crit = teamCrit;
+    }
+  }
+
+  if (crit != null) {
+    return query.where(crit).orderBy("name COLLATE NOCASE", "asc").execute();
+  }
+  return query.orderBy("name COLLATE NOCASE", "asc").execute();
+}
+
 function getWorkplaceById(workplaceId) {
   var workplaces = select()
   .from("workplace")

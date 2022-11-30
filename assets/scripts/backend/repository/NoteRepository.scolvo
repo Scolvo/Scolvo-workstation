@@ -1,0 +1,36 @@
+import {
+  /common/Time
+}
+
+function getNotesForMhub() {
+  var startLimit = dateSubtract(getDayStartForLocalTimeZone(now()), 90, "day").getTime();
+  debug("Starting limit for notes for Mhub is: " + startLimit);
+  return select()
+  .selectAs("id")
+  .selectAs("meeting_room_id")
+  .selectAs("title")
+  .selectAs("notes")
+  .selectAs("checked")
+  .selectAs("createdAt")
+  .selectAs("createdBy")
+  .from("note")
+  .where(or(gEq("createdAt", startLimit), notEq("checked", true)))
+  .execute();
+}
+
+function getNotesForMobile() {
+  var startLimit = dateSubtract(getDayStartForLocalTimeZone(now()), 60, "day").getTime();
+  debug("Starting limit for notes is: " + startLimit);
+
+  return select()
+  .selectAs("id")
+  .selectAs("meeting_room_id")
+  .selectAs("title")
+  .selectAs("notes")
+  .selectAs("checked")
+  .selectAs("createdAt")
+  .selectAs("createdBy")
+  .from("note")
+  .where(or(gEq("createdAt", startLimit), notEq("checked", true)))
+  .execute();
+}

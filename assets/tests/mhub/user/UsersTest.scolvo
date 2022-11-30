@@ -1,0 +1,606 @@
+
+// Tests for displayUsersPage()
+
+Test{ description: "Test display users page when no filter is given", ignored: false }
+function displayUsersPage_givenNothing_whenPageDisplayed_thenEventsAreCorrect(originId) {
+    givenAUserWithAdministratorRole();
+    givenDatabaseFilledForUsersPage();
+
+    displayUsersPage(originId, "all", "all", "all");
+
+    // The display users page not necessarily received already, so there should be a short waiting
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(1).await();
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM user ORDER BY name COLLATE NOCASE ASC;"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team WHERE id = 'team1';"]).withRepetition(2).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var displayParam = params.get(0).get(0);
+    assertThat(displayParam, notNullValue());
+
+    assertThat(displayParam.data.UsersPage.UsersList, notNullValue());
+    assertThat(displayParam.data.UsersPage.UsersList.size(), is(2));
+
+    var firstListElement = displayParam.data.UsersPage.UsersList.get(0);
+    assertThat(firstListElement.id, is("1"));
+    assertThat(firstListElement.team, is("Team 1"));
+    var secondListElement = displayParam.data.UsersPage.UsersList.get(1);
+    assertThat(secondListElement.id, is("2"));
+    assertThat(secondListElement.team, is("Team 1"));
+
+    assertThat(displayParam.actionEvents, notNullValue());
+    assertThat(displayParam.actionEvents.size(), is(9));
+    var firstEvent = displayParam.actionEvents.get(0);
+    assertThat(firstEvent.targetElementId, is("RoleFilter"));
+    assertThat(firstEvent.targetElementEvent, is("onValueChange"));
+    assertThat(firstEvent.data.size(), is(3));
+
+    mock().forAuthentication().clearEvents();
+    mock().forTokenVerifier().clearEvents();
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test display users page when role filter value as Administrator is given", ignored: false }
+function displayUsersPage_givenUsersRoleFilter_whenPageDisplayed_thenEventsAreCorrect(originId) {
+    givenAUserWithAdministratorRole();
+    givenDatabaseFilledForUsersPageAndRoleFilter();
+
+    displayUsersPage(originId, "administrator", "all", "all");
+
+    // The display users page not necessarily received already, so there should be a short waiting
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(1).await();
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM user WHERE role = 'administrator' ORDER BY name COLLATE NOCASE ASC;"])
+        .withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"])
+        .withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var displayParam = params.get(0).get(0);
+    assertThat(displayParam, notNullValue());
+    assertThat(displayParam.data.UsersPage.UsersList, notNullValue());
+
+    assertThat(displayParam.data.UsersPage.UsersList.size(), is(2));
+    var firstListElement = displayParam.data.UsersPage.UsersList.get(0);
+    assertThat(firstListElement.id, is("1"));
+    assertThat(firstListElement.team, is("-"));
+    var secondListElement = displayParam.data.UsersPage.UsersList.get(1);
+    assertThat(secondListElement.id, is("2"));
+    assertThat(secondListElement.team, is("-"));
+
+    assertThat(displayParam.actionEvents, notNullValue());
+    assertThat(displayParam.actionEvents.size(), is(6));
+    var roleFilterEvent = displayParam.actionEvents.get(0);
+    assertThat(roleFilterEvent.targetElementId, is("RoleFilter"));
+    assertThat(roleFilterEvent.targetElementEvent, is("onValueChange"));
+    assertThat(roleFilterEvent.data.size(), is(3));
+
+    validateOptionElement(roleFilterEvent.data.get(0), "roleFilterEvent data all", false, "All", "all");
+    validateOptionElement(roleFilterEvent.data.get(1), "roleFilterEvent data administrator", true, "Administrator", "administrator");
+    validateOptionElement(roleFilterEvent.data.get(2), "roleFilterEvent data worker", false, "Worker", "worker");
+
+    mock().forAuthentication().clearEvents();
+    mock().forTokenVerifier().clearEvents();
+    mock().verifyNoMoreExecution();
+}
+
+// Tests for getRoleOptionsWithAll()
+
+Test{ description: "Test get role options with no filter value", ignored: false }
+function getRoleOptionsWithAll_givenNoUserRole_whenCallingGetRoleOptionsWithAll_thenResultCorrect(originId) {
+
+    var result = getRoleOptionsWithAll("all");
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", true, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - administrator", false, "Administrator", "administrator");
+    validateOptionElement(result.get(2), "option result 2 - worker", false, "Worker", "worker");
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test get role options with Administrator filter value", ignored: false }
+function getRoleOptionsWithAll_givenNoUserRole_whenCallingGetRoleOptionsWithAdministrator_thenResultCorrect(originId) {
+
+    var result = getRoleOptionsWithAll("administrator");
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", false, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - administrator", true, "Administrator", "administrator");
+    validateOptionElement(result.get(2), "option result 2 - worker", false, "Worker", "worker");
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test get role options with Worker filter value", ignored: false }
+function getRoleOptionsWithAll_givenNoUserRole_whenCallingGetRoleOptionsWithWorker_thenResultCorrect(originId) {
+
+    var result = getRoleOptionsWithAll("worker");
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", false, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - administrator", false, "Administrator", "administrator");
+    validateOptionElement(result.get(2), "option result 2 - worker", true, "Worker", "worker");
+
+    mock().verifyNoMoreExecution();
+}
+
+// Tests for getTeamOptionsWithAll()
+
+Test{ description: "Test get team options with no filter value (all)", ignored: false }
+function getTeamOptionsWithAll_givenNoTeam_whenCallingGetTeamOptionsWithAll_thenResultCorrect(originId) {
+    givenTeamsInTypeDefinitionRepository();
+
+    var result = getTeamOptionsWithAll("all");
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", true, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - team 1", false, "Team 1", "team1");
+    validateOptionElement(result.get(2), "option result 2 - team 2", false, "Team 2", "team2");
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test get team options with existing team id", ignored: false }
+function getTeamOptionsWithAll_givenExistingTeamId_whenCallingGetTeamOptionsWithAll_thenResultCorrect(originId) {
+    givenTeamsInTypeDefinitionRepository();
+
+    var result = getTeamOptionsWithAll("team1");
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"])
+        .withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", false, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - team 1", true, "Team 1", "team1");
+    validateOptionElement(result.get(2), "option result 2 - team 2", false, "Team 2", "team2");
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test get team options with non-existing team id", ignored: false }
+function getTeamOptionsWithAll_givenNonExistingTeamId_whenCallingGetTeamOptionsWithAll_thenResultCorrect(originId) {
+    givenTeamsInTypeDefinitionRepository();
+
+    var result = getTeamOptionsWithAll("team3");
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;"])
+        .withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", false, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - team 1", false, "Team 1", "team1");
+    validateOptionElement(result.get(2), "option result 2 - team 2", false, "Team 2", "team2");
+
+    mock().verifyNoMoreExecution();
+}
+
+//  Tests for getStatusOptionsWithAll()
+
+Test{ description: "Test get status options with no filter value (all)", ignored: false }
+function getStatusOptionsWithAll_givenNoStatus_whenCallingGetStatusOptionsWithAll_thenResultCorrect(originId) {
+
+    var result = getStatusOptionsWithAll("all");
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", true, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - active", false, "Active", "active");
+    validateOptionElement(result.get(2), "option result 2 - inactive", false, "Inactive", "inactive");
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test get status options with active value", ignored: false }
+function getStatusOptionsWithAll_givenActiveStatus_whenCallingGetStatusOptionsWithAll_thenResultCorrect(originId) {
+
+    var result = getStatusOptionsWithAll("active");
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", false, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - active", true, "Active", "active");
+    validateOptionElement(result.get(2), "option result 2 - inactive", false, "Inactive", "inactive");
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test get status options with inactive value", ignored: false }
+function getStatusOptionsWithAll_givenInactiveStatus_whenCallingGetStatusOptionsWithAll_thenResultCorrect(originId) {
+
+    var result = getStatusOptionsWithAll("inactive");
+
+    assertThat(result, notNullValue());
+    validateOptionElement(result.get(0), "option result 0 - all", false, "All", "all");
+    validateOptionElement(result.get(1), "option result 1 - active", false, "Active", "active");
+    validateOptionElement(result.get(2), "option result 2 - inactive", true, "Inactive", "inactive");
+
+    mock().verifyNoMoreExecution();
+}
+
+// Tests for buildUserListRowFromDao()
+
+Test{ description: "Test build user list row from DAO with a userDao", ignored: false }
+function buildUserListRowFromDao_givenAUserDao_whenCallingBuildUserListFromDao_thenResultCorrect(originId) {
+    usersTestsGivenTypeDefinitionRetrievingTeams();
+    var userDao = usersTestGivenAnActiveUser();
+
+    var result = buildUserListRowFromDao(userDao);
+
+    assertThat(result, notNullValue());
+    assertThat(result.id, is(userDao.id));
+    assertThat(result.name, is(userDao.name));
+    assertThat(result.team, is("Team 1"));
+    assertThat(result.role, is("Worker"));
+    assertThat(result.email, is(userDao.email));
+    assertThat(result.subTitle, is("Role: Worker | Team: Team 1 | Username: user1 | Email: user1@company.com"));
+    assertThat(result.statusImage, is("icon_view_active"));
+    var userActions = result.get("actions");
+    assertThat(userActions, notNullValue());
+    assertThat(userActions.size(), is(2));
+    assertThat(userActions, hasItems(["ModifyUser", "DisableUser"]));
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team WHERE id = 'team1';"])
+        .withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test build user list row from DAO with an inactive userDao", ignored: false }
+function buildUserListRowFromDao_givenAnInactiveUserDao_whenCallingBuildUserListFromDao_thenResultCorrect(originId) {
+    usersTestsGivenTypeDefinitionRetrievingTeams();
+    var userDao = usersTestGivenAnInactiveUser();
+    var result = buildUserListRowFromDao(userDao);
+
+    assertThat(result, notNullValue());
+    assertThat(result.id, is(userDao.id));
+    assertThat(result.name, is(userDao.name));
+    assertThat(result.team, is("Team 1"));
+    assertThat(result.role, is("Worker"));
+    assertThat(result.email, is(userDao.email));
+    assertThat(result.subTitle, is("Role: Worker | Team: Team 1 | Username: user1 | Email: user1@company.com"));
+    assertThat(result.statusImage, is("icon_view_inactive"));
+    var userActions = result.get("actions");
+    assertThat(userActions, notNullValue());
+    assertThat(userActions.size(), is(2));
+    assertThat(userActions, hasItems(["ModifyUser", "EnableUser"]));
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team WHERE id = 'team1';"])
+        .withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+    mock().verifyNoMoreExecution();
+}
+
+// Tests for resolveUserRole()
+
+Test{ description: "Test resolve user role with administrator", ignored: false }
+function resolveUserRole_givenAdministratorRole_whenCallingResolveUserRole_thenResultCorrect(originId) {
+    var result = resolveUserRole("administrator");
+
+    assertThat(result, notNullValue());
+    assertThat(result, is("Administrator"));
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test resolve user role with worker", ignored: false }
+function resolveUserRole_givenWorkerRole_whenCallingResolveUserRole_thenResultCorrect(originId) {
+    var result = resolveUserRole("worker");
+
+    assertThat(result, notNullValue());
+    assertThat(result, is("Worker"));
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test resolve user role with unknown role", ignored: false }
+function resolveUserRole_givenUnknownRole_whenCallingResolveUserRole_thenExceptionThrown(originId) {
+    try {
+        resolveUserRole("unknown");
+    } catch (com.scolvo.core.interpreter.exception.InterpreterException exception) {
+        assertThat(exception, notNullValue());
+        assertThat(exception.getMessage(), is("UnknownAuthorization"));
+    }
+
+    mock().verifyNoMoreExecution();
+}
+
+// Tests for resolveUserIcon()
+
+Test{ description: "Test resolve user icon with active", ignored: false }
+function resolveUserIcon_givenActiveStatus_whenCallingResolveUserIcon_thenResultCorrect(originId) {
+    var result = resolveUserIcon("active");
+
+    assertThat(result, notNullValue());
+    assertThat(result, is("icon_view_active"));
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test resolve user icon with inactive", ignored: false }
+function resolveUserIcon_givenInactiveStatus_whenCallingResolveUserIcon_thenResultCorrect(originId) {
+    var result = resolveUserIcon("inactive");
+
+    assertThat(result, notNullValue());
+    assertThat(result, is("icon_view_inactive"));
+
+    mock().verifyNoMoreExecution();
+}
+
+// Tests for usersPageRefreshUsersList()
+
+Test{ description: "Test users page refresh users list", ignored: false }
+function usersPageRefreshUsersList_givenTypeDefinitionResults_whenCallingUsersPageRefreshUsersList_thenResultCorrect(originId) {
+    givenDatabaseFilledForUsersPage();
+    givenFilterParametersSetToAll();
+
+    usersPageRefreshUsersList();
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(1).await();
+
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM user ORDER BY name COLLATE NOCASE ASC;"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team WHERE id = 'team1';"]).withRepetition(2).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var actionEvent = params.get(0).get(0);
+    assertThat(actionEvent, notNullValue());
+    assertThat(actionEvent.originId, is("UsersPage"));
+    assertThat(actionEvent.targetElementId, is("UsersList"));
+    assertThat(actionEvent.targetElementEvent, is("onRefresh"));
+    assertThat(actionEvent.data.size(), is(2));
+
+    mock().verifyNoMoreExecution();
+}
+
+// Tests for usersHandleFilterControls()
+
+Test{ description: "Test users handle filter controls", ignored: false }
+function usersHandleFilterControls_givenControlsVisibleTrue_whenCallingUsersHandleFilterControls_thenResultCorrect(originId) {
+
+    usersHandleFilterControls(true);
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(3).await();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(3).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var actionEventRoleFilter = params.get(0).get(0);
+    assertThat(actionEventRoleFilter, notNullValue());
+    assertThat(actionEventRoleFilter.originId, is("UsersPage"));
+    assertThat(actionEventRoleFilter.targetElementId, is("RoleFilter"));
+    assertThat(actionEventRoleFilter.targetElementEvent, is("onVisibilityChange"));
+    assertThat(actionEventRoleFilter.data, is("visible"));
+
+    var actionEventTeamFilter = params.get(1).get(0);
+    assertThat(actionEventTeamFilter, notNullValue());
+    assertThat(actionEventTeamFilter.originId, is("UsersPage"));
+    assertThat(actionEventTeamFilter.targetElementId, is("TeamFilter"));
+    assertThat(actionEventTeamFilter.targetElementEvent, is("onVisibilityChange"));
+    assertThat(actionEventTeamFilter.data, is("visible"));
+
+    var actionEventStatusFilter = params.get(2).get(0);
+    assertThat(actionEventStatusFilter, notNullValue());
+    assertThat(actionEventStatusFilter.originId, is("UsersPage"));
+    assertThat(actionEventStatusFilter.targetElementId, is("StatusFilter"));
+    assertThat(actionEventStatusFilter.targetElementEvent, is("onVisibilityChange"));
+    assertThat(actionEventStatusFilter.data, is("visible"));
+
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test users handle filter controls - false parameter", ignored: false }
+function usersHandleFilterControls_givenControlsVisibleFalse_whenCallingUsersHandleFilterControls_thenResultCorrect(originId) {
+
+    usersHandleFilterControls(false);
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(3).await();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(3).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var actionEventRoleFilter = params.get(0).get(0);
+    assertThat(actionEventRoleFilter, notNullValue());
+    assertThat(actionEventRoleFilter.originId, is("UsersPage"));
+    assertThat(actionEventRoleFilter.targetElementId, is("RoleFilter"));
+    assertThat(actionEventRoleFilter.targetElementEvent, is("onVisibilityChange"));
+    assertThat(actionEventRoleFilter.data, is("gone"));
+
+    var actionEventTeamFilter = params.get(1).get(0);
+    assertThat(actionEventTeamFilter, notNullValue());
+    assertThat(actionEventTeamFilter.originId, is("UsersPage"));
+    assertThat(actionEventTeamFilter.targetElementId, is("TeamFilter"));
+    assertThat(actionEventTeamFilter.targetElementEvent, is("onVisibilityChange"));
+    assertThat(actionEventTeamFilter.data, is("gone"));
+
+    var actionEventStatusFilter = params.get(2).get(0);
+    assertThat(actionEventStatusFilter, notNullValue());
+    assertThat(actionEventStatusFilter.originId, is("UsersPage"));
+    assertThat(actionEventStatusFilter.targetElementId, is("StatusFilter"));
+    assertThat(actionEventStatusFilter.targetElementEvent, is("onVisibilityChange"));
+    assertThat(actionEventStatusFilter.data, is("gone"));
+
+    mock().verifyNoMoreExecution();
+}
+
+// Tests for changeUserStatus()
+
+Test{ description: "Test change user status - active", ignored: false }
+function changeUserStatus_givenNewuserStatusActive_whenCallingChangeUserStatus_thenResultCorrect(originId) {
+    usersTestsGivenTypeDefinitionRetrievingUser1();
+    usersTestsGivenTypeDefinitionRetrievingTeams();
+
+    changeUserStatus("active", "user1", "originId");
+
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(1).await();
+
+    mock().forTypeDefinitionRepository().withEvent("executeUpdate").withParameters(["UPDATE user SET role='worker', visible='sb|true', teamId='team1', name='First User', id='user1', email='first@gmail.com', status='active' WHERE id = 'user1';"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team WHERE id = 'team1';"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM user WHERE id = 'user1';"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var actionEventRefreshUsersList = params.get(0).get(0);
+    assertThat(actionEventRefreshUsersList, notNullValue());
+    assertThat(actionEventRefreshUsersList.originId, is("originId"));
+    assertThat(actionEventRefreshUsersList.targetElementId, is("UsersList"));
+    assertThat(actionEventRefreshUsersList.targetElementEvent, is("onReplaceItem"));
+    assertThat(actionEventRefreshUsersList.data, notNullValue());
+
+    var requestMessageParams = mock().forRequestMessageLogger().withEvent("requestMessage").withRepetition(1).verifyAndGetParams();
+    mock().forRequestMessageLogger().verifyNoMoreExecution();
+    var dataChangeMessage = requestMessageParams.get(0).get(0);
+    assertThat(dataChangeMessage, notNullValue());
+    assertThat(dataChangeMessage.typeDefinition, is("user"));
+    assertThat(dataChangeMessage.typeDefinitionVersion, notNullValue());
+    assertThat(dataChangeMessage.changeset.size(), is(1));
+    var userRow = dataChangeMessage.changeset.get(0);
+    assertThat(userRow, notNullValue());
+    assertThat(userRow.id, is("user1"));
+    assertThat(userRow.status, is("active"));
+    assertThat(userRow.changeType, is("UPDATE"));
+
+    mock().forDevice().clearEvents();
+    mock().verifyNoMoreExecution();
+}
+
+Test{ description: "Test change user status - inactive", ignored: false }
+function changeUserStatus_givenNewuserStatusInactive_whenCallingChangeUserStatus_thenResultCorrect(originId) {
+    usersTestsGivenTypeDefinitionRetrievingUser1();
+    usersTestsGivenTypeDefinitionRetrievingTeams();
+
+    changeUserStatus("inactive", "user1", "originId");
+
+    // We are waiting for 1 message, this method is fine.
+    event().forUiEventLogger().withEvent("userInterfaceMsg").withTimeout(1000).withRepetition(1).await();
+
+    mock().forTypeDefinitionRepository().withEvent("executeUpdate").withParameters(["UPDATE user SET role='worker', visible='sb|true', teamId='team1', name='First User', id='user1', email='first@gmail.com', status='inactive' WHERE id = 'user1';"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM team WHERE id = 'team1';"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().withEvent("executeSelect").withParameters(["SELECT * FROM user WHERE id = 'user1';"]).withRepetition(1).verify();
+    mock().forTypeDefinitionRepository().verifyNoMoreExecution();
+
+    var params = mock().forUiEventLogger().withEvent("userInterfaceMsg").withRepetition(1).verifyAndGetParams();
+    mock().forUiEventLogger().verifyNoMoreExecution();
+
+    var actionEventRefreshUsersList = params.get(0).get(0);
+    assertThat(actionEventRefreshUsersList, notNullValue());
+    assertThat(actionEventRefreshUsersList.originId, is("originId"));
+    assertThat(actionEventRefreshUsersList.targetElementId, is("UsersList"));
+    assertThat(actionEventRefreshUsersList.targetElementEvent, is("onReplaceItem"));
+    assertThat(actionEventRefreshUsersList.data, notNullValue());
+
+    var requestMessageParams = mock().forRequestMessageLogger().withEvent("requestMessage").withRepetition(1).verifyAndGetParams();
+    mock().forRequestMessageLogger().verifyNoMoreExecution();
+    var dataChangeMessage = requestMessageParams.get(0).get(0);
+    assertThat(dataChangeMessage, notNullValue());
+    assertThat(dataChangeMessage.typeDefinition, is("user"));
+    assertThat(dataChangeMessage.typeDefinitionVersion, notNullValue());
+    assertThat(dataChangeMessage.changeset.size(), is(1));
+    var userRow = dataChangeMessage.changeset.get(0);
+    assertThat(userRow, notNullValue());
+    assertThat(userRow.id, is("user1"));
+    assertThat(userRow.status, is("inactive"));
+    assertThat(userRow.changeType, is("UPDATE"));
+
+    mock().forDevice().clearEvents();
+    mock().verifyNoMoreExecution();
+}
+
+//------------------------------------
+// Util functions for tests:
+//------------------------------------
+
+function givenAUserWithAdministratorRole() {
+    mock().forAuthentication().withKey("accessToken").withValue("accessTokenValue").define();
+    mock().forTokenVerifier().withKey("roles").withValue(["authenticated", "administrator"]).define();
+}
+
+function givenDatabaseFilledForUsersPage() {
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM user ORDER BY name COLLATE NOCASE ASC;").withValue([
+            {"id": "1", "teamId": "team1", "name": "First User", "role": "worker", "email": "first@gmail.com", "status": "active", "visible": "sb|true"},
+            {"id": "2", "teamId": "team1", "name": "Second User", "role": "worker", "email": "second@gmail.com", "status": "active", "visible": "sb|true"}
+        ]).define();
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM team WHERE id = 'team1';")
+        .withValue([{"id": "team1", "name": "Team 1", "location": "At the corner"}]).define();
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;")
+        .withValue([{"id": "team1", "name": "Team 1", "location": "At the corner"}]).define();
+}
+
+function givenDatabaseFilledForUsersPageAndRoleFilter() {
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM user WHERE role = 'administrator' ORDER BY name COLLATE NOCASE ASC;").withValue([
+            {"id": "1", "teamId": null, "name": "First User", "role": "administrator", "email": "first@gmail.com", "status": "active", "visible": "sb|true"},
+            {"id": "2", "teamId": null, "name": "Second User", "role": "administrator", "email": "second@gmail.com", "status": "active", "visible": "sb|true"}
+        ]).define();
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM team  ORDER BY name COLLATE NOCASE ASC;").withValue([{"id": "team1", "name": "Team 1", "location": "At the corner"}]).define();
+
+}
+
+function givenTeamsInTypeDefinitionRepository() {
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM team ORDER BY name COLLATE NOCASE ASC;")
+        .withValue([
+            {"id": "team1", "name": "Team 1", "location": "At the corner"}, 
+            {"id": "team2", "name": "Team 2", "location": "At the other corner"}
+        ]).define();
+}
+
+function givenFilterParametersSetToAll() {
+    usersRole = "all";
+    usersTeam = "all";
+    usersStatus = "all";
+}
+
+function validateOptionElement(element, messagePrefix, isDefault, labelValue, valueValue) {
+    debug("Checking isDefault value for " + messagePrefix);
+    assertThat(element.get("default"), is(isDefault));
+    debug("Checking label value for " + messagePrefix);
+    assertThat(element.get("label"), is(labelValue));
+    debug("Checking value value for " + messagePrefix);
+    assertThat(element.get("value"), is(valueValue));
+}
+
+function usersTestGivenAnActiveUser() {
+    return {
+        "id": "user1",
+        "name": "User Name",
+        "teamId": "team1",
+        "role": "worker",
+        "email": "user1@company.com",
+        "status": "active",
+        "username": "user1"
+    };
+}
+
+function usersTestGivenAnInactiveUser() {
+    return {
+        "id": "user1",
+        "name": "User Name",
+        "teamId": "team1",
+        "role": "worker",
+        "email": "user1@company.com",
+        "status": "inactive",
+        "username": "user1"
+    };
+}
+
+function usersTestsGivenTypeDefinitionRetrievingTeams() {
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM team WHERE id = 'team1';").withValue(
+        [{"id": "team1", "name": "Team 1", "location": "At the corner"}]).define();
+}
+
+function usersTestsGivenTypeDefinitionRetrievingUser1() {
+    mock().forTypeDefinitionRepository().withKey("SELECT * FROM user WHERE id = 'user1';")
+        .withValue([
+            {"id": "user1", "teamId": "team1", "name": "First User", "role": "worker", "email": "first@gmail.com", "status": "active", "visible": "sb|true"}
+        ]).define();
+}

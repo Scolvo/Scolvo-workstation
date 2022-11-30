@@ -3,7 +3,8 @@ import {
   /backend/repository/TeamRepository,
   /backend/repository/WorkplaceRepository,
   /backend/repository/MeetingRoomRepository,
-  /backend/repository/ReservationRepository
+  /backend/repository/ReservationRepository,
+  /backend/repository/NoteRepository
 }
 
 function onDataSync(userId, deviceType) {
@@ -37,7 +38,8 @@ function dataSyncByAdministrator(userId) {
     createDataSyncElement("team", getTeams()),
     createDataSyncElement("user", getUsersForMhubByCreator(userId)),
     createDataSyncElement("workplace", getWorkplaces()),
-    createDataSyncElement("meetingRoom", getMeetingRoomsForMhub())
+    createDataSyncElement("meetingRoom", getMeetingRoomsForMhub()),
+    createDataSyncElement("note", getNotesForMhub()),
   ];
 }
 
@@ -46,7 +48,8 @@ function dataSyncBySuperAdministrator() {
     createDataSyncElement("team", getTeams()),
     createDataSyncElement("user", getUsersForMhub()),
     createDataSyncElement("workplace", getWorkplaces()),
-    createDataSyncElement("meetingRoom", getMeetingRoomsForMhub())
+    createDataSyncElement("meetingRoom", getMeetingRoomsForMhub()),
+    createDataSyncElement("note", getNotesForMhub()),
   ];
 }
 
@@ -57,5 +60,6 @@ function dataSyncByWorker() {
     createDataSyncElement("workplace", getWorkplaces()),
     createDataSyncElement("meetingRoom", getMeetingRoomsForMobile()),
     createDataSyncElement("reservation", getReservations()),
+    createDataSyncElement("note", getNotesForMobile()),
   ];
 }

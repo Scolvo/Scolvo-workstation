@@ -1,0 +1,155 @@
+import {
+  /mobile/repository/NoteRepository,
+  /mobile/repository/UserRepository,
+  /common/Time,
+  /mobile/note/NoteDetails,
+  /mobile/note/DeleteMeetingRoomNote
+}
+
+var notesPageSelectedMeetingRoomId = null;
+
+function displayMeetingRoomNotesPage(originId, meetingRoomId) {
+  if (meetingRoomId != null) {
+    notesPageSelectedMeetingRoomId = meetingRoomId;
+  } else if (notesPageSelectedMeetingRoomId == null) {
+    var firstMeetingRoom = getFirstMeetingRoom();
+    if (firstMeetingRoom != null) {
+      notesPageSelectedMeetingRoomId = firstMeetingRoom.id;
+    }
+  }
+  debug("Actual meeting room id: " + notesPageSelectedMeetingRoomId);
+  var meetingRoom = getMeetingRoomsIdMap().get(notesPageSelectedMeetingRoomId);
+  var selectData = {
+    "helper_label": meetingRoom.location
+  };
+  if(meetingRoom.mapPicturePath != null) {
+    selectData.put("helper_icon", "\ue913");
+  }
+
+  var headerTextValue = DICTIONARY.page_MeetingRoomNotesPage_headerTextPrefix + " - " + meetingRoom.name;
+  var data = {
+    "MeetingRoomNotesPage": {
+      "headerText": headerTextValue,
+      "NotesMeetingRoomFilterOptions": createMeetingRoomOptions(notesPageSelectedMeetingRoomId),
+      "NotesMeetingRoomFilter": selectData,
+      "NoteList": createNotesData()
+    }
+  };
+  var actionEvents = [
+    createValueChangeSourceEvent("NotesMeetingRoomFilter", "NotesMeetingRoomFilterSelectionChanged")
+  ];
+  if (meetingRoomId != null) {
+    actionEvents.add(createVisibilityChangeTargetEvent("NotesMeetingRoomFilter", "gone"));
+  }
+  display(MeetingRoomNotesPage, data, originId, actionEvents);
+}
+
+function createNotesData() {
+  return getNotesForMeetingRoom(notesPageSelectedMeetingRoomId).map(function (noteDao) {
+    var creatorUser = getUserById(noteDao.createdBy);
+    var creationTimeValue = getDateStringAtCentralTimeZone(noteDao.createdAt);
+    var checkedText = DICTIONARY.page_MeetingRoomNotesPage_NoteList_CheckedText;
+    if (!noteDao.checked) {
+      checkedText = DICTIONARY.page_MeetingRoomNotesPage_NoteList_UncheckedText;
+    }
+    var subTextContent = creationTimeValue + " | " + creatorUser.name;
+    var icon_name = resolveNoteIcon(noteDao.checked);
+    var noteData = {
+      "id": noteDao.id,
+      "title": noteDao.title,
+      "creator": creatorUser.name,
+      "creationTime": creationTimeValue,
+      "createdBy": noteDao.createdBy,
+      "createdAt": noteDao.createdAt,
+      "notes": noteDao.notes,
+      "subText": subTextContent,
+      "checkedImage": icon_name,
+    };
+    if (creatorUser.id == sessionUserId()) {
+      noteData.put("actions", ["NotesDeleteNote"]);
+    }
+    return noteData;
+  });
+}
+
+function resolveNoteIcon(checked) {
+  if(checked) {
+    return "icon_note_handled";
+  }
+  return "icon_note_unhandled";
+}
+
+page MeetingRoomNotesPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: false;
+  scolvoMenuVisible: false;
+
+  inputField  NotesMeetingRoomFilter {
+    inputType: selectOne;
+  }
+
+  list NoteList {
+    template: listVerticalNormal;
+    filterVisible: true;
+    span: 0;
+    itemTemplate: listItemCard;
+
+    actions: [AddMeetingRoomNote]
+
+    columns: [
+      title => title,
+      subTitle => subText,
+      logo => checkedImage,
+    ]
+  }
+}
+
+function onMeetingRoomNotesPageLoaded(originId) {}
+
+function onNoteListSelectionChanged(originId) {
+  debug("Notes list selection change: " + $IN.data.id);
+  displayNoteDetails($IN.data.id, notesPageSelectedMeetingRoomId, originId);
+}
+
+function onAddMeetingRoomNote(originId) {
+  debug("Adding meeting room note ...");
+  displayNoteDetails(null, notesPageSelectedMeetingRoomId, originId);
+}
+
+function onNotesMeetingRoomFilterHelperAction(originId) {
+  var meetingRoom = getMeetingRoomsIdMap().get(notesPageSelectedMeetingRoomId);
+  displayMapPopup(originId, meetingRoom.name, meetingRoom.mapPicturePath);
+}
+
+function onNotesMeetingRoomFilterSelectionChanged(originId) {
+  notesPageSelectedMeetingRoomId = $IN.data.value;
+  var meetingRoom = getMeetingRoomsIdMap().get(notesPageSelectedMeetingRoomId);
+  var selectData = {
+    "helper_label": meetingRoom.location
+  };
+  if(meetingRoom.mapPicturePath != null) {
+    selectData.put("helper_icon", "\ue913");
+  }
+  else {
+    selectData.put("helper_icon", "");
+  }
+  var newHeaderText = DICTIONARY.page_MeetingRoomNotesPage_headerTextPrefix + " - " + meetingRoom.name;
+  fireEvent(createValueChangeTargetEvent("NotesMeetingRoomFilter", selectData), originId);
+  fireEvent(createValueChangeTargetEvent("PageHeaderText", newHeaderText), originId);
+  refreshMeetingRoomNotesPage();
+}
+
+function refreshMeetingRoomNotesPage() {
+  debug("Refreshing MeetingRoomNotesPage ...");
+  fireEvent(createRefreshItemTargetEvent("NoteList", createNotesData()), "MeetingRoomNotesPage");
+}
+
+function onNoteListFilterCount(originId) {
+  return createNotesData().size();
+}
+
+function onNotesDeleteNote(originId) {
+  debug("Deleting note with id: " + $IN.data.id);
+  displayDeleteMeetingRoomNotePopup(originId, $IN.data.id);
+}

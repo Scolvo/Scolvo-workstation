@@ -17,7 +17,7 @@ services:
     auth:
         restart: always
         container_name: auth
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-dep-auth:2.2.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-dep-auth:2.7.0
         depends_on:
         - authdb
         environment:
@@ -39,6 +39,8 @@ services:
         - AUDIT_EVENTS_EXPIRATION_SECS=${AUDIT_EVENTS_EXPIRATION_SECS:-31536000}
         - REALM_DISPLAY_NAME=${REALM_DISPLAY_NAME:-Scolvo}
         - KEYCLOAK_FRONTEND_URL=${EXTERNAL_BASE_URL}/auth
+        - KEYCLOAK_LOGLEVEL=${KEYCLOAK_LOGLEVEL:-WARN}
+        - ROOT_LOGLEVEL=${KEYCLOAK_LOGLEVEL:-WARN}
         logging:
           options:
             max-size: "50m"
@@ -97,8 +99,8 @@ services:
         - SPRING_PROFILES_ACTIVE=${BACKEND_SPRING_PROFILES_ACTIVE}
         - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
         - LOGGING_CONFIG_PATH=/app/logback-spring.xml
-        - LIQUIBASE_CHANGESET_FILE=/app/assets/liquibase/changeLog.xml
-        - DATA_DEFINITION_PATH=/app/assets/liquibase
+        - LIQUIBASE_CHANGESET_FILE=/app/assets/dataStructure/backend/changeLog.xml
+        - DATA_DEFINITION_PATH=/app/assets/dataStructure
         - SELF_REGISTRATION_SUPPORTED=false
         - EMAIL_DOMAIN=${EMAIL_DOMAIN}
         - PASSWORD_POLICY=${PASSWORD_POLICY}
@@ -149,7 +151,7 @@ services:
     admin:
         restart: always
         container_name: admin
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:4.4.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:4.5.3-SCFR-3124-features-harmonisation-1040
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
@@ -176,7 +178,7 @@ services:
     webapp:
         restart: always
         container_name: webapp
-        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:4.4.0
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-web-app:4.5.3-SCFR-3124-features-harmonisation-1040
         environment:
         - MQ_URL=${MQ_URL:-mq}
         - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}

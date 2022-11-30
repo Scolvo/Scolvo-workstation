@@ -2,6 +2,8 @@
 
 SETLOCAL enabledelayedexpansion
 
+ECHO Executing command "%1" ...
+
 if "%1" == "help" (
 	ECHO "Usage: %~n0 [start|stop|restart|reset] [-d] [-na]"
 	ECHO.
@@ -26,40 +28,39 @@ if "%1" == "start" (
 	SET COMPOSE_FILES=-f docker-compose.yml
 	SET SERVICES_TO_START=auth authdb mq proxy be bedb webapp storage
 	SET /A ADMIN=1
-	
+
 	if "%2" == "-na" SET /A ADMIN=0
 	if "%3" == "-na" SET /A ADMIN=0
-	if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
-	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
-	
+	if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml & SET SERVICES_TO_START=!SERVICES_TO_START! test-runner
+	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml & SET SERVICES_TO_START=!SERVICES_TO_START! test-runner
+
 	if !ADMIN! == 1 SET SERVICES_TO_START=!SERVICES_TO_START! admin
-	
+
 	docker-compose !COMPOSE_FILES! up -d !SERVICES_TO_START!
 ) ELSE ^
 if "%1" == "stop" (
 	SET COMPOSE_FILES=-f docker-compose.yml
-	
+
 	if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
 	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
-	
-	docker-compose !COMPOSE_FILES! down
+
+	docker-compose !COMPOSE_FILES! down -v --remove-orphans
 
 ) ELSE ^
 if "%1" == "restart" (
 
 	SET COMPOSE_FILES=-f docker-compose.yml
-	SET SERVICES_TO_START=auth authdb mq proxy be bedb webapp
+	SET SERVICES_TO_START=auth authdb mq proxy be bedb webapp storage
 	SET /A ADMIN=1
-	
+
 	if "%2" == "-na" SET /A ADMIN=0
 	if "%3" == "-na" SET /A ADMIN=0
-	if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
-	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
-	
-	if !ADMIN! == 1 SET SERVICES_TO_START=!SERVICES_TO_START! admin
-	
+	if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml & SET SERVICES_TO_START=!SERVICES_TO_START! test-runner
+	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml & SET SERVICES_TO_START=!SERVICES_TO_START! test-runner
 
-	docker-compose !COMPOSE_FILES! down
+	if !ADMIN! == 1 SET SERVICES_TO_START=!SERVICES_TO_START! admin
+
+	docker-compose !COMPOSE_FILES! down -v --remove-orphans
 	timeout /t 1
 	docker-compose !COMPOSE_FILES! up -d !SERVICES_TO_START!
 
@@ -75,16 +76,16 @@ if "%1" == "restartBackend" (
 if "%1" == "reset" (
 
 	SET COMPOSE_FILES=-f docker-compose.yml
-	SET SERVICES_TO_START=auth authdb mq proxy be bedb webapp
+	SET SERVICES_TO_START=auth authdb mq proxy be bedb webapp storage
 	SET /A ADMIN=1
-	
+
 	if "%2" == "-na" SET /A ADMIN=0
 	if "%3" == "-na" SET /A ADMIN=0
-	if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
-	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
-	
+	if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml & SET SERVICES_TO_START=!SERVICES_TO_START! test-runner
+	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml & SET SERVICES_TO_START=!SERVICES_TO_START! test-runner
+
 	if !ADMIN! == 1 SET SERVICES_TO_START=!SERVICES_TO_START! admin
-	
+
 	docker-compose !COMPOSE_FILES! down
 	timeout /t 1
 	docker-compose !COMPOSE_FILES!  down -v --remove-orphans
@@ -92,14 +93,24 @@ if "%1" == "reset" (
 ) ELSE ^
 IF "%1" == "logs" (
 
+	SET COMPOSE_FILES=-f docker-compose.yml
 	SET SERVICES_TO_LOG=be admin webapp storage
-	docker-compose logs -f --tail=100 !SERVICES_TO_LOG!
+
+	if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml & SET SERVICES_TO_LOG=!SERVICES_TO_LOG! test-runner
+	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml & SET SERVICES_TO_LOG=!SERVICES_TO_LOG! test-runner
+
+	docker-compose !COMPOSE_FILES! logs -f --tail=100 !SERVICES_TO_LOG!
+
 
 ) ELSE ^
 IF "%1" == "fullLogs" (
 
 	SET COMPOSE_FILES=-f docker-compose.yml
-	docker-compose !COMPOSE_FILES! logs  -f --tail=100
+
+    if "%2" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
+	if "%3" == "-d" SET COMPOSE_FILES=!COMPOSE_FILES! -f docker-compose-dev.yml
+
+	docker-compose !COMPOSE_FILES! logs -f --tail=100
 
 ) ELSE ^
 IF "%1" == "checkRunning" (
@@ -122,5 +133,5 @@ IF "%1" == "checkRunning" (
 )
 
 ENDLOCAL
-ECHO Exiting default
+ECHO Done!
 exit 0

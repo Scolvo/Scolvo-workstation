@@ -1,24 +1,81 @@
 import {
-  /mhub/user/CreateUser,
-  /mhub/user/ModifyUser,
   /mhub/repository/UserRepository,
-  /mhub/common/TeamCommon
+  /mhub/common/TeamCommon,
+  /mhub/user/UserDetails
 }
 
-function displayUsersPage(originId) {
+
+var usersRole = "all";
+var usersTeam = "all";
+var usersStatus = "all";
+var usersShowFilter = true;
+
+function displayUsersPage(originId, role, team, active) {
+  usersRole = role;
+  usersTeam = team;
+  usersStatus = active;
+  usersShowFilter = (usersRole != null && usersRole != "all") || (usersTeam != null && usersTeam != "all") || (usersStatus != null && usersStatus != "all");
+
   var users = createUserListData();
   var data = {
     "UsersPage": {
       "UsersList": users
     }
   };
-  display(UsersPage, data, originId);
+  var events = [
+        createValueChangeTargetEvent("RoleFilter", getRoleOptionsWithAll(usersRole)),
+        createValueChangeSourceEvent("RoleFilter", "UsersRoleFilterChanged"),
+        createValueChangeTargetEvent("TeamFilter", getTeamOptionsWithAll(usersTeam)),
+        createValueChangeSourceEvent("TeamFilter", "UsersTeamFilterChanged"),
+        createValueChangeTargetEvent("StatusFilter", getStatusOptionsWithAll(usersStatus)),
+        createValueChangeSourceEvent("StatusFilter", "UsersStatusFilterChanged")
+  ];
+  if (!usersShowFilter) {
+    events.add(createVisibilityChangeTargetEvent("RoleFilter", "gone"));
+    events.add(createVisibilityChangeTargetEvent("TeamFilter", "gone"));
+    events.add(createVisibilityChangeTargetEvent("StatusFilter", "gone"));
+  }
+  display(UsersPage, data, originId, events);
 }
 
 function createUserListData() {
-  return getUsers().map(function (userDao) {
+  var userDaos = getUsersByFilters(usersRole, usersTeam, usersStatus);
+  return userDaos.map(function (userDao) {
     return buildUserListRowFromDao(userDao);
   });
+}
+
+function buildUserListRowFromDao(userDao) {
+  var roleValue = resolveUserRole(userDao.role);
+  var teamValue = resolveTeam(userDao.teamId);
+  var subTitleValue = DICTIONARY.page_UsersPage_UsersList_description_role + ": " + roleValue + " | " 
+  + DICTIONARY.page_UsersPage_UsersList_description_team + ": " + teamValue + " | " 
+  + DICTIONARY.page_UsersPage_UsersList_description_username + ": " +  userDao.username + " | " 
+  + DICTIONARY.page_UsersPage_UsersList_description_email + ": " +  userDao.email;
+  var statusIcon = resolveUserIcon(userDao.status);
+  var userData = {
+    "id": userDao.id,
+    "name": userDao.name,
+    "team": teamValue,
+    "role": roleValue,
+    "email": userDao.email,
+    "subTitle": subTitleValue,
+    "statusImage": statusIcon,
+  };
+  userData.put("actions", ["ModifyUser"]);
+  if (userDao.status == "active") {
+    userData.get("actions").add("DisableUser");
+  } else {
+    userData.get("actions").add("EnableUser");
+  }
+  return userData;
+}
+
+function resolveUserIcon(userStatus) {
+  if (userStatus == "active") {
+    return "icon_view_active";
+  }
+  return "icon_view_inactive";
 }
 
 page UsersPage {
@@ -27,39 +84,97 @@ page UsersPage {
   scolvoMenuVisible: true;
   settingsVisible: true;
 
+  actions: [
+    UsersShowHideFilter
+  ]
+
+  container UsersFilters{
+    layout: vertical;
+
+    inputField RoleFilter {
+      inputType: selectOne;
+    }
+    spacer {
+      span: 10
+    }
+    inputField TeamFilter {
+      inputType: selectOne;
+    }
+    spacer {
+      span: 10
+    }
+    inputField StatusFilter {
+      inputType: selectOne;
+    }
+  }
+
   list UsersList {
     template: normal;
-    itemTemplate: grid;
+    itemTemplate: listItemCard;
     span: 0;
     filterVisible: true;
-    actions: [
-      CreateUser
-    ]
+
+    actions: [CreateUser]
+
     columns: [
-      name,
-      team,
-      email,
-      role
+      title => name,
+      subTitle => subTitle,
+      logo => statusImage
     ]
   }
 }
 
 function onUsersPageLoaded(originId) {}
 
+function onUsersRoleFilterChanged(originId) {
+  usersRole = $IN.data.value;
+  usersPageRefreshUsersList();
+}
+
+function onUsersTeamFilterChanged(originId) {
+  usersTeam = $IN.data.value;
+  usersPageRefreshUsersList();
+}
+
+function onUsersStatusFilterChanged(originId) {
+  usersStatus = $IN.data.value;
+  usersPageRefreshUsersList();
+}
+
+function onUsersShowHideFilter(originId) {
+  debug("Show/Hide Users filter");
+  usersShowFilter = !usersShowFilter;
+  usersHandleFilterControls(usersShowFilter);
+}
+
+function usersHandleFilterControls(areControlsVisible) {
+  var status = "visible";
+  if (!areControlsVisible) {
+    status = "gone";
+  }
+  fireEvent(createVisibilityChangeTargetEvent("RoleFilter", status), "UsersPage");
+  fireEvent(createVisibilityChangeTargetEvent("TeamFilter", status), "UsersPage");
+  fireEvent(createVisibilityChangeTargetEvent("StatusFilter", status), "UsersPage");
+}
+
+function usersPageRefreshUsersList() {
+  fireEvent(createRefreshItemTargetEvent("UsersList", createUserListData()), "UsersPage");
+}
+
 function onEnableUser(originId) {
-  changeUserStatus("active", $IN.recordId, originId);
+  changeUserStatus("active", $IN.data.id, originId);
 }
 
 function onDisableUser(originId) {
-  changeUserStatus("inactive", $IN.recordId, originId);
+  changeUserStatus("inactive", $IN.data.id, originId);
 }
 
 function onCreateUser(originId) {
-  displayCreateUserPage(originId);
+  displayUserDetails(null, originId);
 }
 
 function onModifyUser(originId) {
-  displayUserModifyPage(originId, $IN.recordId);
+  displayUserDetails($IN.data.id, originId);
 }
 
 function changeUserStatus(newUserStatus, recordId, originId) {
@@ -73,31 +188,21 @@ function changeUserStatus(newUserStatus, recordId, originId) {
   fireEvent(createReplaceItemTargetEvent("UsersList", buildUserListRowFromDao(userDao)), originId);
 }
 
-function buildUserListRowFromDao(userDao) {
-  var userData = {
-    "id": userDao.id,
-    "name": userDao.name,
-    "team": resolveTeam(userDao.teamId),
-    "role": resolveUserRole(userDao.role),
-    "email": userDao.email
-  };
-  userData.put("actions", ["ModifyUser"]);
-  if (userDao.status == "active") {
-    userData.get("actions").add("DisableUser");
-  } else {
-    userData.get("actions").add("EnableUser");
-  }
-  return userData;
-}
-
 function resolveUserRole(userRole) {
   if (userRole == ROLE_ADMIN) {
     return DICTIONARY.role_admin;
-  }
-  else if(userRole == ROLE_WORKER) {
+  } else if(userRole == ROLE_WORKER) {
     return DICTIONARY.role_worker;
-  }
-  else {
+  } else {
     throw UnknownAuthorization;
   }
 }
+
+function resolveUserStatus(userStatus) {
+  if (userStatus == "active") {
+    return DICTIONARY.page_UsersPage_UsersList_description_status_enabled;
+  }
+  return DICTIONARY.page_UsersPage_UsersList_description_status_disabled;
+}
+
+function onUsersListSelectionChanged(originId) {}

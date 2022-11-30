@@ -5,26 +5,41 @@ import {
   /mhub/common/WorkplaceCommon
 }
 
+var workplacesTeam = "all";
+var workplacesShowFilter = true;
+
 function displayWorkplacesPage(originId) {
+  workplacesShowFilter = (workplacesTeam != null && workplacesTeam != "all");
+  var teamOptions = getTeamOptionsWithAllAndNone(workplacesTeam);
+
   var data = {
     "WorkplacesPage": {
       "WorkplacesList": createWorkplacesListData()
     }
   };
-  display(WorkplacesPage, data, originId);
+  var events = [
+        createValueChangeTargetEvent("TeamFilter", teamOptions),
+        createValueChangeSourceEvent("TeamFilter", "WorkplacesTeamFilterChanged"),
+  ];
+  if (!workplacesShowFilter) {
+    events.add(createVisibilityChangeTargetEvent("TeamFilter", "gone"));
+  }
+  display(WorkplacesPage, data, originId, events);
 }
 
 function createWorkplacesListData() {
-  return getWorkplaces().map(function (workplaceDao) {
+  return getWorkplacesByFilters(workplacesTeam).map(function (workplaceDao) {
     var convertedCanBeBooked = DICTIONARY.text_No;
     if (workplaceDao.canBeBooked) {
       convertedCanBeBooked = DICTIONARY.text_Yes;
     }
+    var textValue = DICTIONARY.page_WorkplacesPage_WorkplacesList_team_label + ": " + resolveTeamName(workplaceDao.teamName) + " | " + 
+      DICTIONARY.page_WorkplacesPage_WorkplacesList_can_be_booked_label + " " + convertedCanBeBooked;
     return {
       "id": workplaceDao.id,
       "name": workplaceDao.name,
-      "team": resolveTeam(workplaceDao.teamId),
       "canBeBooked": convertedCanBeBooked,
+      "text": textValue,
       "actions": ["ModifyWorkplace"]
     };
   });
@@ -36,26 +51,62 @@ page WorkplacesPage {
   scolvoMenuVisible: true;
   settingsVisible: true;
 
+  actions: [
+    WorkplacesShowHideFilter
+  ]
+
+  container WorkplacesFilters{
+    layout: vertical;
+
+    inputField TeamFilter {
+      inputType: selectOne;
+    }
+  }
+
   list WorkplacesList {
     template: normal;
-    itemTemplate: grid;
+    itemTemplate: listItemCard;
     span: 0;
     filterVisible: true;
     actions: [
       CreateWorkplace
     ]
     columns: [
-      name,
-      team,
-      canBeBooked
+      mainText => name,
+      text => text,
     ]
   }
 }
 
 function onWorkplacesPageLoaded(originId) {}
 
+function onWorkplacesListSelectionChanged(originId) {}
+
+function onWorkplacesShowHideFilter(originId) {
+  debug("Show/Hide Users filter");
+  workplacesShowFilter = !workplacesShowFilter;
+  workplacesHandleFilterControls(workplacesShowFilter);
+}
+
+function workplacesHandleFilterControls(areControlsVisible) {
+  var status = "visible";
+  if (!areControlsVisible) {
+    status = "gone";
+  }
+  fireEvent(createVisibilityChangeTargetEvent("TeamFilter", status), "WorkplacesPage");
+}
+
+function onWorkplacesTeamFilterChanged(originId) {
+  workplacesTeam = $IN.data.value;
+  workplacesPageRefreshWorkplacesList();
+}
+
+function workplacesPageRefreshWorkplacesList() {
+  fireEvent(createRefreshItemTargetEvent("WorkplacesList", createWorkplacesListData()), "WorkplacesPage");
+}
+
 function onModifyWorkplace(originId) {
-  displayModifyWorkplacePage(originId, $IN.recordId);
+  displayModifyWorkplacePage(originId, $IN.data.id);
 }
 
 function onCreateWorkplace(originId) {

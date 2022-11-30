@@ -81,6 +81,8 @@ page DashboardPage {
   settingsVisible: true;
   scolvoMenuVisible: true;
 
+  actions: [MyReservations]
+
   inputField  DashboardTeamSelect {
     inputType: selectOne;
   }
@@ -99,6 +101,10 @@ page DashboardPage {
 }
 
 function onDashboardPageLoaded(originId) {}
+
+function onMyReservations(originId) {
+  displayUserSpecificReservations(originId);
+}
 
 function onDashboardTeamSelectHelperAction(originId) {
   var team = getTeamsIdMap().get(selectedDashboardTeamId);

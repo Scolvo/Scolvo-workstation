@@ -1,4 +1,5 @@
 CREATE INDEX user_teamId_idx ON user(teamId);
+CREATE INDEX user_email_idx ON user(email);
 
 CREATE INDEX workplace_teamId_idx ON workplace(teamId);
 CREATE INDEX workplace_name_idx ON workplace(name);

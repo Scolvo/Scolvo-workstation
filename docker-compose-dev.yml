@@ -15,4 +15,22 @@ services:
     storage:
         ports:
         - '9080:8080'
-
+    proxy:
+        volumes:
+        - ./assets/config/proxy/test-runner.conf:/etc/nginx/main_conf.d/test-runner.conf
+    test-runner:
+        restart: always
+        container_name: test-runner
+        image: nexus.scolvo.solutions:18088/scolvo/scolvo-test-runner:0.15.0
+        environment:
+        - DEFAULT_LANGUAGE=en
+        - LOGGING_CONFIG_PATH=/app/logback-spring.xml
+        - SCOLVO_PROJECT_ROOT=/app
+        - TESTING_LOG_LEVEL=DEBUG
+        volumes:
+        - ./assets:/app/assets
+        - ./assets/config/test-runner/logback-spring.xml:/app/logback-spring.xml
+        logging:
+          options:
+            max-size: "50m"
+            max-file: "4"

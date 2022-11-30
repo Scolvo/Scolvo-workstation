@@ -1,0 +1,3 @@
+ALTER TABLE user ADD role TEXT;
+ALTER TABLE user ADD username TEXT;
+ALTER TABLE user ADD status TEXT;

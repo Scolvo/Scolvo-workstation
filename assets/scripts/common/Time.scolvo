@@ -1,0 +1,31 @@
+// ###############################
+// Time related functions
+// ###############################
+
+// The time-zone of the Meeting Rooms and Workstations are in CENTRAL_TIME_ZONE.
+// The lists and time values are all converted to this zone.
+var CENTRAL_TIME_ZONE = "Europe/Budapest";
+
+function getDayStartForLocalTimeZone(day) {
+    return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 00:00", "yyyy-MM-dd HH:mm");
+}
+
+function getDayStartForCentralTimeZone(day) {
+    return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 00:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
+}
+
+function getReservationStartForCentralTimeZone(day) {
+    return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 08:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
+}
+
+function getDayEndForCentralTimeZone(day) {
+    return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 23:59", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
+}
+
+function getReservationEndForCentralTimeZone(day) {
+    return parseStringToDate(dateToString(day, "yyyy-MM-dd") + " 19:00", "yyyy-MM-dd HH:mm", CENTRAL_TIME_ZONE);
+}
+
+function getDateStringAtCentralTimeZone(date) {
+    return dateToString(date, "yyyy.MM.dd. HH:mm", CENTRAL_TIME_ZONE);
+}

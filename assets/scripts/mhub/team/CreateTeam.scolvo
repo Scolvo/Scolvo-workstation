@@ -1,83 +1,98 @@
-var uploadedTeamMapPath;
-var teamName;
-var teamLocation;
-var createdTeamId;
+
+var createTeamData = {};
+var createTeamUploadedTeamMapPath;
 
 function displayCreateTeamPage(originId) {
-  var data = {
-    "CreateTeamPage": {
-      "CreateTeamForm": {}
-    }
-  };
-  display(CreateTeamPage, data, originId);
+  debug("Creating new team ...");
+  createTeamUploadedTeamMapPath = null;
+  createTeamData = {};
+
+  var events = [
+    createValueChangeSourceEvent("NameInput", "CreateTeamNameChanged"),
+    createValueChangeSourceEvent("LocationInput", "CreateTeamLocationChanged"),
+    createValueChangeSourceEvent("MapPictureUploadField", "CreateTeamMapPictureUploadFieldChanged"),
+    createClickSourceEvent("SaveCreateTeam", "SaveCreateTeamClicked")
+  ];
+
+  display(CreateTeamPage, {}, originId, events);
 }
 
 page CreateTeamPage {
   layout: vertical;
   template: general;
 
-  form CreateTeamForm {
-    template: normal;
-    span: 24;
-    actions: [
-      SaveTeam
-    ]
-    fields: [
-      field Name => name formItemInputNormal,
-      field Location => location formItemInputNormal,
-      field UploadMap => uploadMap formItemUploadSingle
-    ]
+  inputField NameInput {
+    inputType: text;
+  }
+
+  inputField LocationInput {
+    inputType: text;
+  }
+
+  inputField MapPictureUploadField {
+    template: inputFieldSimple;
+    inputType: upload;
+  }
+
+  button SaveCreateTeam {
+    template: primary;
   }
 }
 
 function onCreateTeamPageLoaded(originId) {}
 
-function onSaveTeam(originId) {
-  var teamData = $IN.data;
-  var teamalidationResult = validateTeamData(teamData, originId);
-  if (teamalidationResult.messages.size() != 0) {
-    publish(teamalidationResult);
+function onCreateTeamNameChanged(originId) {
+  createTeamData.put("name", $IN.data.value);
+  debug("Name is now: " + createTeamData.name);
+}
+
+function onCreateTeamLocationChanged(originId) {
+  createTeamData.put("location", $IN.data.value);
+  debug("Location is now: " + createTeamData.location);
+}
+
+function onCreateTeamMapPictureUploadFieldChanged(originId) {
+  createTeamData.put("uploadMap", $IN.data.value);
+  debug("uploadMap is now: " + createTeamData.uploadMap);
+}
+
+function onSaveCreateTeamClicked(originId) {
+  debug("TeamData to save: " + createTeamData);
+  if (!validateCreateTeamData(createTeamData, originId)) {
     return null;
   }
-  createdTeamId = uuid();
 
-  if (teamData.UploadMap != null && teamData.UploadMap.fileName != null) {
+  createTeamData.put("id", uuid());
+  debug("The data to be created has been validated and extended: " + createTeamData);
 
-    uploadedTeamMapPath = createTeamMapRelativePath(createdTeamId, teamData.UploadMap.fileName);
-    teamName = teamData.Name;
-    teamLocation = teamData.Location;
-    documentPut(originId, uploadedTeamMapPath, teamData.UploadMap.absolutePath, "TeamMapUploadSuccess", "TeamMapUploadFailure");
-
+  if (createTeamData.uploadMap != null && createTeamData.uploadMap.originalFileName != null) {
+    createTeamUploadedTeamMapPath = createTeamMapRelativePath(createTeamData.id, createTeamData.uploadMap.originalFileName);
+    documentPut(originId, createTeamUploadedTeamMapPath, createTeamData.uploadMap.absolutePath, "CreateTeamMapUploadSuccess", "TeamMapUploadFailure");
   } else {
-    var teamDao = {
-      "id": createdTeamId,
-      "name": teamData.Name,
-      "location": teamData.Location,
-      "changeType": "INSERT"
-    };
-    saveTeamDao(teamDao);
+    saveTeamDao(createTeamData);
   }
 }
 
 function saveTeamDao(teamDao) {
 
-  insertTypeDefinition("team", teamDao);
-  sendDataChange("team", [teamDao]);
-
-  fireEvent(createRefreshItemTargetEvent("TeamsList", createTeamsListData()), "TeamsPage");
-  finishPage("CreateTeamPage" ,originId);
-}
-
-function onTeamMapUploadSuccess(originId) {
-
-  var teamDao = {
-    "id": createdTeamId,
-    "name": teamName,
-    "location": teamLocation,
-    "mapPicturePath": uploadedTeamMapPath,
+  var dao={
+    "id": teamDao.id,
+    "name": teamDao.name,
+    "location": teamDao.location,
+    "mapPicturePath": teamDao.mapPicturePath,
     "changeType": "INSERT"
   };
-  saveTeamDao(teamDao);
 
+  insertTypeDefinition("team", dao);
+  sendDataChange("team", [dao]);
+
+  fireEvent(createRefreshItemTargetEvent("TeamsList", createTeamsListData()), "TeamsPage");
+  finishPage("CreateTeamPage", originId);
+}
+
+function onCreateTeamMapUploadSuccess(originId) {
+  createTeamData.put("mapPicturePath", createTeamUploadedTeamMapPath);
   publishNotificationMessage(originId, DICTIONARY.uploadSuccess_msg);
+
+  saveTeamDao(createTeamData);
 }

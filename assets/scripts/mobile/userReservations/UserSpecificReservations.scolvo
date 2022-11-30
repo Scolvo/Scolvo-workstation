@@ -71,8 +71,8 @@ function resolveReservationText(reservationDao, workstations, meetingRooms, team
 page UserSpecificReservationsPage {
   layout: vertical;
   template: general;
-  settingsVisible: true;
-  scolvoMenuVisible: true;
+  settingsVisible: false;
+  scolvoMenuVisible: false;
 
   button UserVisibleCheckBox {
     template: checkbox;

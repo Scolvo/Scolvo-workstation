@@ -1,61 +1,92 @@
-var uploadedMeetingRoomMapPath;
-var meetingRoomName;
-var meetingRoomLocation;
-var meetingRoomCapacity;
-var createdMeetingRoomId;
+
+var createMeetingRoomData;
+var createMeetingRoomUploadMapPath;
 
 function displayCreateMeetingRoomPage(originId) {
-  var data = {
-    "CreateMeetingRoomPage": {
-      "CreateMeetingRoomForm": {}
-    }
+  createMeetingRoomUploadMapPath = null;
+  createMeetingRoomData = {
+    "id": uuid()
   };
-  display(CreateMeetingRoomPage, data, originId);
+  var events = [
+    createValueChangeSourceEvent("NameInput", "CreateMeetingRoomNameChanged"),
+    createValueChangeSourceEvent("LocationInput", "CreateMeetingRoomLocationChanged"),
+    createValueChangeSourceEvent("CapacityInput", "CreateMeetingRoomCapacityChanged"),
+    createValueChangeSourceEvent("MapPictureUploadField", "CreateMeetingRoomMapPictureUploadFieldChanged"),
+    createClickSourceEvent("SaveMeetingRoom", "CreateMeetingRoomSaveMeetingRoomClicked")
+  ];
+  display(CreateMeetingRoomPage, {}, originId, events);
 }
 
 page CreateMeetingRoomPage {
   layout: vertical;
   template: general;
 
-  form CreateMeetingRoomForm {
-    template: normal;
-    span: 24;
-    actions: [
-      SaveMeetingRoom
-    ]
-    fields: [
-      field Name => name formItemInputNormal,
-      field Location => location formItemInputNormal,
-      field Capacity => capacity formItemInputNormal,
-      field UploadMap => uploadMap formItemUploadSingle
-    ]
+  inputField NameInput {
+    inputType: text;
+  }
+
+  inputField LocationInput {
+    inputType: text;
+  }
+
+  inputField CapacityInput {
+    inputType: number;
+  }
+
+  inputField MapPictureUploadField {
+    template: inputFieldSimple;
+    inputType: upload;
+  }
+
+  button SaveMeetingRoom {
+    template: primary;
   }
 }
 
 function onCreateMeetingRoomPageLoaded(originId) {}
 
-function onSaveMeetingRoom(originId) {
-  var meetingRoomData = $IN.data;
-  var userValidationResult = validateMeetingRoomData(meetingRoomData, originId);
-  if (userValidationResult.messages.size() != 0) {
-    publish(userValidationResult);
+function onCreateMeetingRoomNameChanged(originId) {
+  createMeetingRoomData.put("name", $IN.data.value);
+}
+
+function onCreateMeetingRoomLocationChanged(originId) {
+  createMeetingRoomData.put("location", $IN.data.value);
+}
+
+function onCreateMeetingRoomCapacityChanged(originId) {
+  createMeetingRoomData.put("capacity", $IN.data.value);
+}
+
+function onCreateMeetingRoomMapPictureUploadFieldChanged(originId) {
+  createMeetingRoomData.put("uploadMap", $IN.data.value);
+}
+
+function validateMeetingRoomData(meetingRoomData) {
+  var isNameValid = validateMeetinRoomNameField(meetingRoomData, "NameInput", "CreateMeetingRoomPage");
+  var isLocationValid = validateMeetinRoomLocationField(meetingRoomData, "LocationInput", "CreateMeetingRoomPage");
+  var isCapacityValid = validateMeetingRoomCapacityField(meetingRoomData, "CapacityInput", "CreateMeetingRoomPage");
+  var isUploadMapValid = true;
+  if (meetingRoomData.uploadMap != null) {
+    isUploadMapValid = validateMeetingRoomUploadMapField(meetingRoomData, "MapPictureUploadField", "CreateMeetingRoomPage");
+  }
+  return isNameValid && isLocationValid && isCapacityValid && isUploadMapValid;
+}
+
+function onCreateMeetingRoomSaveMeetingRoomClicked(originId) {
+  if (!validateMeetingRoomData(createMeetingRoomData)) {
     return null;
   }
-  createdMeetingRoomId = uuid();
-  if (meetingRoomData.UploadMap != null && meetingRoomData.UploadMap.fileName != null) {
 
-    uploadedMeetingRoomMapPath = createMeetingRoomMapRelativePath(createdMeetingRoomId, meetingRoomData.UploadMap.fileName);
-    meetingRoomName = meetingRoomData.Name;
-    meetingRoomLocation = meetingRoomData.Location;
-    meetingRoomCapacity = parseNumber(meetingRoomData.Capacity);
-    documentPut(originId, uploadedMeetingRoomMapPath, meetingRoomData.UploadMap.absolutePath, "MeetingRoomMapUploadSuccess", "MeetingRoomMapUploadFailure");
+  if (createMeetingRoomData.uploadMap != null && createMeetingRoomData.uploadMap.originalFileName != null) {
+    createMeetingRoomUploadMapPath = createMeetingRoomMapRelativePath(createMeetingRoomData.id, createMeetingRoomData.uploadMap.originalFileName);
+    documentPut(originId, createMeetingRoomUploadMapPath, createMeetingRoomData.uploadMap.absolutePath, "CreateMeetingRoomMapUploadSuccess", "MeetingRoomMapUploadFailure");
 
   } else {
     var meetingRoomDao = {
-      "id": createdMeetingRoomId,
-      "name": meetingRoomData.Name,
-      "location": meetingRoomData.Location,
-      "capacity": parseNumber(meetingRoomData.Capacity),
+      "id": createMeetingRoomData.id,
+      "name":createMeetingRoomData.name,
+      "location": createMeetingRoomData.location,
+      "capacity": createMeetingRoomData.capacity,
       "changeType": "INSERT"
     };
     saveMeetingRoomDao(meetingRoomDao);
@@ -65,21 +96,21 @@ function onSaveMeetingRoom(originId) {
 function saveMeetingRoomDao(meetingRoomDao) {
   insertTypeDefinition("meetingRoom", meetingRoomDao);
   sendDataChange("meetingRoom", [meetingRoomDao]);
-  fireEvent(createRefreshItemTargetEvent("MeetingRoomsList", createMeetingRoomsListData()), "MeetingRoomsPage");
+
+  refreshMeetingRoomsPageMeetingRoomsList();
   finishPage("CreateMeetingRoomPage" ,originId);
 }
 
-function onMeetingRoomMapUploadSuccess(originId) {
-  debug("After upoad: " + $IN.data);
-
+function onCreateMeetingRoomMapUploadSuccess(originId) {
   var meetingRoomDao = {
-    "id": createdMeetingRoomId,
-    "name": meetingRoomName,
-    "location": meetingRoomLocation,
-    "capacity": meetingRoomCapacity,
-    "mapPicturePath": uploadedMeetingRoomMapPath,
+    "id": createMeetingRoomData.id,
+    "name": createMeetingRoomData.name,
+    "location": createMeetingRoomData.location,
+    "capacity": createMeetingRoomData.capacity,
+    "mapPicturePath": createMeetingRoomUploadMapPath,
     "changeType": "INSERT"
   };
-  saveMeetingRoomDao(meetingRoomDao);
+
   publishNotificationMessage(originId, DICTIONARY.uploadSuccess_msg);
+  saveMeetingRoomDao(meetingRoomDao);
 }

@@ -19,6 +19,9 @@ var SUPPORTED_DATA_CHANGE_TYPE_DEFINITIONS = {
   "meetingRoom": {
     "roles": [WORKER]
   },
+  "note": {
+    "roles": [WORKER]
+  },
 };
 
 function onDataChangeDg(originId) {
@@ -47,25 +50,21 @@ function onDataChangeDg(originId) {
       deleteTypeDefinition(typeDefinition, changeDao.id);
     }
   });
+  debug("Changes are executed.");
+  if (typeDefinition == "note") {
+    debug("Refreshing pages with note data ...");
+    refreshNotesSummaryPage();
+    refreshMeetingRoomNotesPage();
+  }
 }
 
 function insertChangeDao(typeDefinition, changeDao) {
-  if(typeDefinition == "reservation" && getReservationById(changeDao.id) == null) {
-    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
-  }
-  else if(typeDefinition == "user" && getUserById(changeDao.id) == null) {
-    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
-  }
-  else if(typeDefinition == "team" && getTeamById(changeDao.id) == null) {
-    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
+  insertOrReplaceTypeDefinition(typeDefinition, changeDao);
+  if(typeDefinition == "team" && getTeamById(changeDao.id) == null) {
     addTeamToTeamsData(changeDao);
-  }
-  else if(typeDefinition == "workplace" && getWorkstationById(changeDao.id) == null) {
-    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
+  } else if(typeDefinition == "workplace" && getWorkstationById(changeDao.id) == null) {
     addWorkstationToWorkstationsData(changeDao);
-  }
-  else if(typeDefinition == "meetingRoom" && getMeetingRoomById(changeDao.id) == null) {
-    insertOrReplaceTypeDefinition(typeDefinition, changeDao);
+  } else if(typeDefinition == "meetingRoom" && getMeetingRoomById(changeDao.id) == null) {
     addMeetingRoomToMeetingRoomsData(changeDao);
   }
 }
