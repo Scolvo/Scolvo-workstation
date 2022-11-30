@@ -1,0 +1,74 @@
+import {
+  /mobile/repository/NoteRepository,
+  /mobile/note/MeetingRoomNotes
+}
+
+function displayNotesSummaryPage(originId) {
+  var data = {
+    "NotesSummaryPage": {
+      "MeetingRoomNoteSummaryList": createNoteStatisticsData()
+    }
+  };
+  display(NotesSummaryPage, data, originId);
+}
+
+function createNoteStatisticsData() {
+  return getMeetingRoomsWithNotesStatistics().map(function (noteStatisticsDao) {
+    var icon_name = resolveNoteSummaryMeetingRoomIcon(noteStatisticsDao.unhandledNoteCount);
+    var subTextValue = DICTIONARY.page_NotesSummaryPage_NoNewNotesMessage;
+    if (noteStatisticsDao.unhandledNoteCount > 0) {
+      subTextValue = DICTIONARY.page_NotesSummaryPage_SubTextPrefix + ": " + noteStatisticsDao.unhandledNoteCount + " " + DICTIONARY.page_NotesSummaryPage_SubTextPostfix;
+    }
+    var meetingRoomStatisticsData = {
+      "id": noteStatisticsDao.id,
+      "complexName": noteStatisticsDao.complexName,
+      "unhandledNoteCount": noteStatisticsDao.unhandledNoteCount,
+      "notesStatusImage": icon_name,
+      "subText": subTextValue,
+    };
+    return meetingRoomStatisticsData;
+  });
+}
+
+function resolveNoteSummaryMeetingRoomIcon(numOfUncheckedNoted) {
+  if(numOfUncheckedNoted > 0) {
+    return "icon_sofa_warning";
+  }
+  return "icon_sofa_success";
+}
+
+page NotesSummaryPage {
+  layout: vertical;
+  template: general;
+  settingsVisible: false;
+  scolvoMenuVisible: true;
+
+  list MeetingRoomNoteSummaryList {
+    template: listVerticalNormal;
+    filterVisible: true;
+    span: 0;
+    itemTemplate: listItemMultiLine;
+
+    columns: [
+      mainText => complexName,
+      subText => subText,
+      prefixImage => notesStatusImage
+    ]
+  }
+}
+
+function onNotesSummaryPageLoaded(originId) {}
+
+function onMeetingRoomNoteSummaryListSelectionChanged(originId) {
+  debug("List selection change: " + $IN.data.id);
+  displayMeetingRoomNotesPage(originId, $IN.data.id);
+}
+
+function onMeetingRoomNoteSummaryListFilterCount(originId) {
+  return createNoteStatisticsData().size();
+}
+
+function refreshNotesSummaryPage() {
+  debug("Refreshing NotesSummaryPage ...");
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomNoteSummaryList", createNoteStatisticsData()), "NotesSummaryPage");
+}

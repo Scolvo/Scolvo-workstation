@@ -12,3 +12,34 @@ function getUsers() {
   .orderBy("name COLLATE NOCASE", "asc")
   .execute();
 }
+
+function getUsersByFilters(role, teamId, status) {
+  var query = select()
+  .from("user");
+
+  var crit = null;
+  if (role != null && role != "all") {
+    crit = eq("role", role);
+  }
+  if (teamId != null && teamId != "all") {
+    var teamCrit = eq("teamId", teamId);
+    if (crit != null) {
+      crit = and(crit, teamCrit);
+    } else {
+      crit = teamCrit;
+    }
+  }
+  if (status != null && status != "all") {
+    var statusCrit = eq("status", status);
+    if (crit != null) {
+      crit = and(crit, statusCrit);
+    } else {
+      crit = statusCrit;
+    }
+  }
+
+  if (crit != null) {
+    return query.where(crit).orderBy("name COLLATE NOCASE", "asc").execute();
+  }
+  return query.orderBy("name COLLATE NOCASE", "asc").execute();
+}

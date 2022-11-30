@@ -2,14 +2,6 @@ function sessionUserIsAdmin() {
   return getCurrentUser().realm_access.roles.contains("administrator") || getCurrentUser().realm_access.roles.contains("superAdministrator");
 }
 
-function sessionUserIsBusinessCenterManager() {
-  return getCurrentUser().realm_access.roles.contains("businessCenterManager");
-}
-
-function sessionUserIsCorporateManager() {
-  return getCurrentUser().realm_access.roles.contains("corporateManager");
-}
-
 function sessionUserIsAvaibleRoles(requireRoles) {
   var isAvaibleRole = false;
   var userRoles = getCurrentUser().realm_access.roles;

@@ -6,12 +6,10 @@ import {
   /mobile/meetingRoom/MeetingRoomDashboardPage,
   /mobile/userReservations/UserSpecificReservations,
   /mobile/DataChange,
-  /mobile/admin/NoFeaturePage
+  /mobile/admin/NoFeaturePage,
+  /mobile/note/NotesSummary
 }
 
-// The time-zone of the Meeting Rooms and Workstations are in CENTRAL_TIME_ZONE.
-// The lists and time values are all converted to this zone.
-var CENTRAL_TIME_ZONE = "Europe/Budapest";
 // Date lists are generated according to these numbers:
 var DATE_LIST_PREVIOUS_DAYS = 7;
 var DATE_LIST_PREVIOUS_DAYS_PLUS_ONE = DATE_LIST_PREVIOUS_DAYS + 1;
@@ -32,8 +30,8 @@ function onMeetingRooms(originId) {
   displayMeetingRoomsDashboardPage(originId);
 }
 
-function onMyReservations(originId) {
-  displayUserSpecificReservations(originId);
+function onNotes(originId) {
+  displayNotesSummaryPage(originId);
 }
 
 function onNoFeature(originId) {
@@ -50,7 +48,7 @@ menu defaultItem Dashboard {
   item MeetingRooms {
     roles: ["worker"]
   },
-  item MyReservations {
+  item Notes {
     roles: ["worker"]
   },
   item NoFeature {

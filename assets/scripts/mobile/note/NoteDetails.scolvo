@@ -1,0 +1,175 @@
+import {
+  /mobile/repository/NoteRepository,
+  /mobile/SessionUser
+}
+
+var noteDetailsId = null;
+var noteDetailsMeetingRoomId = null;
+var noteDetailsTitle = null;
+var noteDetailsNotes = null;
+var noteDetailsCreatedBy = null;
+
+function displayNoteDetails(noteId, meetingRoomId, originId) {
+  // Initialize page variables
+  noteDetailsId = noteId;
+  noteDetailsMeetingRoomId = meetingRoomId;
+  noteDetailsTitle = "";
+  noteDetailsNotes = "";
+  noteDetailsCreatedBy = sessionUserId();
+
+  if (noteDetailsId != null) {
+      var noteDao = getNoteById(noteDetailsId);
+      if (noteDao != null) {
+        debug("Set variables by noteDao ...");
+        noteDetailsTitle = noteDao.title;
+        noteDetailsNotes = noteDao.notes;
+        noteDetailsCreatedBy = noteDao.createdBy;
+      }
+  }
+
+  var headerTextValue = getHeaderTextValue(noteDetailsMeetingRoomId);
+  var actionEvents = [
+    createClickSourceEvent("SaveMeetingRoomNoteButton", "SaveMeetingRoomNoteButtonClicked"),
+    createValueChangeTargetEvent("NoteDetailsTitleInput", noteDetailsTitle),
+    createValueChangeSourceEvent("NoteDetailsTitleInput", "NoteDetailsTitleInputChanged"),
+    createValueChangeTargetEvent("NoteDetailsNotesInput", noteDetailsNotes),
+    createValueChangeSourceEvent("NoteDetailsNotesInput", "NoteDetailsNotesInputChanged"),
+  ];
+
+  if (isNoteDetailsInsert()) {
+
+    actionEvents.add(createVisibilityChangeTargetEvent("SaveMeetingRoomNoteButton", "visible"));
+    actionEvents.add(createEnableChangeTargetEvent("SaveMeetingRoomNoteButton", true));
+
+  } else if (isNoteDetailsUpdate()) {
+
+    actionEvents.add(createEnableChangeTargetEvent("SaveMeetingRoomNoteButton", true));
+    actionEvents.add(createVisibilityChangeTargetEvent("SaveMeetingRoomNoteButton", "visible"));
+
+  } else {
+    actionEvents.add(createVisibilityChangeTargetEvent("SaveMeetingRoomNoteButton", "gone"));
+
+    actionEvents.add(createEnableChangeTargetEvent("NoteDetailsTitleInput", false));
+    actionEvents.add(createEnableChangeTargetEvent("NoteDetailsNotesInput", false));
+  }
+
+  var data = {
+    "NoteDetailsPage": {
+      "headerText": headerTextValue
+    }
+  };
+  display(NoteDetailsPage, data, originId, actionEvents);
+}
+
+function getHeaderTextValue(meetingRoomId) {
+  var baseText = DICTIONARY.page_NoteDetailsPage_headerTextReadOnly;
+  if (isNoteDetailsInsert()) {
+    baseText = DICTIONARY.page_NoteDetailsPage_headerTextInsert;
+  } else if (isNoteDetailsUpdate()) {
+    baseText = DICTIONARY.page_NoteDetailsPage_headerTextUpdate;
+  }
+  return baseText;
+}
+
+page NoteDetailsPage {
+  layout: vertical;
+  template: popup;
+
+  inputField NoteDetailsTitleInput {
+    inputType: text;
+  }
+
+  inputField NoteDetailsNotesInput {
+    inputType: textArea;
+  }
+
+  button SaveMeetingRoomNoteButton {
+    template: primaryMedium;
+  }
+}
+
+function onNoteDetailsPageLoaded(originId) {}
+
+function onNoteDetailsNotesInputChanged(originId) {
+  noteDetailsNotes = $IN.data.message;
+  debug("New notes value: " + noteDetailsNotes);
+}
+
+function onNoteDetailsTitleInputChanged(originId) {
+  noteDetailsTitle = $IN.data.message;
+  debug("New title value: " + noteDetailsTitle);
+}
+
+function onSaveMeetingRoomNoteButtonClicked(originId) {
+  if (!validataNoteDetailsData()) {
+    return null;
+  }
+  var noteDao = {
+    "title": noteDetailsTitle,
+    "notes": noteDetailsNotes,
+  };
+  var noteDaoToSend = null;
+  if (isNoteDetailsInsert()) {
+    noteDao.put("id", uuid());
+    noteDao.put("meeting_room_id", noteDetailsMeetingRoomId);
+    noteDao.put("checked", false);
+    noteDao.put("createdBy", noteDetailsCreatedBy);
+    noteDao.put("createdAt", nowInMillis());
+    noteDao.put("changeType", "INSERT");
+    noteDaoToSend = noteDao.deepClone();
+    insertTypeDefinition("note", noteDao);
+  } else {
+    noteDao.put("id", noteDetailsId);
+    noteDao.put("changeType", "UPDATE");
+    noteDaoToSend = noteDao.deepClone();
+    updateTypeDefinition("note", noteDao.id, noteDao);
+  }
+  sendDataChange("note", [noteDaoToSend]);
+
+  refreshNotesSummaryPage();
+  refreshMeetingRoomNotesPage();
+  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.page_NoteDetailsPage_saved_successfully), originId);
+
+  finishPage("NoteDetailsPage", originId);
+}
+
+function isNoteDetailsInsert() {
+  return (noteDetailsId == null);
+}
+
+function isNoteDetailsUpdate() {
+  return (noteDetailsId != null && noteDetailsCreatedBy == sessionUserId());
+}
+
+function validataNoteDetailsData() {
+  var isValid = true;
+  if (!isNoteDetailsNotesValid()) {
+    isValid = false;
+  }
+  if (!isNoteDetailsTitleValid()) {
+    isValid = false;
+  }
+  return isValid;
+}
+
+function isNoteDetailsNotesValid() {
+  if (noteDetailsNotes == null || noteDetailsNotes.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent("NoteDetailsNotesInput", DICTIONARY.page_NoteDetailsPage_NoteDetailsNotesInput_empty_error_message), originId);
+    return false;
+  } else if (noteDetailsNotes.length() > 500) {
+    fireEvent(createErrorValueChangeTargetEvent("NoteDetailsNotesInput", DICTIONARY.page_NoteDetailsPage_NoteDetailsNotesInput_too_long_error_message), originId);
+    return false;
+  }
+  return true;
+}
+
+function isNoteDetailsTitleValid() {
+  if (noteDetailsTitle == null || noteDetailsTitle.isEmpty()) {
+    fireEvent(createErrorValueChangeTargetEvent("NoteDetailsTitleInput", DICTIONARY.page_NoteDetailsPage_NoteDetailsTitleInput_empty_error_message), originId);
+    return false;
+  } else if (noteDetailsTitle.length() > 50) {
+    fireEvent(createErrorValueChangeTargetEvent("NoteDetailsTitleInput", DICTIONARY.page_NoteDetailsPage_NoteDetailsTitleInput_too_long_error_message), originId);
+    return false;
+  }
+  return true;
+}

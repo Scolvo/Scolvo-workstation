@@ -1,0 +1,86 @@
+import {
+  /mhub/repository/NoteRepository
+}
+
+var noteDetailsId = null;
+var noteDetailsChecked = null;
+
+function displayNoteDetails(originId, noteId) {
+  noteDetailsId = noteId;
+  var noteDao = getNoteById(noteDetailsId);
+  if (noteDao != null) {
+    noteDetailsChecked = noteDao.checked;
+  }
+  var creatorUser = getUserById(noteDao.createdBy);
+  var creationTimeValue = getDateStringAtCentralTimeZone(noteDao.createdAt);
+  var actionEvents = [
+    createClickSourceEvent("SaveMeetingRoomNoteButton", "SaveMeetingRoomNoteButtonClicked"),
+    createValueChangeTargetEvent("NoteDetailsTitleInput", noteDao.title),
+    createEnableChangeTargetEvent("NoteDetailsTitleInput", false),
+    createValueChangeTargetEvent("NoteDetailsCreatedAtInput", creationTimeValue),
+    createEnableChangeTargetEvent("NoteDetailsCreatedAtInput", false),
+    createValueChangeTargetEvent("NoteDetailsCreatedByInput", creatorUser.name),
+    createEnableChangeTargetEvent("NoteDetailsCreatedByInput", false),
+    createValueChangeTargetEvent("NoteDetailsNotesInput", noteDao.notes),
+    createEnableChangeTargetEvent("NoteDetailsNotesInput", false),
+    createValueChangeSourceEvent("NoteDetailsCheckedInput", "NoteDetailsCheckedInputChanged")
+  ];
+
+  var pageData = {
+    "NoteDetailsPage": {
+      "NoteDetailsCheckedInputChecked": noteDetailsChecked
+    }
+  };
+  display(NoteDetailsPage, pageData, originId, actionEvents);
+}
+
+page NoteDetailsPage {
+  layout: vertical;
+  template: general;
+
+  inputField NoteDetailsTitleInput {
+    inputType: text;
+  }
+
+  inputField NoteDetailsCreatedAtInput {
+    inputType: text;
+  }
+
+  inputField NoteDetailsCreatedByInput {
+    inputType: text;
+  }
+
+  inputField NoteDetailsNotesInput {
+    inputType: textArea;
+  }
+
+  button NoteDetailsCheckedInput {
+    template: checkbox;
+  }
+
+  button SaveMeetingRoomNoteButton {
+    template: primaryMedium;
+  }
+}
+
+function onNoteDetailsPageLoaded(originId) {}
+
+function onNoteDetailsCheckedInputChanged(originId) {
+  noteDetailsChecked = $IN.data.state;
+  debug("New notes value: " + noteDetailsChecked);
+}
+
+function onSaveMeetingRoomNoteButtonClicked(originId) {
+  var noteDao = {
+    "id": noteDetailsId,
+    "checked": noteDetailsChecked,
+    "changeType": "UPDATE"
+  };
+  updateTypeDefinition("note", noteDao.id, noteDao);
+  sendDataChange("note", [noteDao]);
+
+  refreshMeetingRoomNotesPage();
+  refreshMeetingRoomsPageMeetingRoomsList();
+  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.page_NoteDetailsPage_saved_successfully), originId);
+  finishPage("NoteDetailsPage", originId);
+}

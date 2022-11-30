@@ -3,11 +3,21 @@ import {
 }
 
 function resolveTeam(teamId) {
-  var team = getTeamById(teamId);
+  var team = {"name": "-"};
+  if (teamId != null) {
+    team = getTeamById(teamId);
+  }
   if(team == null) {
     return "-";
   }
-  return team.get("name");
+  return team.name;
+}
+
+function resolveTeamName(teamName) {
+  if (teamName != null) {
+    return teamName;
+  }
+  return "-";
 }
 
 function getTeamOptions(selectedId) {
@@ -15,6 +25,28 @@ function getTeamOptions(selectedId) {
     return createSelectOption(teamDao.id, teamDao.name, teamDao.id == selectedId);
   });
 }
+
+function getTeamOptionsWithAll(selectedId) {
+  var result = [
+    createSelectOption("all", DICTIONARY.filter_all, "all" == selectedId)
+  ];
+  getTeams().each(function(teamDao) {
+    result.add(createSelectOption(teamDao.id, teamDao.name, teamDao.id == selectedId));
+  });
+  return result;
+}
+
+function getTeamOptionsWithAllAndNone(selectedId) {
+  var result = [
+    createSelectOption("all", DICTIONARY.filter_all, "all" == selectedId),
+    createSelectOption("none", DICTIONARY.filter_none, "none" == selectedId),
+  ];
+  getTeams().each(function(teamDao) {
+    result.add(createSelectOption(teamDao.id, teamDao.name, teamDao.id == selectedId));
+  });
+  return result;
+}
+
 
 function validateTeamForWorkplace(data, componentId, pageName) {
   if (data.canBeBooked == "yes" && (data.teamId == null || data.teamId.isEmpty())) {
@@ -24,19 +56,12 @@ function validateTeamForWorkplace(data, componentId, pageName) {
   return true;
 }
 
-function validateTeamId(result, data) {
-  if (data.Team == null || data.Team.isEmpty()) {
-    result.addMessage("ERROR", "Team", DICTIONARY.userValidationMsg_Team);
-  }
-}
-
-function validateTeam(data, componentId, pageName) {
-  if (data.role == ROLE_WORKER && (data.teamId == null || data.teamId.isEmpty())) {
+function validateTeamValue(value, role, componentId, pageName) {
+  if (role == ROLE_WORKER && (value == null || value.isEmpty())) {
     fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_Team), pageName);
     return false;
-  } else if (data.role == ROLE_ADMIN && data.teamId != null) {
+  } else if (role == ROLE_ADMIN && value != null) {
     fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_AdminMustNotHaveTeam), pageName);
-    error("Admin must not have team!");
     return false;
   }
 
@@ -54,15 +79,7 @@ function createTeamMapRelativePath(teamId, fileName) {
   return "team_maps/" + teamId + "/" + fileName;
 }
 
-function validateTeamName(result, data) {
-  if (data.Name == null || data.Name.isEmpty()) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamName);
-  } else if (data.Name.length() > 50) {
-    result.addMessage("ERROR", "Name", DICTIONARY.userValidationMsg_TeamNameTooLong);
-  }
-}
-
-function validateTeamNameB(data, componentId, pageName) {
+function validateTeamName(data, componentId, pageName) {
   if (data.name == null || data.name.isEmpty()) {
     fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_TeamName), pageName);
     return false;
@@ -74,15 +91,7 @@ function validateTeamNameB(data, componentId, pageName) {
   return true;
 }
 
-function validateTeamLocation(result, data) {
-  if (data.Location == null || data.Location.isEmpty()) {
-    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocation);
-  } else if (data.Location.length() > 50) {
-    result.addMessage("ERROR", "Location", DICTIONARY.userValidationMsg_TeamLocationTooLong);
-  }
-}
-
-function validateTeamLocationB(data, componentId, pageName) {
+function validateTeamLocation(data, componentId, pageName) {
   if (data.location == null || data.location.isEmpty()) {
     fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_TeamLocation), pageName);
     return false;
@@ -94,13 +103,7 @@ function validateTeamLocationB(data, componentId, pageName) {
   return true;
 }
 
-function validateTeamMapFileType(result, data) {
-  if(data.UploadMap.mimeType != "image/png" && data.UploadMap.mimeType != "image/jpg" && data.UploadMap.mimeType != "image/jpeg") {
-    result.addMessage("ERROR", "UploadMap", DICTIONARY.userValidationMsg_TeamMapInvalidType);
-  }
-}
-
-function validateTeamMapFileTypeB(data, componentId, pageName) {
+function validateTeamMapFileType(data, componentId, pageName) {
   if (data.uploadMap.mimeType != "image/png" && data.uploadMap.mimeType != "image/jpg" && data.uploadMap.mimeType != "image/jpeg") {
     fireEvent(createErrorValueChangeTargetEvent(componentId, DICTIONARY.userValidationMsg_TeamMapInvalidType), pageName);
     return false;
@@ -108,25 +111,25 @@ function validateTeamMapFileTypeB(data, componentId, pageName) {
   return true;
 }
 
-function validateTeamData(teamData, originId) {
-  var validationResult = com.scolvo.core.vm.action.display.FormValidationResult(originId);
-  validateTeamName(validationResult, teamData);
-  validateTeamLocation(validationResult, teamData);
-  if (teamData.UploadMap != null && teamData.UploadMap.fileName != null) {
-    validateTeamMapFileType(validationResult, teamData);
+function validateCreateTeamData(teamData, pageName) {
+  debug("Validating creating team data ...");
+  var nameIsValid = validateTeamName(teamData, "NameInput", pageName);
+  var locationIsValid = validateTeamLocation(teamData, "LocationInput", pageName);
+  var uploadMapIsValid = true;
+  if (teamData.uploadMap != null && teamData.uploadMap.originalFileName != null) {
+    uploadMapIsValid = validateTeamMapFileType(teamData, "MapPictureUploadField", pageName);
   }
-  return validationResult;
-}
 
+  return nameIsValid && locationIsValid && uploadMapIsValid;
+}
 
 function validateModifiedTeamData(teamData, pageName) {
   debug("Validating modified team data ...");
-  var nameIsValid = validateTeamNameB(teamData, "NameInput", pageName);
-  var locationIsValid = validateTeamLocationB(teamData, "LocationInput", pageName);
+  var nameIsValid = validateTeamName(teamData, "NameInput", pageName);
+  var locationIsValid = validateTeamLocation(teamData, "LocationInput", pageName);
   var uploadMapIsValid = true;
-  if (teamData.uploadMap != null && teamData.uploadMap.fileName != null) {
-    debug("Validating uploaded file ...");
-    uploadMapIsValid = validateTeamMapFileType(validationResult, teamData);
+  if (teamData.uploadMap != null && teamData.uploadMap.originalFileName != null) {
+    uploadMapIsValid = validateTeamMapFileType(teamData, "MapPictureUploadField", pageName);
   }
 
   return nameIsValid && locationIsValid && uploadMapIsValid;

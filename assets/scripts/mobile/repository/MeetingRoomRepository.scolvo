@@ -1,8 +1,20 @@
+
 function getMeetingRooms() {
   return select()
   .from("meetingRoom")
   .orderBy("name", "asc")
   .execute();
+}
+
+function getFirstMeetingRoom() {
+  var meetingRooms = select()
+  .from("meetingRoom")
+  .orderBy("name", "asc")
+  .execute();
+  if (!meetingRooms.isEmpty()) {
+    return meetingRooms.get(0);
+  }
+  return null;
 }
 
 function getMeetingRoomById(meetingRoomId) {
@@ -30,4 +42,16 @@ function getMeetingRoomByReservationId(reservationId) {
     return null;
   }
   return daos.get(0);
+}
+
+function getMeetingRoomsWithNotesStatistics() {
+  return select()
+  .selectAs("meetingRoom.id", "id")
+  .selectAs("meetingRoom.name || ' (' || meetingRoom.capacity || ')'", "complexName")
+  .selectAs("count(note.id)", "unhandledNoteCount")
+  .join("leftJoin", table("note"), and(custom("meetingRoom.id = note.meeting_room_id"), eq("note.checked", false)))
+  .from("meetingRoom")
+  .groupBy(["meetingRoom.id"])
+  .orderBy("meetingRoom.name", "asc")
+  .execute();
 }

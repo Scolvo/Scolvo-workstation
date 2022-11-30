@@ -31,6 +31,8 @@ do
 		shift ;;
 	-d|--development)
 		COMPOSE_FILES="${COMPOSE_FILES} -f docker-compose-dev.yml"
+		SERVICES_TO_START="${SERVICES_TO_START} test-runner"
+		SERVICES_TO_LOG="${SERVICES_TO_LOG} test-runner"
 		shift ;;
 	-na|--no-admin)
 		ADMIN=0
@@ -87,7 +89,7 @@ case "${ACTION}" in
 	docker-compose ${COMPOSE_FILES} build ${SERVICES_TO_START}
 	;;
 	logs)
-		docker-compose logs -f --tail=100 ${SERVICES_TO_LOG}
+		docker-compose ${COMPOSE_FILES} logs -f --tail=100 ${SERVICES_TO_LOG}
 		;;
 	fullLogs)
 		docker-compose ${COMPOSE_FILES} logs -f --tail=100

@@ -1,0 +1,17 @@
+
+function getNotesForMeetingRoom(meetingRoomId) {
+  return select()
+  .from("note")
+  .where(eq("meeting_room_id", meetingRoomId))
+  .orderBy("createdAt", "desc")
+  .execute();
+}
+
+function getNoteById(noteId) {
+  var noteDaos = select().from("note").where(eq("id", noteId)).execute();
+
+  if(noteDaos.isEmpty()) {
+    return null;
+  }
+  return noteDaos.get(0);
+}

@@ -32,15 +32,16 @@ page TeamsPage {
 
   list TeamsList {
     template: normal;
-    itemTemplate: grid;
+    itemTemplate: listItemCard;
     span: 0;
     filterVisible: true;
+
     actions: [
       CreateTeam
     ]
     columns: [
-      name,
-      location
+      mainText => name,
+      text => location,
     ]
   }
 }
@@ -48,8 +49,10 @@ page TeamsPage {
 function onTeamsPageLoaded(originId) {}
 
 function onModifyTeam(originId) {
-  displayModifyTeamPage(originId, $IN.recordId);
+  displayModifyTeamPage(originId, $IN.data.id);
 }
+
+function onTeamsListSelectionChanged(originId) {}
 
 function onCreateTeam(originId) {
   displayCreateTeamPage(originId);

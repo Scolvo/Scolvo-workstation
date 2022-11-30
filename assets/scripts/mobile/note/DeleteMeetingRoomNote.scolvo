@@ -1,0 +1,52 @@
+
+var meetingRoomNoteDeleteId = null;
+
+function displayDeleteMeetingRoomNotePopup(originId, noteId) {
+  meetingRoomNoteDeleteId = noteId;
+  var actionEvents = [
+    createClickSourceEvent("DontDeleteMeetingRoomNoteButton", "DontDeleteMeetingRoomNoteButtonClicked"),
+    createClickSourceEvent("DeleteMeetingRoomNoteButton", "DeleteMeetingRoomNoteButtonClicked"),
+  ];
+  display(DeleteMeetingRoomNotePopup, {}, originId, actionEvents);
+}
+
+page DeleteMeetingRoomNotePopup {
+  layout: vertical;
+  template: popup;
+
+  label ConfirmationLabel {
+    template: heading4Primary|multi;
+    alignment: left;
+  }
+
+  container DeleteMeetingRoomNoteButtonContainer {
+    layout: horizontalButtonGroup;
+
+    button DontDeleteMeetingRoomNoteButton {
+      template: secondaryMedium;
+    }
+
+    button DeleteMeetingRoomNoteButton {
+      template: primaryMedium;
+    }
+  }
+}
+
+function onDeleteMeetingRoomNotePopupCancel(originId) {}
+
+function onDontDeleteMeetingRoomNoteButtonClicked(originId) {
+  finishPage("DeleteMeetingRoomNotePopup", originId);
+}
+
+function onDeleteMeetingRoomNoteButtonClicked(originId) {
+  deleteTypeDefinition("note", meetingRoomNoteDeleteId);
+  var noteDao = {
+    "id": meetingRoomNoteDeleteId,
+    "changeType": "DELETE"
+  };
+  sendDataChange("note", [noteDao]);
+  refreshMeetingRoomNotesPage();
+  refreshNotesSummaryPage();
+  fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.page_DeleteMeetingRoomNotePopup_delete_success_message), originId);
+  finishPage("DeleteMeetingRoomNotePopup", originId);
+}

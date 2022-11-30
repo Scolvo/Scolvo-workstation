@@ -1,0 +1,258 @@
+import {
+  /mhub/repository/UserRepository
+}
+
+var userDetailsUserData = null;
+var userDetailsOriginalUserData = null;
+var userDetailsPassword = null;
+var userDetailsConfirmPassword = null;
+
+function displayUserDetails(userId, originId) {
+
+  userDetailsUserData = {};
+  userDetailsOriginalUserData = null;
+  userDetailsPassword = null;
+  userDetailsConfirmPassword = null;
+
+  if (userId != null) {
+      userDetailsUserData = getUserById(userId);
+      userDetailsOriginalUserData = userDetailsUserData.deepClone();
+      debug("User Details User Data is: " + userDetailsUserData);
+  }
+
+  var actionEvents = [
+    createClickSourceEvent("SaveUserDetailsButton", "SaveUserDetailsButtonClicked"),
+    createValueChangeTargetEvent("UserDetailsNameInput", userDetailsUserData.name),
+    createValueChangeSourceEvent("UserDetailsNameInput", "UserDetailsNameInputChanged"),
+    createValueChangeTargetEvent("UserDetailsRoleInput", getRoleOptions(userDetailsUserData.role)),
+    createValueChangeSourceEvent("UserDetailsRoleInput", "UserDetailsRoleInputChanged"),
+    createValueChangeTargetEvent("UserDetailsTeamInput", getTeamOptions(userDetailsUserData.teamId)),
+    createValueChangeSourceEvent("UserDetailsTeamInput", "UserDetailsTeamInputChanged"),
+    createValueChangeTargetEvent("UserDetailsEmailInput", userDetailsUserData.email),
+    createValueChangeSourceEvent("UserDetailsEmailInput", "UserDetailsEmailInputChanged"),
+    createValueChangeTargetEvent("UserDetailsUsernameInput", userDetailsUserData.username),
+    createValueChangeSourceEvent("UserDetailsUsernameInput", "UserDetailsUsernameInputChanged"),
+    createValueChangeSourceEvent("UserDetailsPasswordInput", "UserDetailsPasswordInputChanged"),
+    createValueChangeSourceEvent("UserDetailsConfirmPasswordInput", "UserDetailsConfirmPasswordInputChanged"),
+  ];
+  if (userDetailsUserData.role == ROLE_ADMIN) {
+    actionEvents.add(createVisibilityChangeTargetEvent("UserDetailsTeamInput", "gone"));
+  }
+
+  var headerTextValue = getUserDetailsPageHeaderText();
+  var pageData = {
+    "UserDetailsPage": {
+      "headerText": headerTextValue
+    }
+  };
+  display(UserDetailsPage, pageData, originId, actionEvents);
+}
+
+function getUserDetailsPageHeaderText() {
+  if (isUserDetailsInsert()) {
+    return DICTIONARY.page_UserDetailsPage_headerText_insert;
+  }
+  return DICTIONARY.page_UserDetailsPage_headerText_update;
+}
+
+page UserDetailsPage {
+  layout: vertical;
+  template: general;
+
+  inputField UserDetailsNameInput {
+    inputType: text;
+  }
+  inputField UserDetailsTeamInput {
+    inputType: selectOne;
+  }
+  inputField UserDetailsRoleInput {
+    inputType: selectOne;
+  }
+  inputField UserDetailsEmailInput {
+    inputType: text;
+  }
+  inputField UserDetailsUsernameInput {
+    inputType: text;
+  }
+  inputField UserDetailsPasswordInput {
+    inputType: password;
+  }
+  inputField UserDetailsConfirmPasswordInput {
+    inputType: password;
+  }
+
+  button SaveUserDetailsButton {
+    template: primaryMedium;
+  }
+}
+
+function onUserDetailsPageLoaded(originId) {}
+
+function onUserDetailsNameInputChanged(originId) {
+  userDetailsUserData.put("name", $IN.data.message);
+  debug("New name value: " + userDetailsUserData.name);
+}
+
+function onUserDetailsRoleInputChanged(originId) {
+  changeRoleAndUpateTeamInput($IN.data.value);
+}
+
+function changeRoleAndUpateTeamInput(newRoleValue) {
+  userDetailsUserData.put("role", newRoleValue);
+  debug("New role value: " + userDetailsUserData.role);
+
+  fireEvent(createErrorValueChangeTargetEvent("UserDetailsRoleInput", ""), "UserDetailsPage");
+  if (userDetailsUserData.role == ROLE_ADMIN) {
+    debug("Hide team input!");
+    fireEvent(createVisibilityChangeTargetEvent("UserDetailsTeamInput", "gone"), "UserDetailsPage");
+    userDetailsUserData.remove("teamId");
+  } else {
+    fireEvent(createValueChangeTargetEvent("UserDetailsTeamInput", getTeamOptions(null)), "UserDetailsPage");
+    fireEvent(createVisibilityChangeTargetEvent("UserDetailsTeamInput", "visible"), "UserDetailsPage");
+  }
+}
+
+function onUserDetailsTeamInputChanged(originId) {
+  changeUserDetailsTeamInput($IN.data.value);
+}
+
+function changeUserDetailsTeamInput(newTeamId) {
+  userDetailsUserData.put("teamId", newTeamId);
+  debug("New teamId value: " + userDetailsUserData.teamId);
+  fireEvent(createErrorValueChangeTargetEvent("UserDetailsTeamInput", ""), "UserDetailsPage");
+}
+
+function onUserDetailsEmailInputChanged(originId) {
+  userDetailsUserData.put("email", $IN.data.message);
+  debug("New email value: " + userDetailsUserData.email);
+}
+
+function onUserDetailsUsernameInputChanged(originId) {
+  userDetailsUserData.put("username", $IN.data.message);
+  debug("New username value: " + userDetailsUserData.username);
+}
+
+function onUserDetailsPasswordInputChanged(originId) {
+  userDetailsPassword = $IN.data.message;
+}
+
+function onUserDetailsConfirmPasswordInputChanged(originId) {
+  userDetailsConfirmPassword = $IN.data.message;
+}
+
+function onSaveUserDetailsButtonClicked(originId) {
+  if (!validateUserDetailsData()) {
+    return null;
+  }
+
+  if (isUserDetailsInsert()) {
+    var userDao = {
+      "id": uuid(),
+      "name": userDetailsUserData.name,
+      "teamId": userDetailsUserData.teamId,
+      "role": userDetailsUserData.role,
+      "email": userDetailsUserData.email,
+      "username": userDetailsUserData.username,
+      "status": "active",
+      "visible": false,
+      "changeType": "INSERT"
+    };
+    var requestData = {
+      "type": "userDataValidationRequest",
+      "requestId": getRequestId(),
+      "userDao": userDao,
+      "operation": "create"
+    };
+    sendDataChange("request", [requestData]);
+  } else {
+    var userDao = {
+      "id": userDetailsUserData.id,
+      "name": userDetailsUserData.name,
+      "email": userDetailsUserData.email,
+      "teamId": userDetailsUserData.teamId,
+      "username": userDetailsUserData.username,
+      "role": userDetailsUserData.role,
+      "changeType": "UPDATE"
+    };
+    if (userDetailsUserData.email == userDetailsOriginalUserData.email) {
+      modifyUser(userDao, true);
+    } else {
+      var requestData = {
+        "type": "userDataValidationRequest",
+        "requestId": getRequestId(),
+        "userDao": userDao,
+        "operation": "modify"
+      };
+      sendDataChange("request", [requestData]);
+    }
+  }
+}
+
+function saveUser(userDao, isEmailAddressAvailable) {
+  debug("Backend has responsed to request, email address available: " + isEmailAddressAvailable);
+  if (!isEmailAddressAvailable) {
+    fireEvent(createErrorValueChangeTargetEvent("UserDetailsEmailInput", DICTIONARY.validationMsg_mailAlreadyExists), "UserDetailsPage");
+  } else {
+    insertTypeDefinition("user", userDao);
+    userDao.put("password", userDetailsPassword);
+    sendDataChange("user", [userDao]);
+
+    usersPageRefreshUsersList();
+    fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.page_UsersDetailsPage_saved_successfully), originId);
+    finishPage("UserDetailsPage", originId);
+  }
+}
+
+function modifyUser(userDao, isEmailAddressAvailable) {
+  if (!isEmailAddressAvailable) {
+    fireEvent(createErrorValueChangeTargetEvent("UserDetailsEmailInput", DICTIONARY.validationMsg_mailAlreadyExists), "UserDetailsPage");
+  } else {
+    updateTypeDefinition("user", userDao.id, userDao);
+    if (userDetailsPassword != null) {
+      userDao.put("password", userDetailsPassword);
+    }
+    var cloned = userDao.deepClone();
+    // Null bug in deepClone!
+    cloned.put("teamId", userDao.teamId);
+    sendDataChange("user", [cloned]);
+
+    usersPageRefreshUsersList();
+    fireEvent(createShortToastNotificationTargetEvent(DICTIONARY.page_UsersDetailsPage_saved_successfully), originId);
+    finishPage("UserDetailsPage", originId);
+  }
+}
+
+function isUserDetailsInsert() {
+  return (userDetailsUserData.id == null);
+}
+
+function isUserDetailsUpdate() {
+  return (userDetailsUserData.id != null);
+}
+
+function validateUserDetailsData() {
+  var isValid = true;
+  if (!validateUserNameValue(userDetailsUserData.name, "UserDetailsNameInput", "UserDetailsPage")) {
+    isValid = false;
+  }
+  if (!validateUserMailValue(userDetailsUserData.email, "UserDetailsEmailInput", "UserDetailsPage")) {
+    isValid = false;
+  }
+  if (!validateTeamValue(userDetailsUserData.teamId, userDetailsUserData.role, "UserDetailsTeamInput", "UserDetailsPage")) {
+    isValid = false;
+  }
+  if (!validateUserRoleValue(userDetailsUserData.role, "UserDetailsRoleInput", "UserDetailsPage")) {
+    isValid = false;
+  }
+  if (isUserDetailsInsert() || (userDetailsOriginalUserData != null && userDetailsOriginalUserData.username != userDetailsUserData.username)) {
+    if (!validateUsernameValue(userDetailsUserData.username, "UserDetailsUsernameInput", "UserDetailsPage")) {
+      isValid = false;
+    }
+  }
+  if (isUserDetailsInsert() || (userDetailsPassword != null)) {
+    if (!validateUserPasswordWithValues(userDetailsPassword, userDetailsConfirmPassword, "UserDetailsPasswordInput", "UserDetailsConfirmPasswordInput", "UserDetailsPage")) {
+      isValid = false;
+    }
+  }
+  return isValid;
+}

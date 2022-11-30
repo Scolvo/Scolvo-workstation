@@ -21,7 +21,7 @@ page MeetingRoomsPage {
 
   list MeetingRoomsList {
     template: normal;
-    itemTemplate: grid;
+    itemTemplate: listItemCard;
     span: 0;
     filterVisible: true;
 
@@ -29,31 +29,47 @@ page MeetingRoomsPage {
       CreateMeetingRoom
     ]
     columns: [
-      name,
-      location,
-      capacity
+      mainText => name,
+      text => text
     ]
   }
 }
 
+function refreshMeetingRoomsPageMeetingRoomsList() {
+  fireEvent(createRefreshItemTargetEvent("MeetingRoomsList", createMeetingRoomsListData()), "MeetingRoomsPage");
+}
+
 function createMeetingRoomsListData() {
   return getMeetingRooms().map(function (meetingRoomDao) {
+    var daoActions = ["ModifyMeetingRoom"];
+    if (getUnhandledNotesCountForMeetingRoom(meetingRoomDao.id) > 0) {
+      daoActions.add("ShowMeetigRoomNotes");
+    }
+    var textValue = DICTIONARY.page_MeetingRoomsPage_MeetingRoomsList_location_label + ": " + meetingRoomDao.location + " | " + 
+      DICTIONARY.page_MeetingRoomsPage_MeetingRoomsList_capacity_label + ": " + meetingRoomDao.capacity;
     return {
       "id": meetingRoomDao.id,
       "name": meetingRoomDao.name,
       "location": meetingRoomDao.location,
       "capacity": meetingRoomDao.capacity,
-      "actions": ["ModifyMeetingRoom"]
+      "text": textValue,
+      "actions": daoActions
     };
   });
 }
 
 function onMeetingRoomsPageLoaded(originId) {}
 
+function onMeetingRoomsListSelectionChanged(originId) {}
+
 function onCreateMeetingRoom(originId) {
   displayCreateMeetingRoomPage(originId);
 }
 
 function onModifyMeetingRoom(originId) {
-  displayModifyMeetingRoomPage(originId, $IN.recordId);
+  displayModifyMeetingRoomPage(originId, $IN.data.id);
+}
+
+function onShowMeetigRoomNotes(originId) {
+  displayMeetingRoomNotesPage(originId, $IN.data.id);
 }
